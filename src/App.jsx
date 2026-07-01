@@ -32,21 +32,30 @@ export default function App() {
       <main className="flex-1">
         <CurrentView />
       </main>
-      <footer className="text-center text-xs text-neutral-300 py-6">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <button onClick={() => goTo('about')} className="hover:text-neutral-500 transition">
+      <footer className="text-center border-t border-neutral-100 py-6 mt-4">
+        <div className="flex items-center justify-center gap-4 mb-3">
+          <button
+            onClick={() => goTo('about')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
             À propos
           </button>
-          <span aria-hidden>·</span>
-          <button onClick={() => goTo('faq')} className="hover:text-neutral-500 transition">
+          <button
+            onClick={() => goTo('faq')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
             FAQ
           </button>
-          <span aria-hidden>·</span>
-          <button onClick={() => goTo('legal')} className="hover:text-neutral-500 transition">
+          <button
+            onClick={() => goTo('legal')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
             Mentions légales
           </button>
         </div>
-        FrigoMind — MVP · analyse IA via Google Gemini (gratuit)
+        <p className="text-xs text-neutral-400">
+          FrigoMind — MVP · analyse IA via Google Gemini (gratuit)
+        </p>
       </footer>
     </div>
   )
