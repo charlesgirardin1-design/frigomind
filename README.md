@@ -5,7 +5,7 @@ MVP d'une application food tech : **Photo → Ingrédients → Recettes**, en 3 
 ## Concept
 
 1. L'utilisateur prend en photo son frigo (ou sa table).
-2. Une IA (simulée) détecte les aliments visibles.
+2. Une IA détecte réellement certains aliments visibles (100% dans le navigateur, gratuite).
 3. L'utilisateur valide/corrige la liste d'ingrédients.
 4. L'app propose 3 à 5 recettes réalistes, personnalisables (temps, type de cuisine, régime).
 
@@ -16,7 +16,7 @@ Bonus inclus : mode anti-gaspi (priorise les ingrédients périssables), bouton 
 - **React 18 + Vite** — build rapide, aucun serveur backend requis
 - **Tailwind CSS** — design system minimaliste (vert "fraîcheur" / orange "gourmand")
 - Aucune dépendance de routing ou de state management externe : Context + `useReducer` maison, routage par état local
-- IA simulée via `src/data/mockVision.js` (voir plus bas pour brancher une vraie API)
+- **TensorFlow.js + COCO-SSD** — vraie détection d'objets exécutée dans le navigateur, gratuite, sans clé API (voir `src/data/mockVision.js`, le nom du fichier n'a pas changé mais il ne contient plus rien de "mock")
 
 ## Lancer le projet
 
@@ -48,7 +48,7 @@ frigomind/
 │   ├── state/
 │   │   └── AppContext.jsx     # état global : photo, ingrédients, préférences, recettes, historique
 │   ├── data/
-│   │   ├── mockVision.js      # simulation de la détection IA (à remplacer par une vraie API)
+│   │   ├── mockVision.js      # vraie détection d'image (TensorFlow.js + COCO-SSD, dans le navigateur)
 │   │   ├── recipesDB.js       # base de recettes (ingrédients requis/optionnels, étapes)
 │   │   └── expiryData.js      # ingrédients périssables + basiques de placard (pour l'anti-gaspi)
 │   ├── logic/
@@ -60,22 +60,21 @@ frigomind/
 └── package.json
 ```
 
-## Comportement IA (mock actuel)
+## Comportement IA (vraie détection, gratuite)
 
-`src/data/mockVision.js` simule un modèle de vision : il retourne aléatoirement l'un de 10 scénarios de frigo réalistes (œufs/tomates/fromage, poulet/riz/poivron, pâtes/tomates, etc.), avec :
+`src/data/mockVision.js` charge le modèle **COCO-SSD** (via `@tensorflow/tfjs` + `@tensorflow-models/coco-ssd`) directement dans le navigateur de l'utilisateur, et l'exécute sur la photo prise/importée. Aucune clé API, aucun serveur : tout se passe côté client.
 
-- un score de confiance par ingrédient
-- des **alternatives proposées** pour les ingrédients incertains (ex : "lait ou crème fraîche ou yaourt"), pour ne jamais bloquer l'utilisateur sur une mauvaise détection
+Limite assumée : COCO-SSD est un modèle généraliste à 80 classes d'objets du quotidien. Seule une dizaine correspond à des aliments (banane, pomme, orange, brocoli, carotte, sandwich, hot-dog, pizza, donut, gâteau). Il ne reconnaît pas des ingrédients comme œufs, fromage, lait, oignon, viande crue, etc., car ce ne sont pas des classes du modèle — dans ce cas la liste détectée est vide, ce qui est normal, et l'utilisateur complète à la main.
 
 `src/logic/recipeEngine.js` calcule ensuite un score de correspondance par recette : il favorise les recettes qui utilisent le plus d'ingrédients disponibles, ignore les basiques de placard (sel, poivre, huile...) dans le calcul des ingrédients manquants, ajoute un bonus pour les recettes anti-gaspi, et **garantit toujours au moins une suggestion** même si aucune recette ne correspond parfaitement.
 
-## Brancher une vraie API de vision (Claude Vision)
+## Passer à une détection plus précise (Claude Vision)
 
-Le point d'intégration est **entièrement isolé** dans `src/data/mockVision.js`. Pour brancher une vraie IA :
+Le point d'intégration est **entièrement isolé** dans `src/data/mockVision.js`. Pour reconnaître vraiment tous les ingrédients (œufs, fromage, lait...), il faut un modèle multimodal plus puissant :
 
-1. Créer un petit backend (Node/Express, serverless, etc.) qui reçoit l'image en base64 et appelle l'API Claude avec un prompt du type :
+1. Créer un backend (route serverless Vercel dans `/api`, par ex.) qui reçoit l'image en base64 et appelle l'API Claude avec un prompt du type :
    > "Voici une photo d'un frigo ou d'une table. Liste les aliments visibles au format JSON : `[{name, confidence}]`. Si un aliment est ambigu, propose des alternatives possibles."
-2. Ne **jamais** exposer la clé API côté client — toujours passer par ce backend.
+2. Stocker la clé API Anthropic comme variable d'environnement **côté serveur uniquement** (jamais exposée au navigateur).
 3. Remplacer le corps de `analyzeImage()` dans `mockVision.js` par un `fetch('/api/analyze-fridge', { method: 'POST', body: JSON.stringify({ image }) })` qui retourne le même format `{ items: [{ id, name, confidence, alternatives, checked }] }`.
 
 Aucun autre fichier n'a besoin de changer : `AppContext.jsx` appelle `analyzeImage()` sans connaître son implémentation.
@@ -99,7 +98,7 @@ Si le repo distant contient déjà un README ou des fichiers, fais d'abord `git 
 ## Couverture du cahier des charges
 
 - ✅ Upload photo (prendre une photo / importer une image) avec aperçu immédiat
-- ✅ Analyse IA (simulée), jamais bloquante, propose des alternatives en cas d'incertitude
+- ✅ Analyse IA réelle (TensorFlow.js, gratuite, dans le navigateur), jamais bloquante
 - ✅ Liste modifiable (cases à cocher, ajout, suppression, renommage via alternatives)
 - ✅ 3 à 5 recettes avec nom, temps, niveau, ingrédients utilisés, étapes numérotées
 - ✅ Personnalisation : temps max, type de cuisine, régime végétarien
