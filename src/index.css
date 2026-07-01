@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Composants réutilisables (design system minimal) ---------- */
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 bg-fresh-600 text-white font-semibold
+      px-5 py-3 rounded-full shadow-card transition
+      hover:bg-fresh-700 active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 bg-white text-neutral-700 font-semibold
+      px-5 py-3 rounded-full border border-neutral-200 shadow-card transition
+      hover:border-fresh-300 hover:text-fresh-700 active:scale-[0.98];
+  }
+
+  .card {
+    @apply bg-white rounded-xl2 shadow-card border border-neutral-100;
+  }
+
+  .chip {
+    @apply text-sm px-3 py-1.5 rounded-full border border-neutral-200 text-neutral-600 transition
+      hover:border-fresh-300;
+  }
+
+  .chip-active {
+    @apply bg-fresh-600 border-fresh-600 text-white hover:border-fresh-600;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium;
+  }
+
+  .badge-fresh {
+    @apply bg-fresh-100 text-fresh-700;
+  }
+
+  .badge-zest {
+    @apply bg-zest-100 text-zest-700;
+  }
+
+  .badge-neutral {
+    @apply bg-neutral-100 text-neutral-600;
+  }
+
+  .checkbox-fresh {
+    @apply w-5 h-5 rounded-md border-neutral-300 text-fresh-600 focus:ring-fresh-400 cursor-pointer;
+  }
+}
