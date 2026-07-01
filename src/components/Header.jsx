@@ -7,6 +7,7 @@ const NAV_LINKS = [
   { view: 'about', label: 'À propos' },
   { view: 'faq', label: 'FAQ' },
   { view: 'history', label: 'Historique' },
+  { view: 'stats', label: 'Statistiques' },
 ]
 
 // Menu de navigation principal du site : liens visibles en desktop,
