@@ -1,6 +1,45 @@
 import { useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 
+// Redimensionne/compresse la photo côté navigateur avant envoi à l'API.
+// Les photos de smartphone (souvent 3-10 Mo) dépassent la limite de taille
+// des fonctions serverless Vercel (~4,5 Mo) une fois encodées en base64,
+// ce qui faisait échouer silencieusement l'analyse (liste vide, sans
+// message d'erreur visible). On redimensionne donc à 1280px max de large
+// et on recompresse en JPEG qualité ~0.82, largement suffisant pour la
+// reconnaissance d'aliments par l'IA, et qui donne un fichier de quelques
+// centaines de Ko au lieu de plusieurs Mo.
+function resizeImageFile(file, maxDim = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(reader.error)
+    reader.onload = () => {
+      const img = new Image()
+      img.onerror = reject
+      img.onload = () => {
+        let { width, height } = img
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width)
+            width = maxDim
+          } else {
+            width = Math.round((width * maxDim) / height)
+            height = maxDim
+          }
+        }
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, width, height)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.src = reader.result
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
 // Page d'upload : deux boutons (prendre une photo / importer une image),
 // aperçu immédiat, puis lancement de l'analyse IA (mock).
 export default function UploadPage() {
@@ -9,16 +48,24 @@ export default function UploadPage() {
   const cameraInputRef = useRef(null)
   const galleryInputRef = useRef(null)
 
-  function handleFile(e) {
+  async function handleFile(e) {
     const file = e.target.files?.[0]
     if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      const dataUrl = reader.result
+    try {
+      const dataUrl = await resizeImageFile(file)
       setLocalPreview(dataUrl)
       setPhoto(dataUrl)
+    } catch (err) {
+      // En cas de souci de redimensionnement (format exotique...), on retombe
+      // sur le fichier original plutôt que de bloquer l'utilisateur.
+      console.warn('FrigoMind: redimensionnement impossible, utilisation du fichier original', err)
+      const reader = new FileReader()
+      reader.onload = () => {
+        setLocalPreview(reader.result)
+        setPhoto(reader.result)
+      }
+      reader.readAsDataURL(file)
     }
-    reader.readAsDataURL(file)
   }
 
   async function handleAnalyze() {
