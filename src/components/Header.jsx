@@ -30,7 +30,11 @@ export default function Header() {
           className="flex items-center gap-2 font-extrabold text-lg text-neutral-900 shrink-0"
           onClick={() => navigate('home')}
         >
-          <span aria-hidden>🥕</span>
+          <img
+            src="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png"
+            alt="FrigoMind"
+            className="w-7 h-7 rounded-lg object-cover"
+          />
           <span>Frigo<span className="text-fresh-600">Mind</span></span>
         </button>
 
