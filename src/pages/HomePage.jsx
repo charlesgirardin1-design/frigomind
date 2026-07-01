@@ -35,6 +35,12 @@ export default function HomePage() {
     },
   ]
 
+  const countryWaste = [
+    { country: '🇫🇷 France', kg: '~25 à 30 kg', source: 'ADEME' },
+    { country: '🇬🇧 Royaume-Uni', kg: '~70 à 88 kg', source: 'WRAP' },
+    { country: '🇺🇸 États-Unis', kg: '~71 à 73 kg', source: 'RTS / USDA' },
+  ]
+
   return (
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16 animate-fadeIn">
       <div className="text-center">
@@ -95,6 +101,52 @@ export default function HomePage() {
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 text-center">
+          Le gaspillage alimentaire en chiffres
+        </h2>
+        <p className="text-neutral-500 text-sm text-center mt-2 max-w-lg mx-auto">
+          De quoi remettre en perspective l'intérêt de finir ce qu'il y a dans le frigo.
+        </p>
+
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="card p-5 text-center">
+            <div className="text-2xl font-extrabold text-fresh-700">1,05 milliard</div>
+            <p className="text-sm text-neutral-500 mt-1">
+              de tonnes de nourriture gaspillées chaque année dans le monde — soit plus d'1 milliard de
+              repas jetés par jour.
+            </p>
+          </div>
+          <div className="card p-5 text-center">
+            <div className="text-2xl font-extrabold text-fresh-700">132 kg</div>
+            <p className="text-sm text-neutral-500 mt-1">
+              par personne et par an en moyenne dans le monde (dont environ 79 kg pour les seuls ménages).
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 card p-5">
+          <p className="font-semibold text-neutral-900 text-sm mb-3">
+            Gaspillage alimentaire des ménages, par pays (ordres de grandeur)
+          </p>
+          <div className="space-y-2">
+            {countryWaste.map((c) => (
+              <div key={c.country} className="flex items-center justify-between text-sm">
+                <span className="text-neutral-700">{c.country}</span>
+                <span className="text-neutral-500">
+                  {c.kg} / an / personne <span className="text-neutral-300">· {c.source}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-neutral-400 mt-3">
+            Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux, données 2022) ; ADEME (France) ;
+            WRAP (Royaume-Uni) ; RTS / USDA (États-Unis). Les méthodologies de mesure diffèrent selon les
+            pays, ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.
+          </p>
         </div>
       </div>
 
