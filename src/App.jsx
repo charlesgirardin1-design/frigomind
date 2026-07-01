@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import Header from './components/Header.jsx'
 import HomePage from './pages/HomePage.jsx'
 import UploadPage from './pages/UploadPage.jsx'
@@ -7,6 +8,7 @@ import HistoryPage from './pages/HistoryPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import FaqPage from './pages/FaqPage.jsx'
 import LegalPage from './pages/LegalPage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 import { useApp } from './state/AppContext.jsx'
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -20,11 +22,23 @@ const VIEWS = {
   about: AboutPage,
   faq: FaqPage,
   legal: LegalPage,
+  notfound: NotFoundPage,
 }
 
 export default function App() {
   const { state, goTo } = useApp()
   const CurrentView = VIEWS[state.view] || HomePage
+
+  // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
+  // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
+  // au lieu de silencieusement retomber sur l'accueil.
+  useEffect(() => {
+    const path = window.location.pathname
+    if (path && path !== '/' && path !== '/index.html') {
+      goTo('notfound')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
