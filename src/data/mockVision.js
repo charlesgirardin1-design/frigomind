@@ -1,17 +1,18 @@
 // -----------------------------------------------------------------------------
 // mockVision.js
 // (nom de fichier conservé pour compatibilité, mais il n'y a rien de "mock"
-// ici) : ce module envoie la photo à une vraie IA multimodale (Claude Vision)
-// via une fonction serverless Vercel (/api/analyze-fridge), qui garde la clé
-// API secrète côté serveur. Il reconnaît un vocabulaire alimentaire large
-// (œufs, fromage, lait, oignon, viande, légumes, etc.), pas seulement une
-// dizaine de classes fixes.
+// ici) : ce module envoie la photo à une vraie IA multimodale (Google Gemini,
+// gratuite) via une fonction serverless Vercel (/api/analyze-fridge), qui
+// garde la clé API secrète côté serveur. Il reconnaît un vocabulaire
+// alimentaire large (œufs, fromage, lait, oignon, viande, légumes, etc.),
+// pas seulement une dizaine de classes fixes.
 //
 // Prérequis pour que l'analyse fonctionne une fois déployé sur Vercel :
-// définir la variable d'environnement ANTHROPIC_API_KEY dans les réglages du
-// projet Vercel (Settings → Environment Variables). Sans elle, l'API renvoie
-// une liste vide et l'utilisateur peut toujours ajouter ses ingrédients à la
-// main : l'app ne bloque jamais.
+// définir la variable d'environnement GEMINI_API_KEY (clé gratuite, sans
+// carte bancaire, créée sur https://aistudio.google.com/apikey) dans les
+// réglages du projet Vercel (Settings → Environment Variables). Sans elle,
+// l'API renvoie une liste vide et l'utilisateur peut toujours ajouter ses
+// ingrédients à la main : l'app ne bloque jamais.
 //
 // ⚠️ En développement local (`npm run dev`), la route /api n'existe pas (elle
 // n'est servie que par Vercel). C'est normal : la liste sera vide en local,
