@@ -24,30 +24,30 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-neutral-100">
-      <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-neutral-100/80 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+      <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
         <button
-          className="flex items-center gap-2 font-extrabold text-lg text-neutral-900 shrink-0"
+          className="flex items-center gap-2.5 font-extrabold text-lg text-neutral-900 shrink-0 group"
           onClick={() => navigate('home')}
         >
           <img
             src="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png"
             alt="FrigoMind"
-            className="w-7 h-7 rounded-lg object-cover"
+            className="w-8 h-8 rounded-xl object-cover shadow-card ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3"
           />
           <span>Frigo<span className="text-fresh-600">Mind</span></span>
         </button>
 
         {/* Navigation desktop */}
-        <nav className="hidden sm:flex items-center gap-1">
+        <nav className="hidden sm:flex items-center gap-1 bg-neutral-50/70 rounded-full p-1 border border-neutral-100">
           {NAV_LINKS.map((link) => (
             <button
               key={link.view}
               onClick={() => navigate(link.view)}
-              className={`text-sm font-medium px-3 py-1.5 rounded-full transition ${
+              className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-150 ${
                 state.view === link.view
-                  ? 'bg-fresh-50 text-fresh-700'
-                  : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
+                  ? 'bg-white text-fresh-700 shadow-card'
+                  : 'text-neutral-500 hover:text-neutral-900 hover:bg-white/70'
               }`}
             >
               {link.label}
