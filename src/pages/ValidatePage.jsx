@@ -47,20 +47,11 @@ export default function ValidatePage() {
 
       <div className="mt-5 card divide-y divide-neutral-100">
         {state.ingredients.length === 0 && (
-          <div className="p-4 text-sm text-neutral-400 text-center">
-            <p>
-              Aucun ingrédient reconnu automatiquement sur cette photo. Le modèle gratuit utilisé
-              (TensorFlow.js / COCO-SSD, exécuté dans votre navigateur) ne reconnaît qu'une liste
-              limitée d'aliments :
-            </p>
-            <p className="mt-1.5 text-neutral-500 font-medium">
-              banane, pomme, orange, brocoli, carotte, sandwich, hot-dog, pizza, donut, gâteau
-            </p>
-            <p className="mt-1.5">
-              Il ne reconnaît pas œufs, fromage, lait, oignon, viande, etc. — ce n'est pas un bug,
-              juste la limite du modèle gratuit. Ajoutez vos ingrédients manuellement ci-dessous 👇
-            </p>
-          </div>
+          <p className="p-4 text-sm text-neutral-400 text-center">
+            Aucun ingrédient détecté automatiquement sur cette photo (photo peu nette, ou
+            reconnaissance IA pas encore configurée sur ce déploiement). Ajoutez vos ingrédients
+            manuellement ci-dessous 👇
+          </p>
         )}
 
         {state.ingredients.map((ing) => (

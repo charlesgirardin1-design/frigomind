@@ -49,8 +49,8 @@ export default function HomePage() {
       </div>
 
       <p className="mt-10 text-center text-xs text-neutral-400">
-        L'analyse d'image tourne réellement dans votre navigateur (IA gratuite, vocabulaire limité
-        aux fruits et légumes courants). Ajoutez vos autres ingrédients à la main si besoin.
+        L'analyse d'image utilise Claude Vision pour reconnaître vos aliments. Vous pouvez toujours
+        corriger ou compléter la liste à la main.
       </p>
     </div>
   )
