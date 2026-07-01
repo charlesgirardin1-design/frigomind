@@ -1,122 +1,82 @@
 // -----------------------------------------------------------------------------
 // mockVision.js
-// Simule un modèle de vision par ordinateur (type Claude Vision) qui analyse
-// une photo de frigo/table et retourne les aliments probablement visibles.
+// (nom de fichier conservé pour compatibilité, mais il n'y a PLUS rien de "mock"
+// ici : ce module fait une VRAIE analyse d'image, exécutée 100% dans le
+// navigateur avec TensorFlow.js + le modèle pré-entraîné COCO-SSD.
 //
-// 🔌 INTÉGRATION FUTURE AVEC UNE VRAIE API (Claude Vision) :
-// Remplacer le corps de `analyzeImage()` par un appel réseau vers un backend
-// qui appelle l'API Claude avec l'image en base64, par ex. :
+// Comment ça marche :
+//  1. On charge le modèle COCO-SSD une seule fois (mis en cache en mémoire).
+//  2. On donne l'image prise/importée par l'utilisateur au modèle.
+//  3. Le modèle détecte les objets réellement présents sur la photo, avec un
+//     score de confiance par objet.
+//  4. On ne garde que les objets qui correspondent à un aliment/ingrédient, et
+//     on traduit leur nom en français.
 //
-//   const response = await fetch('/api/analyze-fridge', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify({ image: imageDataUrl }),
-//   })
-//   const data = await response.json()
-//   // data attendu au même format que ci-dessous : { items, alternatives }
+// ⚠️ Limite connue (assumée, choisie pour rester 100% gratuit et sans clé API) :
+// COCO-SSD est un modèle généraliste entraîné sur 80 catégories d'objets du
+// quotidien. Son vocabulaire "aliments" est limité à une dizaine de classes
+// (banane, pomme, orange, brocoli, carotte, sandwich, hot-dog, pizza, donut,
+// gâteau...). Il ne reconnaît PAS des ingrédients comme œufs, fromage, lait,
+// oignon, viande crue, etc., car ce ne sont pas des classes du modèle.
+// Dans ce cas, la liste détectée peut être vide : c'est normal, pas un bug.
+// L'utilisateur peut toujours ajouter ses ingrédients manuellement ensuite.
 //
-// Le prompt côté serveur pourrait ressembler à :
-//   "Voici une photo d'un frigo ou d'une table. Liste les aliments visibles
-//    au format JSON: [{name, confidence}]. Si un aliment est ambigu, propose
-//    des alternatives possibles."
-//
-// ⚠️ Ne JAMAIS appeler une clé API Claude directement depuis le navigateur :
-// toujours passer par un backend qui garde la clé secrète.
+// 🔌 Pour une détection plus précise (reconnaît vraiment tous les aliments),
+// il faudrait brancher un vrai modèle de vision multimodal (ex : Claude
+// Vision) via un backend qui garde la clé API secrète. Voir le README pour
+// le plan d'intégration.
 // -----------------------------------------------------------------------------
 
-// Quelques scénarios de détection réalistes, avec un peu d'incertitude
-// volontaire (confidence < 0.6) pour illustrer le comportement "jamais bloqué
-// par une mauvaise détection" : on propose alors des alternatives.
-const SCENARIOS = [
-  {
-    items: [
-      { name: 'œufs', confidence: 0.95 },
-      { name: 'tomates', confidence: 0.9 },
-      { name: 'fromage', confidence: 0.82 },
-      { name: 'lait', confidence: 0.55, alternatives: ['crème fraîche', 'yaourt'] },
-      { name: 'oignon', confidence: 0.7 },
-    ],
-  },
-  {
-    items: [
-      { name: 'poulet', confidence: 0.88 },
-      { name: 'riz', confidence: 0.8 },
-      { name: 'poivron', confidence: 0.6 },
-      { name: 'carotte', confidence: 0.75 },
-      { name: 'ail', confidence: 0.5, alternatives: ['échalote', 'oignon'] },
-    ],
-  },
-  {
-    items: [
-      { name: 'pâtes', confidence: 0.92 },
-      { name: 'tomates', confidence: 0.85 },
-      { name: 'parmesan', confidence: 0.58, alternatives: ['fromage râpé', 'comté'] },
-      { name: 'basilic', confidence: 0.65 },
-      { name: 'ail', confidence: 0.7 },
-    ],
-  },
-  {
-    items: [
-      { name: 'pain', confidence: 0.9 },
-      { name: 'jambon', confidence: 0.83 },
-      { name: 'fromage', confidence: 0.78 },
-      { name: 'beurre', confidence: 0.6 },
-      { name: 'salade', confidence: 0.52, alternatives: ['épinards', 'roquette'] },
-    ],
-  },
-  {
-    items: [
-      { name: 'yaourt', confidence: 0.87 },
-      { name: 'banane', confidence: 0.8 },
-      { name: 'miel', confidence: 0.55, alternatives: ['confiture', 'sucre'] },
-      { name: 'flocons d\'avoine', confidence: 0.6 },
-    ],
-  },
-  {
-    items: [
-      { name: 'thon en boîte', confidence: 0.75 },
-      { name: 'pois chiches', confidence: 0.7 },
-      { name: 'tomates', confidence: 0.82 },
-      { name: 'oignon rouge', confidence: 0.58, alternatives: ['oignon', 'échalote'] },
-      { name: 'citron', confidence: 0.65 },
-    ],
-  },
-  {
-    items: [
-      { name: 'champignons', confidence: 0.79 },
-      { name: 'crème fraîche', confidence: 0.6 },
-      { name: 'poulet', confidence: 0.7 },
-      { name: 'échalote', confidence: 0.5, alternatives: ['oignon', 'ail'] },
-    ],
-  },
-  {
-    items: [
-      { name: 'pommes de terre', confidence: 0.9 },
-      { name: 'lardons', confidence: 0.65, alternatives: ['jambon', 'bacon'] },
-      { name: 'fromage', confidence: 0.8 },
-      { name: 'oignon', confidence: 0.72 },
-    ],
-  },
-  {
-    items: [
-      { name: 'courgette', confidence: 0.82 },
-      { name: 'œufs', confidence: 0.88 },
-      { name: 'fromage', confidence: 0.7 },
-      { name: 'menthe', confidence: 0.48, alternatives: ['basilic', 'persil'] },
-    ],
-  },
-  {
-    items: [
-      { name: 'épinards', confidence: 0.76 },
-      { name: 'fromage blanc', confidence: 0.6 },
-      { name: 'œufs', confidence: 0.85 },
-      { name: 'noix', confidence: 0.5, alternatives: ['graines', 'amandes'] },
-    ],
-  },
-]
+import * as tf from '@tensorflow/tfjs'
 
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+// Traduction des classes COCO-SSD vers des noms d'ingrédients en français.
+// On ne garde volontairement QUE les classes qui correspondent à un aliment
+// ou ingrédient réel (on exclut assiette, tasse, couverts, table, frigo...).
+const COCO_TO_INGREDIENT = {
+  banana: 'banane',
+  apple: 'pomme',
+  orange: 'orange',
+  broccoli: 'brocoli',
+  carrot: 'carotte',
+  'hot dog': 'saucisse',
+  pizza: 'pizza',
+  donut: 'donut',
+  cake: 'gâteau',
+  sandwich: 'sandwich',
+}
+
+// Classes ignorées explicitement : ce sont des objets détectés par COCO-SSD
+// mais qui ne sont pas des ingrédients (vaisselle, mobilier, personnes...).
+// (On ne les liste pas : tout ce qui n'est pas dans COCO_TO_INGREDIENT est
+// simplement ignoré par le filtre plus bas.)
+
+let modelPromise = null
+
+/**
+ * Charge le modèle COCO-SSD une seule fois et le met en cache pour les
+ * analyses suivantes (évite de re-télécharger les poids à chaque photo).
+ */
+function loadModel() {
+  if (!modelPromise) {
+    modelPromise = import('@tensorflow-models/coco-ssd').then(async (cocoSsd) => {
+      await tf.ready()
+      return cocoSsd.load({ base: 'lite_mobilenet_v2' })
+    })
+  }
+  return modelPromise
+}
+
+/**
+ * Transforme une image (data URL) en élément <img> chargé, prêt à être
+ * analysé par le modèle.
+ */
+function loadImageElement(imageDataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = (e) => reject(e)
+    img.src = imageDataUrl
+  })
 }
 
 let idCounter = 0
@@ -126,24 +86,46 @@ function nextId() {
 }
 
 /**
- * Simule l'analyse IA d'une photo. Retourne toujours un résultat exploitable
- * (jamais un blocage total), avec des scores de confiance et des alternatives
- * pour les items incertains.
- * @param {string} imageDataUrl - image encodée en base64 (non utilisée par le mock, juste pour coller à la vraie API)
+ * Analyse réellement la photo fournie et retourne les ingrédients détectés.
+ * Ne bloque jamais l'utilisateur : si rien n'est reconnu, on retourne une
+ * liste vide plutôt qu'une erreur, pour qu'il puisse ajouter à la main.
+ * @param {string} imageDataUrl - image encodée en base64 (data URL)
  * @returns {Promise<{items: Array}>}
  */
 export async function analyzeImage(imageDataUrl) {
-  await delay(1100 + Math.random() * 500) // simule le temps de traitement IA
+  try {
+    const [model, imgEl] = await Promise.all([loadModel(), loadImageElement(imageDataUrl)])
 
-  const scenario = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)]
+    // minScore bas (0.4) car on préfère proposer un item "incertain" plutôt
+    // que de rater une détection ; l'utilisateur peut toujours décocher.
+    const predictions = await model.detect(imgEl, 20, 0.4)
 
-  const items = scenario.items.map((item) => ({
-    id: nextId(),
-    name: item.name,
-    confidence: item.confidence,
-    alternatives: item.alternatives || [],
-    checked: item.confidence >= 0.5, // pré-coché par défaut si probable
-  }))
+    // On ne garde que les classes qui correspondent à un aliment connu, et on
+    // déduplique en gardant le meilleur score par ingrédient (ex : 2 bananes
+    // détectées séparément ne doivent donner qu'une seule ligne "banane").
+    const bestByIngredient = new Map()
+    for (const pred of predictions) {
+      const ingredientName = COCO_TO_INGREDIENT[pred.class]
+      if (!ingredientName) continue // objet non alimentaire (tasse, table...), on ignore
+      const existing = bestByIngredient.get(ingredientName)
+      if (!existing || pred.score > existing.score) {
+        bestByIngredient.set(ingredientName, { score: pred.score })
+      }
+    }
 
-  return { items }
+    const items = Array.from(bestByIngredient.entries()).map(([name, { score }]) => ({
+      id: nextId(),
+      name,
+      confidence: score,
+      alternatives: [],
+      checked: score >= 0.5,
+    }))
+
+    return { items }
+  } catch (e) {
+    // Même en cas d'erreur (modèle indisponible, image invalide...), on ne
+    // bloque jamais l'utilisateur : liste vide, il complète à la main.
+    console.warn('FrigoMind: analyse IA impossible', e)
+    return { items: [] }
+  }
 }
