@@ -4,17 +4,47 @@
 // l'utilisateur + ses préférences, et retourne 3 à 5 recettes réalistes.
 //
 // Principes IA voulus par le produit :
-//  - privilégier les recettes qui utilisent le MAXIMUM d'ingrédients dispo
+//  - RÈGLE OBLIGATOIRE : chaque recette proposée doit impérativement utiliser
+//    TOUS les ingrédients validés par l'utilisateur (ceux détectés sur la
+//    photo, corrigés/complétés si besoin). Une recette peut en plus proposer
+//    d'autres ingrédients (basiques de placard, ou ingrédients à acheter),
+//    mais ne peut jamais ignorer un ingrédient que l'utilisateur possède déjà.
 //  - ne jamais exiger d'ingrédients externes inutiles (les basiques type
 //    sel/poivre/huile ne comptent jamais comme "manquants")
-//  - ne jamais bloquer l'utilisateur : si aucune recette ne correspond
-//    parfaitement, on retourne quand même les meilleures approximations
+//  - ne jamais bloquer l'utilisateur : si aucune recette de la base ne
+//    respecte la règle ci-dessus, on génère à la volée des recettes
+//    "maison" qui, elles, utilisent forcément tous les ingrédients validés
 //  - favoriser l'anti-gaspi : bonus de score pour les recettes qui utilisent
 //    des ingrédients périssables (à consommer vite)
 // -----------------------------------------------------------------------------
 
 import { RECIPES } from '../data/recipesDB.js'
 import { isPantryStaple, isPerishable } from '../data/expiryData.js'
+
+// Mots-clés utilisés pour deviner si un ingrédient rend une recette
+// "non végétarienne", afin de taguer correctement les recettes générées
+// dynamiquement (voir buildGenericRecipes).
+const NON_VEGETARIAN_KEYWORDS = [
+  'poulet',
+  'boeuf',
+  'bœuf',
+  'porc',
+  'jambon',
+  'lardons',
+  'bacon',
+  'viande',
+  'thon',
+  'saumon',
+  'poisson',
+  'crevette',
+  'fruits de mer',
+  'dinde',
+  'canard',
+  'agneau',
+  'veau',
+  'saucisse',
+  'chorizo',
+]
 
 function normalize(str) {
   return str
@@ -32,6 +62,103 @@ function includesIngredient(availableSet, ingredientName) {
     }
   }
   return false
+}
+
+/**
+ * RÈGLE OBLIGATOIRE : vérifie qu'une recette utilise bien TOUS les
+ * ingrédients validés par l'utilisateur (chacun doit se retrouver parmi les
+ * ingrédients requis OU optionnels de la recette). La recette peut avoir en
+ * plus d'autres ingrédients (basiques, ou à acheter) : ça ne pose pas de
+ * souci, seul l'oubli d'un ingrédient déjà possédé est bloquant.
+ */
+function usesAllValidatedIngredients(recipe, available) {
+  if (available.length === 0) return true
+  const pool = [...recipe.required, ...recipe.optional]
+  return available.every((ing) => includesIngredient(pool, ing))
+}
+
+function guessDiet(available) {
+  const hasMeatOrFish = available.some((ing) => {
+    const normalized = normalize(ing)
+    return NON_VEGETARIAN_KEYWORDS.some((kw) => normalized.includes(normalize(kw)))
+  })
+  return hasMeatOrFish ? [] : ['vegetarien']
+}
+
+/**
+ * Filet de sécurité absolu : génère des recettes "maison" à la volée qui
+ * utilisent, par construction, TOUS les ingrédients validés par
+ * l'utilisateur. Utilisé uniquement quand aucune recette de la base
+ * RECIPES ne respecte la règle obligatoire (ex : combinaison inhabituelle
+ * d'ingrédients) — ça garantit qu'on ne bloque jamais l'utilisateur tout en
+ * respectant la contrainte "tous les ingrédients de la photo doivent
+ * apparaître".
+ */
+function buildGenericRecipes(available) {
+  const list = available.join(', ')
+  const diet = guessDiet(available)
+  const usesPerishable = available.some((ing) => isPerishable(ing))
+
+  const templates = [
+    {
+      id: 'poelee-maison',
+      name: `Poêlée maison (${list})`,
+      emoji: '🍳',
+      time: 20,
+      level: 'facile',
+      cuisine: 'maison',
+      steps: [
+        `Couper tous vos ingrédients (${list}) en morceaux de taille similaire.`,
+        "Faire chauffer un filet d'huile dans une poêle ou un wok.",
+        'Faire revenir en premier les ingrédients les plus longs à cuire, puis ajouter les autres.',
+        'Cuire 8 à 10 minutes à feu moyen-vif en remuant régulièrement.',
+        "Assaisonner de sel, poivre (et ail/oignon si vous en avez) et servir chaud.",
+      ],
+    },
+    {
+      id: 'bol-frais-maison',
+      name: `Bol frais (${list})`,
+      emoji: '🥗',
+      time: 12,
+      level: 'facile',
+      cuisine: 'maison',
+      steps: [
+        `Couper finement tous vos ingrédients (${list}).`,
+        'Les mélanger dans un saladier.',
+        "Assaisonner d'un filet d'huile (ou de citron), sel et poivre.",
+        'Servir frais, tel quel ou avec du pain.',
+      ],
+    },
+    {
+      id: 'gratin-four-maison',
+      name: `Gratin au four (${list})`,
+      emoji: '🧀',
+      time: 30,
+      level: 'moyen',
+      cuisine: 'maison',
+      steps: [
+        `Couper vos ingrédients (${list}) et les disposer dans un plat allant au four.`,
+        'Ajouter un peu de fromage râpé si vous en avez.',
+        "Enfourner 20 à 25 minutes à 200°C jusqu'à ce que ce soit doré.",
+        'Servir chaud directement dans le plat.',
+      ],
+    },
+  ]
+
+  return templates.map((t) => ({
+    id: t.id,
+    name: t.name,
+    emoji: t.emoji,
+    time: t.time,
+    level: t.level,
+    cuisine: t.cuisine,
+    diet,
+    required: [...available],
+    optional: ['sel', 'poivre', 'huile', 'ail', 'oignon'],
+    steps: t.steps,
+    generic: true,
+    antiGaspi: usesPerishable,
+  }))
 }
 
 /**
@@ -88,8 +215,14 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     ...scoreRecipe(recipe, available),
   }))
 
+  // RÈGLE OBLIGATOIRE : on ne considère QUE les recettes qui utilisent tous
+  // les ingrédients validés par l'utilisateur. Les recettes de la base qui
+  // n'en utilisent qu'une partie sont exclues d'office, même si leur score
+  // de correspondance serait par ailleurs bon.
+  const mandatory = scored.filter((c) => usesAllValidatedIngredients(c.recipe, available))
+
   // 1) on tente d'abord avec TOUS les filtres de préférences appliqués
-  let candidates = scored.filter(({ recipe }) => applyPreferenceFilters(recipe, prefs))
+  let candidates = mandatory.filter(({ recipe }) => applyPreferenceFilters(recipe, prefs))
 
   // 2) on ne garde que les recettes avec au maximum 1 ingrédient requis manquant
   //    (règle "réaliste niveau étudiant" : pas besoin de courir acheter 3 choses)
@@ -99,16 +232,32 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
 
   let results = strong.slice(0, 5)
 
-  // Anti-blocage : si moins de 3 résultats, on complète avec les meilleures
-  // recettes restantes même imparfaites (sans les filtres stricts), pour ne
-  // JAMAIS laisser l'utilisateur sans suggestion.
+  // Anti-blocage (étape 1) : si moins de 3 résultats, on complète avec les
+  // autres recettes de la base qui respectent quand même la règle
+  // obligatoire (sans les filtres de préférences/score stricts).
   if (results.length < 3) {
     const usedIds = new Set(results.map((r) => r.recipe.id))
-    const fallback = scored
+    const fallback = mandatory
       .filter((c) => !usedIds.has(c.recipe.id))
       .sort((a, b) => b.score - a.score || a.recipe.time - b.recipe.time)
       .slice(0, 5 - results.length)
     results = [...results, ...fallback]
+  }
+
+  // Anti-blocage (étape 2, garantie absolue) : si la base de recettes ne
+  // contient aucune combinaison respectant la règle obligatoire (ingrédients
+  // trop variés/inhabituels), on génère des recettes "maison" qui utilisent
+  // par construction tous les ingrédients validés.
+  if (results.length < 3 && available.length > 0) {
+    const generic = buildGenericRecipes(available).map((recipe) => ({
+      recipe,
+      score: 1 + (recipe.antiGaspi ? 0.15 : 0),
+      requiredMatched: available,
+      requiredMissing: [],
+      optionalMatched: [],
+      antiGaspi: recipe.antiGaspi,
+    }))
+    results = [...results, ...generic].slice(0, 5)
   }
 
   return results.map((r) => ({
