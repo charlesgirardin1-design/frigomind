@@ -37,6 +37,7 @@ export default {
       boxShadow: {
         card: '0 2px 10px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)',
         cardHover: '0 10px 28px rgba(15,23,42,0.12)',
+        glow: '0 0 0 6px rgba(34,168,106,0.10)',
       },
       borderRadius: {
         xl2: '1.25rem',
@@ -44,10 +45,18 @@ export default {
       keyframes: {
         fadeIn: { from: { opacity: 0, transform: 'translateY(6px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
         popIn: { from: { opacity: 0, transform: 'scale(0.96)' }, to: { opacity: 1, transform: 'scale(1)' } },
+        float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+        blob: {
+          '0%,100%': { transform: 'translate(0,0) scale(1)' },
+          '33%': { transform: 'translate(12px,-14px) scale(1.05)' },
+          '66%': { transform: 'translate(-10px,10px) scale(0.97)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
         popIn: 'popIn 0.2s ease-out both',
+        float: 'float 4.5s ease-in-out infinite',
+        blob: 'blob 12s ease-in-out infinite',
       },
     },
   },
