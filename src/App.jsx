@@ -27,7 +27,7 @@ export default function App() {
         <CurrentView />
       </main>
       <footer className="text-center text-xs text-neutral-300 py-6">
-        FrigoMind — MVP démo · analyse IA simulée
+        FrigoMind — MVP · analyse IA gratuite dans le navigateur (TensorFlow.js)
       </footer>
     </div>
   )
