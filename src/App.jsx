@@ -32,7 +32,7 @@ const VIEWS = {
 }
 
 export default function App() {
-  const { state, goTo } = useApp()
+  const { state, goTo, resetSession } = useApp()
   const CurrentView = VIEWS[state.view] || HomePage
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
@@ -52,48 +52,45 @@ export default function App() {
       <main className="flex-1">
         <CurrentView />
       </main>
-      <footer className="text-center border-t border-neutral-100 py-6 mt-4">
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-3 px-4">
+      <footer className="border-t border-neutral-100 bg-white/60 mt-4">
+        <div className="max-w-3xl mx-auto px-4 py-10 text-center">
           <button
-            onClick={() => goTo('about')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+            onClick={() => { resetSession(); goTo('home') }}
+            className="inline-flex items-center gap-2 font-extrabold text-neutral-900"
           >
-            À propos
+            <img
+              src="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png"
+              alt="FrigoMind"
+              className="w-6 h-6 rounded-md object-cover"
+            />
+            Frigo<span className="text-fresh-600">Mind</span>
           </button>
-          <button
-            onClick={() => goTo('faq')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
-          >
-            FAQ
-          </button>
-          <button
-            onClick={() => goTo('blog')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
-          >
-            Astuces anti-gaspi
-          </button>
-          <button
-            onClick={() => goTo('stats')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
-          >
-            Statistiques
-          </button>
-          <button
-            onClick={() => goTo('changelog')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
-          >
-            Nouveautés
-          </button>
-          <button
-            onClick={() => goTo('legal')}
-            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
-          >
-            Mentions légales
-          </button>
+
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-sm">
+            <button onClick={() => goTo('about')} className="text-neutral-500 hover:text-fresh-700 transition">
+              À propos
+            </button>
+            <button onClick={() => goTo('faq')} className="text-neutral-500 hover:text-fresh-700 transition">
+              FAQ
+            </button>
+            <button onClick={() => goTo('blog')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Astuces anti-gaspi
+            </button>
+            <button onClick={() => goTo('stats')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Statistiques
+            </button>
+            <button onClick={() => goTo('changelog')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Nouveautés
+            </button>
+            <button onClick={() => goTo('legal')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Mentions légales
+            </button>
+          </div>
+
+          <p className="text-xs text-neutral-400 mt-6">
+            FrigoMind — MVP · analyse IA via Google Gemini (gratuit)
+          </p>
         </div>
-        <p className="text-xs text-neutral-400">
-          FrigoMind — MVP · analyse IA via Google Gemini (gratuit)
-        </p>
       </footer>
     </div>
   )
