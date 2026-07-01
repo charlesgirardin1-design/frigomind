@@ -9,6 +9,9 @@ import AboutPage from './pages/AboutPage.jsx'
 import FaqPage from './pages/FaqPage.jsx'
 import LegalPage from './pages/LegalPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
+import BlogPage from './pages/BlogPage.jsx'
+import StatsPage from './pages/StatsPage.jsx'
+import ChangelogPage from './pages/ChangelogPage.jsx'
 import { useApp } from './state/AppContext.jsx'
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -23,6 +26,9 @@ const VIEWS = {
   faq: FaqPage,
   legal: LegalPage,
   notfound: NotFoundPage,
+  blog: BlogPage,
+  stats: StatsPage,
+  changelog: ChangelogPage,
 }
 
 export default function App() {
@@ -47,7 +53,7 @@ export default function App() {
         <CurrentView />
       </main>
       <footer className="text-center border-t border-neutral-100 py-6 mt-4">
-        <div className="flex items-center justify-center gap-4 mb-3">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-3 px-4">
           <button
             onClick={() => goTo('about')}
             className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
@@ -59,6 +65,24 @@ export default function App() {
             className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
           >
             FAQ
+          </button>
+          <button
+            onClick={() => goTo('blog')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
+            Astuces anti-gaspi
+          </button>
+          <button
+            onClick={() => goTo('stats')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
+            Statistiques
+          </button>
+          <button
+            onClick={() => goTo('changelog')}
+            className="text-sm font-medium text-neutral-600 hover:text-fresh-700 underline underline-offset-2 transition"
+          >
+            Nouveautés
           </button>
           <button
             onClick={() => goTo('legal')}
