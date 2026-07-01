@@ -1,16 +1,22 @@
 // -----------------------------------------------------------------------------
 // api/analyze-fridge.js
 // Fonction serverless Vercel (Node.js). Reçoit une photo en base64, appelle
-// l'API Claude Vision côté serveur (la clé API ne quitte jamais le backend),
-// et retourne la liste des ingrédients alimentaires détectés.
+// l'API Google Gemini (multimodale, vraie option gratuite sans carte bancaire)
+// côté serveur, et retourne la liste des ingrédients alimentaires détectés.
 //
-// Variable d'environnement requise sur Vercel : ANTHROPIC_API_KEY
-// (Project Settings → Environment Variables). Sans elle, la fonction retourne
-// une liste vide plutôt que de planter, pour ne jamais bloquer l'utilisateur.
+// Variables d'environnement (Project Settings → Environment Variables) :
+//  - GEMINI_API_KEY (obligatoire) : clé créée gratuitement sur
+//    https://aistudio.google.com/apikey (aucune carte bancaire requise pour
+//    le palier gratuit).
+//  - GEMINI_MODEL (optionnel) : identifiant du modèle à utiliser. Par défaut
+//    "gemini-2.5-flash". Si Google renomme ses modèles, changez juste cette
+//    variable, aucun redéploiement de code n'est nécessaire.
+//
+// Sans clé configurée, la fonction retourne une liste vide plutôt que de
+// planter : l'utilisateur peut toujours ajouter ses ingrédients à la main.
 // -----------------------------------------------------------------------------
 
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
-const MODEL = 'claude-haiku-4-5-20251001'
+const DEFAULT_MODEL = 'gemini-2.5-flash'
 
 const PROMPT = `Voici une photo d'un frigo, d'un placard ou d'une table avec des aliments.
 Identifie tous les ingrédients alimentaires réellement visibles sur cette image.
@@ -30,8 +36,8 @@ function parseDataUrl(dataUrl) {
 }
 
 function extractJson(text) {
-  // Le modèle répond en principe du JSON pur, mais on retire par sécurité
-  // d'éventuels ```json ... ``` autour, ou du texte parasite.
+  // Avec responseMimeType "application/json", Gemini répond normalement en
+  // JSON pur, mais on nettoie par sécurité d'éventuels artefacts de texte.
   const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '')
   const start = cleaned.indexOf('{')
   const end = cleaned.lastIndexOf('}')
@@ -49,10 +55,10 @@ export default async function handler(req, res) {
     return
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY
+  const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
     // Pas de clé configurée : on ne bloque jamais l'utilisateur, liste vide.
-    res.status(200).json({ items: [], error: 'ANTHROPIC_API_KEY non configurée sur Vercel' })
+    res.status(200).json({ items: [], error: 'GEMINI_API_KEY non configurée sur Vercel' })
     return
   }
 
@@ -62,39 +68,38 @@ export default async function handler(req, res) {
     return
   }
 
+  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+
   try {
-    const response = await fetch(ANTHROPIC_API_URL, {
+    const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 1024,
-        messages: [
+        contents: [
           {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-              { type: 'text', text: PROMPT },
+            parts: [
+              { text: PROMPT },
+              { inline_data: { mime_type: image.mediaType, data: image.base64 } },
             ],
           },
         ],
+        generationConfig: {
+          responseMimeType: 'application/json',
+        },
       }),
     })
 
     if (!response.ok) {
       const errText = await response.text()
-      console.error('FrigoMind: erreur API Claude', response.status, errText)
-      res.status(200).json({ items: [], error: `Erreur API Claude (${response.status})` })
+      console.error('FrigoMind: erreur API Gemini', response.status, errText)
+      res.status(200).json({ items: [], error: `Erreur API Gemini (${response.status})` })
       return
     }
 
     const data = await response.json()
-    const textBlock = data.content?.find((b) => b.type === 'text')
-    const parsed = textBlock ? extractJson(textBlock.text) : null
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+    const parsed = text ? extractJson(text) : null
 
     if (!parsed || !Array.isArray(parsed.items)) {
       res.status(200).json({ items: [] })
@@ -103,7 +108,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({ items: parsed.items })
   } catch (e) {
-    console.error('FrigoMind: analyse Claude Vision impossible', e)
+    console.error('FrigoMind: analyse Gemini impossible', e)
     res.status(200).json({ items: [] })
   }
 }
