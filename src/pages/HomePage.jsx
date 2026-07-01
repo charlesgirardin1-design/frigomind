@@ -7,29 +7,33 @@ export default function HomePage() {
   const { goTo } = useApp()
 
   const steps = [
-    { icon: '📸', title: 'Photo', text: 'Prenez en photo votre frigo ou votre table.' },
-    { icon: '✅', title: 'Validez', text: 'Corrigez la liste d\'ingrédients détectée.' },
-    { icon: '🍽️', title: 'Cuisinez', text: 'Recevez 3 à 5 recettes prêtes à faire.' },
+    { icon: '📸', bg: 'bg-fresh-50', title: 'Photo', text: 'Prenez en photo votre frigo ou votre table.' },
+    { icon: '✅', bg: 'bg-zest-50', title: 'Validez', text: 'Corrigez la liste d\'ingrédients détectée.' },
+    { icon: '🍽️', bg: 'bg-fresh-50', title: 'Cuisinez', text: 'Recevez 3 à 5 recettes prêtes à faire.' },
   ]
 
   const values = [
     {
       icon: '🌱',
+      bg: 'bg-fresh-50',
       title: 'Anti-gaspi par défaut',
       text: 'FrigoMind priorise les ingrédients périssables pour vous aider à les cuisiner avant qu\'ils ne soient perdus.',
     },
     {
       icon: '🎯',
+      bg: 'bg-zest-50',
       title: 'Toujours une solution',
       text: 'Même avec une combinaison d\'ingrédients inhabituelle, l\'app garantit 3 à 5 recettes réalistes, jamais un cul-de-sac.',
     },
     {
       icon: '🔒',
+      bg: 'bg-neutral-100',
       title: 'Respect de vos données',
       text: 'Vos photos servent uniquement à l\'analyse IA et ne sont jamais stockées sur nos serveurs.',
     },
     {
       icon: '💸',
+      bg: 'bg-fresh-50',
       title: '100% gratuit',
       text: 'Propulsé par Google Gemini, sans carte bancaire ni abonnement caché.',
     },
@@ -43,8 +47,17 @@ export default function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16 animate-fadeIn">
-      <div className="text-center">
-        <span className="inline-block text-6xl mb-4" aria-hidden>
+      <div className="relative text-center overflow-hidden">
+        <div
+          className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-fresh-200/40 blur-3xl -z-10"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-zest-200/40 blur-3xl -z-10"
+          aria-hidden
+        />
+
+        <span className="inline-block text-6xl mb-4 animate-float" aria-hidden>
           🥕🍅🧀
         </span>
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900">
@@ -68,8 +81,8 @@ export default function HomePage() {
 
       <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {steps.map((s, i) => (
-          <div key={s.title} className="card p-5 text-center hover:shadow-cardHover transition-shadow">
-            <div className="text-3xl mb-2" aria-hidden>
+          <div key={s.title} className="card p-5 text-center">
+            <div className={`icon-badge ${s.bg} mx-auto mb-3`} aria-hidden>
               {s.icon}
             </div>
             <div className="font-semibold text-neutral-900">
@@ -81,18 +94,16 @@ export default function HomePage() {
       </div>
 
       <div className="mt-16">
-        <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 text-center">
-          Pourquoi FrigoMind ?
-        </h2>
-        <p className="text-neutral-500 text-sm text-center mt-2 max-w-lg mx-auto">
+        <h2 className="section-title">Pourquoi FrigoMind ?</h2>
+        <p className="section-subtitle">
           Une app pensée pour arrêter de se demander "qu'est-ce qu'on mange ce soir" en regardant un frigo
           à moitié plein.
         </p>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {values.map((v) => (
-            <div key={v.title} className="card p-5 flex gap-3 hover:shadow-cardHover transition-shadow">
-              <div className="text-2xl shrink-0" aria-hidden>
+            <div key={v.title} className="card p-5 flex gap-3">
+              <div className={`icon-badge ${v.bg} shrink-0`} aria-hidden>
                 {v.icon}
               </div>
               <div>
@@ -105,23 +116,23 @@ export default function HomePage() {
       </div>
 
       <div className="mt-16">
-        <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 text-center">
-          Le gaspillage alimentaire en chiffres
-        </h2>
-        <p className="text-neutral-500 text-sm text-center mt-2 max-w-lg mx-auto">
+        <h2 className="section-title">Le gaspillage alimentaire en chiffres</h2>
+        <p className="section-subtitle">
           De quoi remettre en perspective l'intérêt de finir ce qu'il y a dans le frigo.
         </p>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="card p-5 text-center">
-            <div className="text-2xl font-extrabold text-fresh-700">1,05 milliard</div>
+            <div className="text-3xl mb-1" aria-hidden>🌍</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">1,05 milliard</div>
             <p className="text-sm text-neutral-500 mt-1">
               de tonnes de nourriture gaspillées chaque année dans le monde — soit plus d'1 milliard de
               repas jetés par jour.
             </p>
           </div>
           <div className="card p-5 text-center">
-            <div className="text-2xl font-extrabold text-fresh-700">132 kg</div>
+            <div className="text-3xl mb-1" aria-hidden>⚖️</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">132 kg</div>
             <p className="text-sm text-neutral-500 mt-1">
               par personne et par an en moyenne dans le monde (dont environ 79 kg pour les seuls ménages).
             </p>
@@ -132,9 +143,9 @@ export default function HomePage() {
           <p className="font-semibold text-neutral-900 text-sm mb-3">
             Gaspillage alimentaire des ménages, par pays (ordres de grandeur)
           </p>
-          <div className="space-y-2">
+          <div className="divide-y divide-neutral-100">
             {countryWaste.map((c) => (
-              <div key={c.country} className="flex items-center justify-between text-sm">
+              <div key={c.country} className="flex items-center justify-between text-sm py-2 first:pt-0 last:pb-0">
                 <span className="text-neutral-700">{c.country}</span>
                 <span className="text-neutral-500">
                   {c.kg} / an / personne <span className="text-neutral-300">· {c.source}</span>
@@ -142,7 +153,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-neutral-400 mt-3">
+          <p className="text-xs text-neutral-400 mt-3 pt-3 border-t border-neutral-100">
             Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux, données 2022) ; ADEME (France) ;
             WRAP (Royaume-Uni) ; RTS / USDA (États-Unis). Les méthodologies de mesure diffèrent selon les
             pays, ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.
@@ -150,7 +161,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-16 card p-6 sm:p-8 text-center bg-fresh-50/60 border-fresh-100">
+      <div className="mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow">
+        <div className="text-4xl mb-2" aria-hidden>🎉</div>
         <h2 className="text-lg sm:text-xl font-bold text-neutral-900">
           Prêt à vider votre frigo intelligemment ?
         </h2>
