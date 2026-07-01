@@ -5,7 +5,7 @@ MVP d'une application food tech : **Photo → Ingrédients → Recettes**, en 3 
 ## Concept
 
 1. L'utilisateur prend en photo son frigo (ou sa table).
-2. Claude Vision détecte réellement les aliments visibles sur la photo.
+2. Une IA multimodale gratuite (Google Gemini) détecte réellement les aliments visibles sur la photo.
 3. L'utilisateur valide/corrige la liste d'ingrédients.
 4. L'app propose 3 à 5 recettes réalistes, personnalisables (temps, type de cuisine, régime).
 
@@ -16,19 +16,21 @@ Bonus inclus : mode anti-gaspi (priorise les ingrédients périssables), bouton 
 - **React 18 + Vite** — build rapide
 - **Tailwind CSS** — design system minimaliste (vert "fraîcheur" / orange "gourmand")
 - Aucune dépendance de routing ou de state management externe : Context + `useReducer` maison, routage par état local
-- **Claude Vision** via une fonction serverless Vercel (`/api/analyze-fridge.js`) — reconnaît un vocabulaire alimentaire large (œufs, fromage, lait, oignon, viande, légumes...), pas juste une dizaine de classes fixes
+- **Google Gemini** via une fonction serverless Vercel (`/api/analyze-fridge.js`) — reconnaît un vocabulaire alimentaire large (œufs, fromage, lait, oignon, viande, légumes...), pas juste une dizaine de classes fixes. Palier gratuit sans carte bancaire.
 
 ## ⚠️ Configuration requise pour que l'analyse IA fonctionne
 
-Cette app appelle l'API Claude depuis une fonction serverless Vercel. Pour que ça marche une fois déployé, il faut définir une variable d'environnement sur Vercel :
+Cette app appelle l'API Google Gemini depuis une fonction serverless Vercel. Pour que ça marche une fois déployé, il faut définir une variable d'environnement sur Vercel :
 
-1. Créer une clé API sur [console.anthropic.com](https://console.anthropic.com/settings/keys)
+1. Créer une clé API **gratuite** sur [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (aucune carte bancaire requise pour le palier gratuit)
 2. Dans le projet Vercel → **Settings → Environment Variables**, ajouter :
-   - Nom : `ANTHROPIC_API_KEY`
+   - Nom : `GEMINI_API_KEY`
    - Valeur : la clé créée à l'étape 1
 3. Redéployer (un nouveau déploiement prend en compte la variable)
 
 Sans cette clé, l'app ne plante pas : elle affiche simplement une liste vide et l'utilisateur ajoute ses ingrédients à la main.
+
+Optionnel : `GEMINI_MODEL` permet de changer le modèle utilisé (par défaut `gemini-2.5-flash`) si Google renomme ses modèles, sans avoir à modifier le code.
 
 ## Lancer le projet en local
 
@@ -56,7 +58,7 @@ npm run preview
 frigomind/
 ├── index.html
 ├── api/
-│   └── analyze-fridge.js      # fonction serverless Vercel : appelle Claude Vision, garde la clé API secrète
+│   └── analyze-fridge.js      # fonction serverless Vercel : appelle Google Gemini, garde la clé API secrète
 ├── src/
 │   ├── main.jsx              # point d'entrée React
 │   ├── App.jsx                # routeur simple basé sur l'état global
@@ -78,7 +80,7 @@ frigomind/
 
 ## Comportement IA
 
-`src/data/mockVision.js` envoie la photo (base64) à `/api/analyze-fridge`, qui appelle l'API Claude avec un prompt demandant la liste des aliments visibles au format JSON, avec un score de confiance et des alternatives possibles pour les ingrédients ambigus (ex : "lait ou crème fraîche"). La clé API reste côté serveur, jamais exposée au navigateur.
+`src/data/mockVision.js` envoie la photo (base64) à `/api/analyze-fridge`, qui appelle l'API Google Gemini avec un prompt demandant la liste des aliments visibles au format JSON, avec un score de confiance et des alternatives possibles pour les ingrédients ambigus (ex : "lait ou crème fraîche"). La clé API reste côté serveur, jamais exposée au navigateur.
 
 `src/logic/recipeEngine.js` calcule ensuite un score de correspondance par recette : il favorise les recettes qui utilisent le plus d'ingrédients disponibles, ignore les basiques de placard (sel, poivre, huile...) dans le calcul des ingrédients manquants, ajoute un bonus pour les recettes anti-gaspi, et **garantit toujours au moins une suggestion** même si aucune recette ne correspond parfaitement.
 
@@ -101,10 +103,10 @@ Si le repo distant contient déjà un README ou des fichiers, fais d'abord `git 
 ## Couverture du cahier des charges
 
 - ✅ Upload photo (prendre une photo / importer une image) avec aperçu immédiat
-- ✅ Analyse IA réelle (Claude Vision), jamais bloquante, propose des alternatives en cas d'incertitude
+- ✅ Analyse IA réelle (Google Gemini, gratuit), jamais bloquante, propose des alternatives en cas d'incertitude
 - ✅ Liste modifiable (cases à cocher, ajout, suppression, renommage via alternatives)
 - ✅ 3 à 5 recettes avec nom, temps, niveau, ingrédients utilisés, étapes numérotées
 - ✅ Personnalisation : temps max, type de cuisine, régime végétarien
 - ✅ Design moderne, mobile-first, fond clair + accents vert/orange, cartes pour les recettes
 - ✅ Bonus : mode anti-gaspi, bouton surprise, historique des recettes générées
-- ✅ Immédiatement exécutable (`npm install && npm run dev`) ; une clé API Anthropic est nécessaire sur Vercel pour activer la reconnaissance d'image
+- ✅ Immédiatement exécutable (`npm install && npm run dev`) ; une clé API Gemini gratuite est nécessaire sur Vercel pour activer la reconnaissance d'image
