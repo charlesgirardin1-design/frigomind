@@ -22,8 +22,8 @@ export default function LegalPage() {
         <section>
           <h3 className="font-semibold text-neutral-900 mb-1.5">Éditeur du site</h3>
           <p>
-            FrigoMind est un projet édité par [Nom / raison sociale de l'éditeur]. Pour toute question,
-            contactez l'éditeur via les coordonnées indiquées sur la page Contact.
+            FrigoMind est un projet édité par [Nom / raison sociale de l'éditeur — à compléter]. Pour
+            toute question, contactez l'éditeur à l'adresse [email de contact à compléter].
           </p>
         </section>
 
