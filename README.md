@@ -5,7 +5,7 @@ MVP d'une application food tech : **Photo → Ingrédients → Recettes**, en 3 
 ## Concept
 
 1. L'utilisateur prend en photo son frigo (ou sa table).
-2. Une IA détecte réellement certains aliments visibles (100% dans le navigateur, gratuite).
+2. Claude Vision détecte réellement les aliments visibles sur la photo.
 3. L'utilisateur valide/corrige la liste d'ingrédients.
 4. L'app propose 3 à 5 recettes réalistes, personnalisables (temps, type de cuisine, régime).
 
@@ -13,12 +13,24 @@ Bonus inclus : mode anti-gaspi (priorise les ingrédients périssables), bouton 
 
 ## Stack technique
 
-- **React 18 + Vite** — build rapide, aucun serveur backend requis
+- **React 18 + Vite** — build rapide
 - **Tailwind CSS** — design system minimaliste (vert "fraîcheur" / orange "gourmand")
 - Aucune dépendance de routing ou de state management externe : Context + `useReducer` maison, routage par état local
-- **TensorFlow.js + COCO-SSD** — vraie détection d'objets exécutée dans le navigateur, gratuite, sans clé API (voir `src/data/mockVision.js`, le nom du fichier n'a pas changé mais il ne contient plus rien de "mock")
+- **Claude Vision** via une fonction serverless Vercel (`/api/analyze-fridge.js`) — reconnaît un vocabulaire alimentaire large (œufs, fromage, lait, oignon, viande, légumes...), pas juste une dizaine de classes fixes
 
-## Lancer le projet
+## ⚠️ Configuration requise pour que l'analyse IA fonctionne
+
+Cette app appelle l'API Claude depuis une fonction serverless Vercel. Pour que ça marche une fois déployé, il faut définir une variable d'environnement sur Vercel :
+
+1. Créer une clé API sur [console.anthropic.com](https://console.anthropic.com/settings/keys)
+2. Dans le projet Vercel → **Settings → Environment Variables**, ajouter :
+   - Nom : `ANTHROPIC_API_KEY`
+   - Valeur : la clé créée à l'étape 1
+3. Redéployer (un nouveau déploiement prend en compte la variable)
+
+Sans cette clé, l'app ne plante pas : elle affiche simplement une liste vide et l'utilisateur ajoute ses ingrédients à la main.
+
+## Lancer le projet en local
 
 Prérequis : [Node.js](https://nodejs.org) 18+ installé.
 
@@ -28,6 +40,8 @@ npm run dev
 ```
 
 Puis ouvrir l'URL affichée (en général `http://localhost:5173`).
+
+⚠️ En local avec `npm run dev`, la route `/api` n'existe pas (elle n'est servie que par Vercel ou par `vercel dev`) : la détection IA renverra une liste vide, ce qui est normal. Utilisez `vercel dev` (CLI Vercel) si vous voulez tester l'API en local avec la clé.
 
 Build de production :
 
@@ -41,6 +55,8 @@ npm run preview
 ```
 frigomind/
 ├── index.html
+├── api/
+│   └── analyze-fridge.js      # fonction serverless Vercel : appelle Claude Vision, garde la clé API secrète
 ├── src/
 │   ├── main.jsx              # point d'entrée React
 │   ├── App.jsx                # routeur simple basé sur l'état global
@@ -48,7 +64,7 @@ frigomind/
 │   ├── state/
 │   │   └── AppContext.jsx     # état global : photo, ingrédients, préférences, recettes, historique
 │   ├── data/
-│   │   ├── mockVision.js      # vraie détection d'image (TensorFlow.js + COCO-SSD, dans le navigateur)
+│   │   ├── mockVision.js      # appelle /api/analyze-fridge (nom du fichier conservé, plus rien de "mock")
 │   │   ├── recipesDB.js       # base de recettes (ingrédients requis/optionnels, étapes)
 │   │   └── expiryData.js      # ingrédients périssables + basiques de placard (pour l'anti-gaspi)
 │   ├── logic/
@@ -60,24 +76,11 @@ frigomind/
 └── package.json
 ```
 
-## Comportement IA (vraie détection, gratuite)
+## Comportement IA
 
-`src/data/mockVision.js` charge le modèle **COCO-SSD** (via `@tensorflow/tfjs` + `@tensorflow-models/coco-ssd`) directement dans le navigateur de l'utilisateur, et l'exécute sur la photo prise/importée. Aucune clé API, aucun serveur : tout se passe côté client.
-
-Limite assumée : COCO-SSD est un modèle généraliste à 80 classes d'objets du quotidien. Seule une dizaine correspond à des aliments (banane, pomme, orange, brocoli, carotte, sandwich, hot-dog, pizza, donut, gâteau). Il ne reconnaît pas des ingrédients comme œufs, fromage, lait, oignon, viande crue, etc., car ce ne sont pas des classes du modèle — dans ce cas la liste détectée est vide, ce qui est normal, et l'utilisateur complète à la main.
+`src/data/mockVision.js` envoie la photo (base64) à `/api/analyze-fridge`, qui appelle l'API Claude avec un prompt demandant la liste des aliments visibles au format JSON, avec un score de confiance et des alternatives possibles pour les ingrédients ambigus (ex : "lait ou crème fraîche"). La clé API reste côté serveur, jamais exposée au navigateur.
 
 `src/logic/recipeEngine.js` calcule ensuite un score de correspondance par recette : il favorise les recettes qui utilisent le plus d'ingrédients disponibles, ignore les basiques de placard (sel, poivre, huile...) dans le calcul des ingrédients manquants, ajoute un bonus pour les recettes anti-gaspi, et **garantit toujours au moins une suggestion** même si aucune recette ne correspond parfaitement.
-
-## Passer à une détection plus précise (Claude Vision)
-
-Le point d'intégration est **entièrement isolé** dans `src/data/mockVision.js`. Pour reconnaître vraiment tous les ingrédients (œufs, fromage, lait...), il faut un modèle multimodal plus puissant :
-
-1. Créer un backend (route serverless Vercel dans `/api`, par ex.) qui reçoit l'image en base64 et appelle l'API Claude avec un prompt du type :
-   > "Voici une photo d'un frigo ou d'une table. Liste les aliments visibles au format JSON : `[{name, confidence}]`. Si un aliment est ambigu, propose des alternatives possibles."
-2. Stocker la clé API Anthropic comme variable d'environnement **côté serveur uniquement** (jamais exposée au navigateur).
-3. Remplacer le corps de `analyzeImage()` dans `mockVision.js` par un `fetch('/api/analyze-fridge', { method: 'POST', body: JSON.stringify({ image }) })` qui retourne le même format `{ items: [{ id, name, confidence, alternatives, checked }] }`.
-
-Aucun autre fichier n'a besoin de changer : `AppContext.jsx` appelle `analyzeImage()` sans connaître son implémentation.
 
 ## Pousser ce projet sur ton repo GitHub
 
@@ -98,10 +101,10 @@ Si le repo distant contient déjà un README ou des fichiers, fais d'abord `git 
 ## Couverture du cahier des charges
 
 - ✅ Upload photo (prendre une photo / importer une image) avec aperçu immédiat
-- ✅ Analyse IA réelle (TensorFlow.js, gratuite, dans le navigateur), jamais bloquante
+- ✅ Analyse IA réelle (Claude Vision), jamais bloquante, propose des alternatives en cas d'incertitude
 - ✅ Liste modifiable (cases à cocher, ajout, suppression, renommage via alternatives)
 - ✅ 3 à 5 recettes avec nom, temps, niveau, ingrédients utilisés, étapes numérotées
 - ✅ Personnalisation : temps max, type de cuisine, régime végétarien
 - ✅ Design moderne, mobile-first, fond clair + accents vert/orange, cartes pour les recettes
 - ✅ Bonus : mode anti-gaspi, bouton surprise, historique des recettes générées
-- ✅ Immédiatement exécutable (`npm install && npm run dev`), aucune dépendance backend obligatoire
+- ✅ Immédiatement exécutable (`npm install && npm run dev`) ; une clé API Anthropic est nécessaire sur Vercel pour activer la reconnaissance d'image
