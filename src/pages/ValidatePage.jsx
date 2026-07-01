@@ -48,7 +48,9 @@ export default function ValidatePage() {
       <div className="mt-5 card divide-y divide-neutral-100">
         {state.ingredients.length === 0 && (
           <p className="p-4 text-sm text-neutral-400 text-center">
-            Aucun ingrédient détecté automatiquement. Ajoutez-les manuellement ci-dessous 👇
+            Aucun ingrédient reconnu automatiquement sur cette photo. Le modèle gratuit ne reconnaît
+            qu'un vocabulaire limité (fruits et légumes courants). Ajoutez vos ingrédients
+            manuellement ci-dessous 👇
           </p>
         )}
 
