@@ -46,12 +46,107 @@ const NON_VEGETARIAN_KEYWORDS = [
   'chorizo',
 ]
 
+// Table de correspondance ingrédient → emoji, utilisée pour adapter
+// dynamiquement les emojis des recettes générées à la volée (voir
+// buildGenericRecipes) en fonction de ce que l'utilisateur a réellement
+// pris en photo. L'ordre compte : les entrées les plus spécifiques (ex.
+// "pomme de terre") doivent être testées avant les plus génériques (ex.
+// "pomme").
+const EMOJI_KEYWORDS = [
+  ['pomme de terre', '🥔'],
+  ['pomme', '🍎'],
+  ['banane', '🍌'],
+  ['orange', '🍊'],
+  ['citron vert', '🍋'],
+  ['citron', '🍋'],
+  ['fraise', '🍓'],
+  ['raisin', '🍇'],
+  ['poire', '🍐'],
+  ['ananas', '🍍'],
+  ['mangue', '🥭'],
+  ['peche', '🍑'],
+  ['pasteque', '🍉'],
+  ['melon', '🍈'],
+  ['tomate', '🍅'],
+  ['brocoli', '🥦'],
+  ['carotte', '🥕'],
+  ['poivron', '🫑'],
+  ['champignon', '🍄'],
+  ['epinard', '🥬'],
+  ['salade', '🥬'],
+  ['courgette', '🥒'],
+  ['concombre', '🥒'],
+  ['ail', '🧄'],
+  ['oignon', '🧅'],
+  ['mais', '🌽'],
+  ['avocat', '🥑'],
+  ['lentille', '🫘'],
+  ['pois chiche', '🧆'],
+  ['petit pois', '🟢'],
+  ['poulet', '🍗'],
+  ['dinde', '🦃'],
+  ['canard', '🦆'],
+  ['boeuf', '🥩'],
+  ['veau', '🥩'],
+  ['agneau', '🥩'],
+  ['porc', '🐖'],
+  ['saucisse', '🌭'],
+  ['chorizo', '🌭'],
+  ['lardon', '🥓'],
+  ['bacon', '🥓'],
+  ['jambon', '🍖'],
+  ['viande', '🥩'],
+  ['saumon', '🐟'],
+  ['thon', '🐟'],
+  ['poisson', '🐟'],
+  ['crevette', '🍤'],
+  ['oeuf', '🥚'],
+  ['feta', '🧀'],
+  ['fromage', '🧀'],
+  ['lait', '🥛'],
+  ['yaourt', '🥣'],
+  ['beurre', '🧈'],
+  ['riz', '🍚'],
+  ['pate', '🍝'],
+  ['pain', '🍞'],
+  ['miel', '🍯'],
+  ['chocolat', '🍫'],
+  ['noix de coco', '🥥'],
+  ['noix', '🥜'],
+]
+
+function pickIngredientEmoji(ingredientName) {
+  const normalized = normalize(ingredientName)
+  for (const [keyword, emoji] of EMOJI_KEYWORDS) {
+    if (normalized.includes(keyword)) return emoji
+  }
+  return null
+}
+
+/**
+ * Choisit un ou deux emojis représentatifs des ingrédients disponibles,
+ * pour adapter visuellement les recettes générées dynamiquement à ce que
+ * l'utilisateur a réellement pris en photo (plutôt qu'un emoji générique
+ * toujours identique).
+ */
+function pickIngredientEmojis(available, max = 2) {
+  const found = []
+  for (const ing of available) {
+    const emoji = pickIngredientEmoji(ing)
+    if (emoji && !found.includes(emoji)) found.push(emoji)
+    if (found.length >= max) break
+  }
+  return found
+}
+
+const ACCENTS_REGEX = /[\u0300-\u036f]/g
+
 function normalize(str) {
   return str
     .trim()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // retire les accents pour un matching plus tolerant
+    .replace(ACCENTS_REGEX, '') // retire les accents pour un matching plus tolerant
 }
 
 function includesIngredient(availableSet, ingredientName) {
@@ -98,12 +193,17 @@ function buildGenericRecipes(available) {
   const list = available.join(', ')
   const diet = guessDiet(available)
   const usesPerishable = available.some((ing) => isPerishable(ing))
+  // Emoji(s) reflétant les ingrédients réellement pris en photo (ex : 🍗
+  // pour du poulet, 🍎 pour une pomme...), combinés à un emoji de "style"
+  // par recette pour que les 5 variantes restent visuellement distinctes.
+  const ingredientEmojis = pickIngredientEmojis(available, 2)
+  const ingredientEmojiSuffix = ingredientEmojis.length ? ingredientEmojis.join('') : ''
 
   const templates = [
     {
       id: 'poelee-maison',
+      styleEmoji: '🍳',
       name: `Poêlée maison (${list})`,
-      emoji: '🍳',
       time: 20,
       level: 'facile',
       cuisine: 'maison',
@@ -117,8 +217,8 @@ function buildGenericRecipes(available) {
     },
     {
       id: 'bol-frais-maison',
+      styleEmoji: '🥗',
       name: `Bol frais (${list})`,
-      emoji: '🥗',
       time: 12,
       level: 'facile',
       cuisine: 'maison',
@@ -131,8 +231,8 @@ function buildGenericRecipes(available) {
     },
     {
       id: 'gratin-four-maison',
+      styleEmoji: '🧀',
       name: `Gratin au four (${list})`,
-      emoji: '🧀',
       time: 30,
       level: 'moyen',
       cuisine: 'maison',
@@ -143,12 +243,42 @@ function buildGenericRecipes(available) {
         'Servir chaud directement dans le plat.',
       ],
     },
+    {
+      id: 'soupe-maison',
+      styleEmoji: '🍲',
+      name: `Soupe maison (${list})`,
+      time: 25,
+      level: 'facile',
+      cuisine: 'maison',
+      steps: [
+        `Couper tous vos ingrédients (${list}).`,
+        "Faire revenir l'oignon ou l'ail quelques minutes si vous en avez.",
+        "Ajouter le reste des ingrédients et couvrir d'eau (ou de bouillon).",
+        'Laisser mijoter 20 minutes.',
+        'Mixer pour un velouté, ou servir tel quel selon la texture voulue.',
+      ],
+    },
+    {
+      id: 'wok-minute-maison',
+      styleEmoji: '🥘',
+      name: `Wok minute (${list})`,
+      time: 15,
+      level: 'facile',
+      cuisine: 'maison',
+      steps: [
+        `Couper tous vos ingrédients (${list}) en petits morceaux.`,
+        "Faire chauffer un wok ou une grande poêle avec un filet d'huile.",
+        'Saisir à feu vif 5 à 7 minutes en remuant constamment.',
+        'Ajouter un peu de sauce soja si vous en avez.',
+        'Servir immédiatement, bien chaud.',
+      ],
+    },
   ]
 
   return templates.map((t) => ({
     id: t.id,
     name: t.name,
-    emoji: t.emoji,
+    emoji: `${t.styleEmoji}${ingredientEmojiSuffix}`,
     time: t.time,
     level: t.level,
     cuisine: t.cuisine,
