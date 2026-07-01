@@ -20,6 +20,15 @@ export const PERISHABLE_INGREDIENTS = [
   'herbes fraîches',
   'basilic',
   'coriandre',
+  'saumon',
+  'crevettes',
+  'avocat',
+  'fraises',
+  'dinde',
+  'feta',
+  'boeuf',
+  'porc',
+  'saucisse',
 ]
 
 // Ingrédients "de base" qu'on suppose toujours disponibles dans un placard
