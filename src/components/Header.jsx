@@ -5,6 +5,7 @@ import { useApp } from '../state/AppContext.jsx'
 const NAV_LINKS = [
   { view: 'home', label: 'Accueil' },
   { view: 'favorites', label: 'Favoris' },
+  { view: 'planning', label: 'Planning' },
   { view: 'history', label: 'Historique' },
   { view: 'stats', label: 'Statistiques' },
   { view: 'about', label: 'À propos' },
@@ -40,12 +41,12 @@ export default function Header() {
         </button>
 
         {/* Navigation desktop */}
-        <nav className="hidden sm:flex items-center gap-1 bg-neutral-50/70 rounded-full p-1 border border-neutral-100">
+        <nav className="hidden sm:flex items-center flex-wrap justify-end gap-1 bg-neutral-50/70 rounded-full p-1 border border-neutral-100">
           {NAV_LINKS.map((link) => (
             <button
               key={link.view}
               onClick={() => navigate(link.view)}
-              className={`text-sm font-medium px-3 py-1.5 rounded-full transition-all duration-150 ${
+              className={`text-sm font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-all duration-150 ${
                 state.view === link.view
                   ? 'bg-white text-fresh-700 shadow-card'
                   : 'text-neutral-500 hover:text-neutral-900 hover:bg-white/70'
