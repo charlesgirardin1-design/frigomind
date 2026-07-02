@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import PreferencesPanel from '../components/PreferencesPanel.jsx'
 import AntiGaspiBanner from '../components/AntiGaspiBanner.jsx'
+import IngredientSuggestions from '../components/IngredientSuggestions.jsx'
+import { suggestComplementaryIngredients } from '../logic/recipeEngine.js'
 
 function ConfidenceBadge({ confidence }) {
   if (confidence >= 0.75) {
@@ -22,7 +24,9 @@ export default function ValidatePage() {
   const [newIngredient, setNewIngredient] = useState('')
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
+  const allNames = state.ingredients.map((i) => i.name)
   const hasAtLeastOne = checkedNames.length > 0
+  const suggestions = suggestComplementaryIngredients(checkedNames, allNames)
 
   function handleAdd() {
     if (!newIngredient.trim()) return
@@ -109,6 +113,10 @@ export default function ValidatePage() {
           </button>
         </div>
       </div>
+
+      {hasAtLeastOne && suggestions.length > 0 && (
+        <IngredientSuggestions suggestions={suggestions} onSelect={addIngredient} />
+      )}
 
       {hasAtLeastOne && (
         <div className="mt-4">

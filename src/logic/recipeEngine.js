@@ -400,6 +400,58 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
 }
 
 /**
+ * Suggère des ingrédients "complémentaires" à cocher sur la page de
+ * validation (ex : pâtes + jambon détectés → suggère petits pois, carotte...).
+ * Principe : on regarde toutes les recettes de la base qui partagent au
+ * moins un ingrédient avec ce que l'utilisateur a déjà coché, puis on
+ * remonte leurs ingrédients manquants (requis en priorité, optionnels en
+ * second) — pondérés par la "proximité" de la recette (peu d'ingrédients
+ * manquants = recette presque faisable = suggestion plus pertinente).
+ * @param {string[]} checkedIngredients - ingrédients actuellement cochés
+ * @param {string[]} [knownIngredients] - tous les ingrédients déjà listés sur
+ *   la page (cochés ou non), pour ne jamais suggérer un doublon
+ * @param {number} [limit]
+ * @returns {string[]}
+ */
+export function suggestComplementaryIngredients(checkedIngredients, knownIngredients = checkedIngredients, limit = 6) {
+  const available = checkedIngredients.filter(Boolean)
+  const known = knownIngredients.filter(Boolean)
+  if (available.length === 0) return []
+
+  const tally = new Map()
+
+  for (const recipe of RECIPES) {
+    const pool = [...recipe.required, ...recipe.optional]
+    const overlap = pool.filter((ing) => includesIngredient(available, ing))
+    if (overlap.length === 0) continue
+
+    const missingRequired = recipe.required.filter((ing) => !includesIngredient(known, ing) && !isPantryStaple(ing))
+    const missingOptional = recipe.optional.filter((ing) => !includesIngredient(known, ing) && !isPantryStaple(ing))
+    if (missingRequired.length + missingOptional.length === 0) continue
+
+    // Plus la recette est proche d'être faisable avec ce qu'on a déjà, plus
+    // ses ingrédients manquants sont mis en avant.
+    const closeness = overlap.length / (overlap.length + missingRequired.length + missingOptional.length)
+
+    missingRequired.forEach((name) => {
+      const key = normalize(name)
+      const weight = (tally.get(key)?.weight || 0) + closeness * 2
+      tally.set(key, { name: tally.get(key)?.name || name, weight })
+    })
+    missingOptional.forEach((name) => {
+      const key = normalize(name)
+      const weight = (tally.get(key)?.weight || 0) + closeness
+      tally.set(key, { name: tally.get(key)?.name || name, weight })
+    })
+  }
+
+  return [...tally.values()]
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, limit)
+    .map((entry) => entry.name)
+}
+
+/**
  * Bouton "J'ai faim → surprends-moi" : choisit une recette pondérée par son
  * score parmi les ingrédients disponibles, en ignorant les préférences.
  */
