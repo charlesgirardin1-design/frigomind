@@ -1,10 +1,11 @@
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
 import { useApp } from '../state/AppContext.jsx'
+import { isFavoriteRecipe } from '../utils/storage.js'
 
 // Page résultats : grille de 3 à 5 recettes (ou 1 seule en mode "surprise").
 export default function ResultsPage() {
-  const { state, setActiveRecipe, goTo, resetSession, surpriseMe } = useApp()
+  const { state, setActiveRecipe, goTo, resetSession, surpriseMe, toggleFavorite } = useApp()
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
   const activeRecipe = state.recipes.find((r) => r.id === state.activeRecipeId) || null
@@ -37,7 +38,13 @@ export default function ResultsPage() {
           }`}
         >
           {state.recipes.map((recipe) => (
-            <RecipeCard key={recipe.id} recipe={recipe} onOpen={setActiveRecipe} />
+            <RecipeCard
+              key={recipe.id}
+              recipe={recipe}
+              onOpen={(r) => setActiveRecipe(r.id)}
+              isFavorite={isFavoriteRecipe(state.favorites, recipe)}
+              onToggleFavorite={toggleFavorite}
+            />
           ))}
         </div>
       )}

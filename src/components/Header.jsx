@@ -4,10 +4,11 @@ import { useApp } from '../state/AppContext.jsx'
 
 const NAV_LINKS = [
   { view: 'home', label: 'Accueil' },
-  { view: 'about', label: 'À propos' },
-  { view: 'faq', label: 'FAQ' },
+  { view: 'favorites', label: 'Favoris' },
   { view: 'history', label: 'Historique' },
   { view: 'stats', label: 'Statistiques' },
+  { view: 'about', label: 'À propos' },
+  { view: 'faq', label: 'FAQ' },
 ]
 
 // Menu de navigation principal du site : liens visibles en desktop,

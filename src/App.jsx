@@ -12,6 +12,9 @@ import NotFoundPage from './pages/NotFoundPage.jsx'
 import BlogPage from './pages/BlogPage.jsx'
 import StatsPage from './pages/StatsPage.jsx'
 import ChangelogPage from './pages/ChangelogPage.jsx'
+import FavoritesPage from './pages/FavoritesPage.jsx'
+import PlanningPage from './pages/PlanningPage.jsx'
+import IngredientPage from './pages/IngredientPage.jsx'
 import { useApp } from './state/AppContext.jsx'
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -29,6 +32,9 @@ const VIEWS = {
   blog: BlogPage,
   stats: StatsPage,
   changelog: ChangelogPage,
+  favorites: FavoritesPage,
+  planning: PlanningPage,
+  ingredient: IngredientPage,
 }
 
 export default function App() {
@@ -75,6 +81,12 @@ export default function App() {
             </button>
             <button onClick={() => goTo('blog')} className="text-neutral-500 hover:text-fresh-700 transition">
               Astuces anti-gaspi
+            </button>
+            <button onClick={() => goTo('ingredient')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Ingrédients
+            </button>
+            <button onClick={() => goTo('planning')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Planning de la semaine
             </button>
             <button onClick={() => goTo('stats')} className="text-neutral-500 hover:text-fresh-700 transition">
               Statistiques

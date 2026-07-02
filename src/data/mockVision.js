@@ -30,14 +30,17 @@ function nextId() {
  * les ingrédients détectés. Ne bloque jamais l'utilisateur : toute erreur
  * (réseau, clé API absente, réponse invalide...) retourne une liste vide.
  * @param {string} imageDataUrl - image encodée en base64 (data URL)
+ * @param {'frigo'|'placard'} [mode] - oriente l'IA vers les produits frais
+ *   (frigo) ou les produits secs/longue conservation (placard, voir mode
+ *   "vider le placard" sur la page d'upload)
  * @returns {Promise<{items: Array}>}
  */
-export async function analyzeImage(imageDataUrl) {
+export async function analyzeImage(imageDataUrl, mode = 'frigo') {
   try {
     const response = await fetch('/api/analyze-fridge', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ image: imageDataUrl }),
+      body: JSON.stringify({ image: imageDataUrl, mode }),
     })
 
     if (!response.ok) {

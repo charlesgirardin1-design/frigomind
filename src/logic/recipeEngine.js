@@ -452,6 +452,24 @@ export function suggestComplementaryIngredients(checkedIngredients, knownIngredi
 }
 
 /**
+ * Retourne toutes les recettes de la base (brutes, non scorées) qui utilisent
+ * un ingrédient donné, requis ou optionnel. Utilisé par la page "Ingrédient"
+ * pour répondre à "quelles recettes puis-je faire avec X ?".
+ * @param {string} ingredientName
+ * @returns {object[]}
+ */
+export function findRecipesUsingIngredient(ingredientName) {
+  const target = normalize(ingredientName)
+  if (!target) return []
+  return RECIPES.filter((recipe) =>
+    [...recipe.required, ...recipe.optional].some((ing) => {
+      const normalizedIng = normalize(ing)
+      return normalizedIng.includes(target) || target.includes(normalizedIng)
+    })
+  )
+}
+
+/**
  * Bouton "J'ai faim → surprends-moi" : choisit une recette pondérée par son
  * score parmi les ingrédients disponibles, en ignorant les préférences.
  */

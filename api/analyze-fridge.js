@@ -18,16 +18,30 @@
 
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
-const PROMPT = `Voici une photo d'un frigo, d'un placard ou d'une table avec des aliments.
-Identifie tous les ingrédients alimentaires réellement visibles sur cette image.
-
-Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
+const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
 {"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."]}]}
 
 Règles :
 - "alternatives" ne doit contenir des valeurs que si l'ingrédient est ambigu (ex : peut être du lait ou de la crème fraîche). Sinon tableau vide.
 - Ignore la vaisselle, les contenants, les meubles (frigo, placard, table, assiette...) : uniquement des aliments/ingrédients.
 - Si aucun aliment n'est identifiable, réponds {"items": []}.`
+
+const FRIGO_PROMPT = `Voici une photo d'un frigo, d'un placard ou d'une table avec des aliments.
+Identifie tous les ingrédients alimentaires réellement visibles sur cette image.
+
+${JSON_FORMAT_RULES}`
+
+const PLACARD_PROMPT = `Voici une photo d'un placard, d'une étagère ou d'un garde-manger.
+Identifie tous les ingrédients alimentaires SECS et de LONGUE CONSERVATION réellement visibles sur cette
+image : pâtes, riz, légumineuses (lentilles, pois chiches...), conserves (thon, tomates, maïs...), épices,
+farine, sucre, huile, céréales, etc. Ignore les produits frais qui ne seraient pas à leur place dans un
+placard.
+
+${JSON_FORMAT_RULES}`
+
+function buildPrompt(mode) {
+  return mode === 'placard' ? PLACARD_PROMPT : FRIGO_PROMPT
+}
 
 function parseDataUrl(dataUrl) {
   const match = /^data:(.+);base64,(.*)$/.exec(dataUrl || '')
@@ -68,6 +82,7 @@ export default async function handler(req, res) {
     return
   }
 
+  const prompt = buildPrompt(req.body?.mode)
   const model = process.env.GEMINI_MODEL || DEFAULT_MODEL
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
@@ -79,7 +94,7 @@ export default async function handler(req, res) {
         contents: [
           {
             parts: [
-              { text: PROMPT },
+              { text: prompt },
               { inline_data: { mime_type: image.mediaType, data: image.base64 } },
             ],
           },

@@ -9,12 +9,21 @@
 import { createContext, useCallback, useContext, useMemo, useReducer } from 'react'
 import { analyzeImage } from '../data/mockVision.js'
 import { generateRecipes, surpriseRecipe } from '../logic/recipeEngine.js'
-import { getHistory, saveHistoryEntry, clearHistory } from '../utils/storage.js'
+import {
+  getHistory,
+  saveHistoryEntry,
+  clearHistory,
+  getFavorites,
+  saveFavorites,
+  getFavoriteKey,
+  getPlanning,
+  savePlanning,
+} from '../utils/storage.js'
 
 const AppStateContext = createContext(null)
 
 const initialState = {
-  view: 'home', // 'home' | 'upload' | 'validate' | 'results' | 'history'
+  view: 'home', // 'home' | 'upload' | 'validate' | 'results' | 'history' | 'favorites' | 'planning' | 'ingredient'
   photo: null,
   isAnalyzing: false,
   ingredients: [], // [{id, name, confidence, alternatives, checked}]
@@ -23,6 +32,9 @@ const initialState = {
   activeRecipeId: null,
   history: getHistory(),
   isSurprise: false,
+  favorites: getFavorites(),
+  planning: getPlanning(),
+  activeIngredient: '',
 }
 
 function reducer(state, action) {
@@ -72,8 +84,14 @@ function reducer(state, action) {
       return { ...state, history: action.history }
     case 'CLEAR_HISTORY':
       return { ...state, history: [] }
+    case 'SET_FAVORITES':
+      return { ...state, favorites: action.favorites }
+    case 'SET_PLANNING':
+      return { ...state, planning: action.planning }
+    case 'SET_ACTIVE_INGREDIENT':
+      return { ...state, activeIngredient: action.name, view: 'ingredient' }
     case 'RESET_SESSION':
-      return { ...initialState, history: state.history }
+      return { ...initialState, history: state.history, favorites: state.favorites, planning: state.planning }
     default:
       return state
   }
@@ -86,10 +104,10 @@ export function AppProvider({ children }) {
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
 
-  const analyzePhoto = useCallback(async (photoDataUrl) => {
+  const analyzePhoto = useCallback(async (photoDataUrl, mode = 'frigo') => {
     dispatch({ type: 'START_ANALYSIS' })
     try {
-      const result = await analyzeImage(photoDataUrl)
+      const result = await analyzeImage(photoDataUrl, mode)
       dispatch({ type: 'ANALYSIS_DONE', items: result.items })
     } catch (e) {
       // Même en cas d'erreur IA, on ne bloque jamais l'utilisateur :
@@ -145,6 +163,40 @@ export function AppProvider({ children }) {
     dispatch({ type: 'CLEAR_HISTORY' })
   }, [])
 
+  // Ajoute/retire une recette des favoris. On identifie un favori par
+  // id+nom (voir getFavoriteKey) car les recettes générées à la volée
+  // réutilisent le même id d'une session à l'autre ; chaque favori reçoit en
+  // plus un favId unique, utile pour le glisser-déposer dans le planning.
+  const toggleFavorite = useCallback(
+    (recipe) => {
+      const key = getFavoriteKey(recipe)
+      const exists = state.favorites.find((r) => getFavoriteKey(r) === key)
+      const updated = exists
+        ? state.favorites.filter((r) => r.favId !== exists.favId)
+        : [{ ...recipe, favId: `fav-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` }, ...state.favorites]
+      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(updated) })
+    },
+    [state.favorites]
+  )
+
+  const assignRecipeToDay = useCallback(
+    (day, recipe) => {
+      const updated = { ...state.planning, [day]: recipe }
+      dispatch({ type: 'SET_PLANNING', planning: savePlanning(updated) })
+    },
+    [state.planning]
+  )
+
+  const clearDay = useCallback(
+    (day) => {
+      const updated = { ...state.planning, [day]: null }
+      dispatch({ type: 'SET_PLANNING', planning: savePlanning(updated) })
+    },
+    [state.planning]
+  )
+
+  const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
+
   const value = useMemo(
     () => ({
       state,
@@ -161,6 +213,10 @@ export function AppProvider({ children }) {
       setActiveRecipe,
       resetSession,
       wipeHistory,
+      toggleFavorite,
+      assignRecipeToDay,
+      clearDay,
+      goToIngredient,
     }),
     [
       state,
@@ -177,6 +233,10 @@ export function AppProvider({ children }) {
       setActiveRecipe,
       resetSession,
       wipeHistory,
+      toggleFavorite,
+      assignRecipeToDay,
+      clearDay,
+      goToIngredient,
     ]
   )
 

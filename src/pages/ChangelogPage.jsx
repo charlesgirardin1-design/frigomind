@@ -3,6 +3,17 @@ import { useApp } from '../state/AppContext.jsx'
 // Historique des évolutions du site, dans l'ordre du plus récent au plus ancien.
 const ENTRIES = [
   {
+    date: '2 juillet 2026',
+    title: 'Favoris, planning de la semaine, recherche par ingrédient et mode placard',
+    items: [
+      "Nouveau bouton ❤️ sur chaque recette pour la garder en favori, et une page \"Mes favoris\" dédiée.",
+      "Nouvelle page \"Planning de la semaine\" : glissez (ou touchez) vos recettes favorites sur les 7 jours, avec liste de courses agrégée copiable en un clic.",
+      "Nouvelle page \"Recettes par ingrédient\" : cherchez un ingrédient pour voir toutes les recettes qui l'utilisent et une astuce de conservation anti-gaspi.",
+      "Sur la page d'upload, un mode \"Vider le placard\" oriente l'analyse IA vers les produits secs et de longue conservation.",
+      "Dans chaque recette, une liste de courses copiable pour les ingrédients qu'il vous manque.",
+    ],
+  },
+  {
     date: "2 juillet 2026",
     title: 'Nouvelle navigation, page 404 et pages Blog / Stats / Nouveautés',
     items: [

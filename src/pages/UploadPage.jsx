@@ -45,6 +45,7 @@ function resizeImageFile(file, maxDim = 1280, quality = 0.82) {
 export default function UploadPage() {
   const { state, setPhoto, analyzePhoto, goTo } = useApp()
   const [localPreview, setLocalPreview] = useState(state.photo)
+  const [scanMode, setScanMode] = useState('frigo')
   const cameraInputRef = useRef(null)
   const galleryInputRef = useRef(null)
 
@@ -70,7 +71,7 @@ export default function UploadPage() {
 
   async function handleAnalyze() {
     if (!localPreview) return
-    await analyzePhoto(localPreview)
+    await analyzePhoto(localPreview, scanMode)
     // La navigation vers 'validate' est gérée par le reducer (ANALYSIS_DONE)
   }
 
@@ -82,6 +83,26 @@ export default function UploadPage() {
 
       <h2 className="text-2xl font-bold text-neutral-900">Ajoutez une photo</h2>
       <p className="text-neutral-500 mt-1">Votre frigo, un placard, ou quelques aliments sur la table.</p>
+
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={() => setScanMode('frigo')}
+          className={`chip ${scanMode === 'frigo' ? 'chip-active' : ''}`}
+        >
+          🧊 Frigo
+        </button>
+        <button
+          onClick={() => setScanMode('placard')}
+          className={`chip ${scanMode === 'placard' ? 'chip-active' : ''}`}
+        >
+          🥫 Vider le placard
+        </button>
+      </div>
+      <p className="text-xs text-neutral-400 mt-1.5">
+        {scanMode === 'placard'
+          ? 'Mode placard : on cible les produits secs et de longue conservation (pâtes, riz, conserves, légumineuses...).'
+          : 'Mode frigo : on cible les produits frais.'}
+      </p>
 
       <div className="mt-6 card p-4">
         {localPreview ? (

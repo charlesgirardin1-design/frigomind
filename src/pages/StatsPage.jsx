@@ -37,7 +37,7 @@ function computeStats(history) {
 // Page "Statistiques" : petit bonus gamifié basé sur l'historique local
 // (localStorage), sans envoi de données à un serveur.
 export default function StatsPage() {
-  const { state, goTo } = useApp()
+  const { state, goTo, goToIngredient } = useApp()
   const stats = useMemo(() => computeStats(state.history), [state.history])
   const hasData = stats.sessions > 0
 
@@ -83,9 +83,9 @@ export default function StatsPage() {
               <h3 className="font-semibold text-neutral-900 mb-2">Vos ingrédients les plus fréquents</h3>
               <div className="flex flex-wrap gap-2">
                 {stats.topIngredients.map(([name, count]) => (
-                  <span key={name} className="chip">
+                  <button key={name} onClick={() => goToIngredient(name)} className="chip">
                     {name} <span className="text-neutral-400">×{count}</span>
-                  </span>
+                  </button>
                 ))}
               </div>
             </div>

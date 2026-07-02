@@ -1,7 +1,12 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { useApp } from '../state/AppContext.jsx'
+import { copyTextToClipboard } from '../utils/shoppingList.js'
 
 // Modale plein détail d'une recette : ingrédients, étapes numérotées.
 export default function RecipeModal({ recipe, onClose }) {
+  const { goToIngredient } = useApp()
+  const [copied, setCopied] = useState(false)
+
   useEffect(() => {
     function handleKey(e) {
       if (e.key === 'Escape') onClose()
@@ -13,6 +18,20 @@ export default function RecipeModal({ recipe, onClose }) {
   if (!recipe) return null
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
+  const missing = recipe.missingIngredients || []
+
+  function handleIngredientClick(ing) {
+    onClose()
+    goToIngredient(ing)
+  }
+
+  async function handleCopyList() {
+    const ok = await copyTextToClipboard(missing.join('\n'))
+    if (ok) {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
 
   return (
     <div
@@ -55,15 +74,33 @@ export default function RecipeModal({ recipe, onClose }) {
                 return (
                   <li key={ing} className="flex items-center gap-2">
                     <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
-                    <span className={isMissing ? 'text-neutral-500' : 'text-neutral-800'}>
-                      {ing} {isMissing && <em className="text-xs text-zest-600">(à acheter)</em>}
-                      {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> (optionnel)</em>}
-                    </span>
+                    <button
+                      onClick={() => handleIngredientClick(ing)}
+                      className={`text-left underline decoration-dotted underline-offset-2 hover:text-fresh-700 ${
+                        isMissing ? 'text-neutral-500' : 'text-neutral-800'
+                      }`}
+                    >
+                      {ing}
+                    </button>
+                    {isMissing && <em className="text-xs text-zest-600">(à acheter)</em>}
+                    {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> (optionnel)</em>}
                   </li>
                 )
               })}
             </ul>
           </div>
+
+          {missing.length > 0 && (
+            <div className="bg-zest-50 border border-zest-200 rounded-xl2 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-semibold text-neutral-900 text-sm">🛒 Liste de courses</h3>
+                <button onClick={handleCopyList} className="btn-secondary !py-1.5 !px-3 text-xs shrink-0">
+                  {copied ? '✅ Copié' : 'Copier'}
+                </button>
+              </div>
+              <p className="text-sm text-neutral-600 mt-1.5">{missing.join(', ')}</p>
+            </div>
+          )}
 
           <div>
             <h3 className="font-semibold text-neutral-900 mb-2">Étapes</h3>
