@@ -1,4 +1,6 @@
 import { useApp } from '../state/AppContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { PartyGlyph } from '../components/Illustrations.jsx'
 
 // Historique des évolutions du site, dans l'ordre du plus récent au plus ancien.
 const ENTRIES = [
@@ -21,6 +23,15 @@ const ENTRIES = [
       "Ajout d'une page d'erreur 404 personnalisée pour les liens invalides.",
       "Page d'accueil enrichie : plus de texte, section \"Pourquoi FrigoMind ?\" et chiffres du gaspillage alimentaire.",
       'Nouvelles pages : Blog anti-gaspi, Statistiques personnelles, et cette page Nouveautés.',
+    ],
+  },
+  {
+    date: '4 juillet 2026',
+    title: 'Refonte visuelle : illustrations et cohérence graphique',
+    items: [
+      "Nouvelles illustrations sur mesure (dessinées en SVG) pour habiller les en-têtes de page et les états vides, en plus des emoji.",
+      "Toutes les pages secondaires (À propos, FAQ, Blog, Stats, Planning, Favoris, Historique, Mentions légales...) suivent désormais le même gabarit visuel que la page d'accueil.",
+      "FAQ enrichie et classée par thème (Fonctionnement, Confidentialité, Prix, Technique).",
     ],
   },
   {
@@ -56,33 +67,43 @@ const ENTRIES = [
   },
 ]
 
-// Page "Nouveautés" : changelog simple listant les évolutions du site.
+// Page "Nouveautés" : changelog en forme de frise chronologique.
 export default function ChangelogPage() {
   const { goTo } = useApp()
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
-      </button>
+      <PageHeader
+        onBack={() => goTo('home')}
+        icon={<PartyGlyph className="w-full h-full" />}
+        tone="zest"
+        title="Nouveautés"
+        subtitle="Ce qui a changé sur FrigoMind, mise à jour après mise à jour."
+      />
 
-      <h2 className="text-2xl font-bold text-neutral-900">Nouveautés</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Ce qui a changé sur FrigoMind, mise à jour après mise à jour.
-      </p>
-
-      <div className="mt-6 space-y-4">
-        {ENTRIES.map((entry, i) => (
-          <div key={i} className="card p-4">
-            <p className="text-xs font-medium text-fresh-700">{entry.date}</p>
-            <p className="font-semibold text-neutral-900 mt-0.5">{entry.title}</p>
-            <ul className="list-disc list-inside text-sm text-neutral-500 mt-2 space-y-1">
-              {entry.items.map((item, j) => (
-                <li key={j}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div className="mt-7 relative pl-5">
+        <div className="absolute left-[7px] top-2 bottom-2 w-px bg-neutral-200" aria-hidden />
+        <div className="space-y-4">
+          {ENTRIES.map((entry, i) => (
+            <div key={i} className="relative">
+              <span
+                className={`absolute -left-5 top-1.5 w-3 h-3 rounded-full ring-4 ring-white ${
+                  i === 0 ? 'bg-fresh-500' : 'bg-neutral-300'
+                }`}
+                aria-hidden
+              />
+              <div className="card p-4">
+                <p className="text-xs font-medium text-fresh-700">{entry.date}</p>
+                <p className="font-semibold text-neutral-900 mt-0.5">{entry.title}</p>
+                <ul className="list-disc list-inside text-sm text-neutral-500 mt-2 space-y-1">
+                  {entry.items.map((item, j) => (
+                    <li key={j}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

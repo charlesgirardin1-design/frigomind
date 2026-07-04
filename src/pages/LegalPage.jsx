@@ -1,4 +1,6 @@
 import { useApp } from '../state/AppContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { ShieldGlyph } from '../components/Illustrations.jsx'
 
 // Page "Mentions légales / Confidentialité". Contenu générique de MVP :
 // à personnaliser avec l'identité légale réelle de l'éditeur avant toute
@@ -8,17 +10,15 @@ export default function LegalPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
-      </button>
+      <PageHeader
+        onBack={() => goTo('home')}
+        icon={<ShieldGlyph className="w-full h-full" />}
+        tone="neutral"
+        title="Mentions légales & confidentialité"
+        subtitle="Document type pour un projet MVP — à compléter avec l'identité légale réelle de l'éditeur avant toute exploitation commerciale."
+      />
 
-      <h2 className="text-2xl font-bold text-neutral-900">Mentions légales & confidentialité</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Document type pour un projet MVP — à compléter avec l'identité légale réelle de l'éditeur avant
-        toute exploitation commerciale.
-      </p>
-
-      <div className="mt-6 space-y-6 text-neutral-600 leading-relaxed text-sm">
+      <div className="mt-7 space-y-6 text-neutral-600 leading-relaxed text-sm">
         <section>
           <h3 className="font-semibold text-neutral-900 mb-1.5">Éditeur du site</h3>
           <p>

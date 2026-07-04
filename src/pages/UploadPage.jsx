@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { IllustrationTile, CameraGlyph } from '../components/Illustrations.jsx'
 
 // Redimensionne/compresse la photo côté navigateur avant envoi à l'API.
 // Les photos de smartphone (souvent 3-10 Mo) dépassent la limite de taille
@@ -124,9 +125,9 @@ export default function UploadPage() {
           </div>
         ) : (
           <div className="border-2 border-dashed border-neutral-200 rounded-xl2 py-14 flex flex-col items-center justify-center text-center gap-3">
-            <span className="text-4xl" aria-hidden>
-              🖼️
-            </span>
+            <IllustrationTile tone="fresh" size="lg">
+              <CameraGlyph className="w-full h-full" />
+            </IllustrationTile>
             <p className="text-neutral-400 text-sm px-6">
               Aucune image pour le moment. Prenez une photo ou importez-en une.
             </p>

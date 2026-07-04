@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, ChartGlyph } from '../components/Illustrations.jsx'
 
 // Calcule quelques statistiques simples à partir de l'historique local
 // (sessions les plus récentes uniquement, voir note en bas de page).
@@ -43,18 +45,20 @@ export default function StatsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
-      </button>
-
-      <h2 className="text-2xl font-bold text-neutral-900">Vos statistiques</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Un petit résumé de votre activité sur FrigoMind, calculé à partir de votre historique local.
-      </p>
+      <PageHeader
+        onBack={() => goTo('home')}
+        icon={<ChartGlyph className="w-full h-full" />}
+        tone="zest"
+        title="Vos statistiques"
+        subtitle="Un petit résumé de votre activité sur FrigoMind, calculé à partir de votre historique local."
+      />
 
       {!hasData ? (
-        <div className="mt-8 card p-6 text-center">
-          <p className="text-neutral-500 text-sm">
+        <div className="mt-8 card p-8 text-center flex flex-col items-center">
+          <IllustrationTile tone="zest" size="lg" className="mb-4">
+            <ChartGlyph className="w-full h-full" />
+          </IllustrationTile>
+          <p className="text-neutral-500 text-sm max-w-xs">
             Pas encore de statistiques : générez vos premières recettes pour voir apparaître vos chiffres ici.
           </p>
           <button onClick={() => goTo('upload')} className="btn-primary mt-4 px-5 py-2.5 text-sm">
@@ -63,7 +67,7 @@ export default function StatsPage() {
         </div>
       ) : (
         <>
-          <div className="mt-6 grid grid-cols-2 gap-4">
+          <div className="mt-7 grid grid-cols-2 gap-4">
             <div className="card p-5 text-center">
               <div className="text-3xl font-extrabold text-fresh-700">{stats.sessions}</div>
               <p className="text-sm text-neutral-500 mt-1">

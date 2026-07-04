@@ -1,10 +1,13 @@
 import { useApp } from '../state/AppContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, BookGlyph, FridgeGlyph, SproutGlyph, PotGlyph } from '../components/Illustrations.jsx'
 
 // Petits articles anti-gaspi : conseils de conservation et idées de recettes
 // de restes. Contenu généraliste, pas de recette liée à un ingrédient précis.
 const ARTICLES = [
   {
-    emoji: '🧊',
+    tone: 'fresh',
+    Icon: FridgeGlyph,
     title: 'Bien ranger son frigo pour que les aliments tiennent plus longtemps',
     text: [
       "Le frigo n'est pas uniforme : le bas (juste au-dessus du bac à légumes) est la zone la plus froide, idéale pour la viande, le poisson et les produits laitiers ouverts. La porte, plus tempérée, convient aux condiments et boissons, pas au lait ou aux œufs.",
@@ -13,7 +16,8 @@ const ARTICLES = [
     ],
   },
   {
-    emoji: '🥕',
+    tone: 'zest',
+    Icon: SproutGlyph,
     title: 'Que faire avec des légumes un peu fatigués ?',
     text: [
       "Des légumes ramollis ou légèrement flétris ne sont pas perdus : ils sont parfaits pour une soupe, un velouté ou une poêlée, où la texture importe moins que dans une salade crue.",
@@ -22,7 +26,8 @@ const ARTICLES = [
     ],
   },
   {
-    emoji: '🍞',
+    tone: 'fresh',
+    Icon: PotGlyph,
     title: 'Pain dur, restes de riz ou de pâtes : rien ne se perd',
     text: [
       "Le pain rassis se transforme facilement en croûtons pour une salade ou une soupe, en pain perdu sucré ou salé, ou encore en chapelure maison une fois mixé et séché.",
@@ -31,7 +36,8 @@ const ARTICLES = [
     ],
   },
   {
-    emoji: '🏷️',
+    tone: 'zest',
+    Icon: BookGlyph,
     title: 'DLC ou DDM : comprendre les dates sur les emballages',
     text: [
       "La DLC (date limite de consommation, \"à consommer jusqu'au\") concerne les produits périssables comme la viande fraîche ou le poisson : elle doit être respectée pour des raisons de sécurité alimentaire.",
@@ -47,23 +53,23 @@ export default function BlogPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
-      </button>
+      <PageHeader
+        onBack={() => goTo('home')}
+        icon={<BookGlyph className="w-full h-full" />}
+        title="Astuces anti-gaspi"
+        subtitle="Quelques conseils simples pour jeter moins et cuisiner mieux ce que vous avez déjà."
+      />
 
-      <h2 className="text-2xl font-bold text-neutral-900">Astuces anti-gaspi</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Quelques conseils simples pour jeter moins et cuisiner mieux ce que vous avez déjà.
-      </p>
-
-      <div className="mt-6 space-y-4">
+      <div className="mt-7 space-y-4">
         {ARTICLES.map((article) => (
           <article key={article.title} className="card p-5">
-            <h3 className="font-semibold text-neutral-900 flex items-start gap-2">
-              <span aria-hidden>{article.emoji}</span>
-              <span>{article.title}</span>
-            </h3>
-            <div className="mt-2.5 space-y-2 text-sm text-neutral-500 leading-relaxed">
+            <div className="flex items-start gap-3">
+              <IllustrationTile tone={article.tone} size="sm">
+                <article.Icon className="w-full h-full" />
+              </IllustrationTile>
+              <h3 className="font-semibold text-neutral-900 pt-1.5">{article.title}</h3>
+            </div>
+            <div className="mt-3 space-y-2 text-sm text-neutral-500 leading-relaxed">
               {article.text.map((p, i) => (
                 <p key={i}>{p}</p>
               ))}
