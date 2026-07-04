@@ -17,6 +17,19 @@ import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import { useApp } from './state/AppContext.jsx'
+import { useAuth } from './state/AuthContext.jsx'
+
+// Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
+// les mentions légales (obligatoires même sans compte) et la page 404.
+// Toutes les autres pages exigent une connexion Google / Apple / email.
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound'])
+
+// Petit état d'attente affiché le temps de savoir si une session Firebase
+// existe déjà, pour une page protégée — évite un flash de contenu protégé
+// (ou un aller-retour vers la connexion) le temps que Firebase réponde.
+function AuthGateLoading() {
+  return <div className="flex items-center justify-center py-24 text-neutral-400 text-sm">Chargement…</div>
+}
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
 // conformément à la contrainte "sans dépendances compliquées").
@@ -40,7 +53,8 @@ const VIEWS = {
 }
 
 export default function App() {
-  const { state, goTo, resetSession } = useApp()
+  const { state, goTo, resetSession, requireLogin } = useApp()
+  const { user, authLoading } = useAuth()
 
   // Navigue vers les mentions légales et scrolle jusqu'à la section demandée
   // (fonctionne qu'on soit déjà sur la page ou non, voir LegalPage.jsx).
@@ -51,7 +65,7 @@ export default function App() {
     // ça fonctionne qu'on soit déjà sur la page ou qu'on y arrive tout juste.
     window.location.hash = `#${id}`
   }
-  const CurrentView = VIEWS[state.view] || HomePage
+  const isProtectedView = !PUBLIC_VIEWS.has(state.view)
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
   // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
@@ -63,6 +77,20 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Toutes les pages sauf l'accueil (+ connexion, mentions légales, 404)
+  // exigent une connexion Google / Apple / email. On attend que Firebase ait
+  // confirmé qu'il n'y a pas de session active (authLoading) avant de
+  // rediriger, pour ne pas éjecter quelqu'un déjà connecté par erreur.
+  useEffect(() => {
+    if (authLoading) return
+    if (isProtectedView && !user) {
+      requireLogin(state.view)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.view, user, authLoading])
+
+  const CurrentView = isProtectedView && (authLoading || !user) ? AuthGateLoading : VIEWS[state.view] || HomePage
 
   return (
     <div className="min-h-screen flex flex-col">
