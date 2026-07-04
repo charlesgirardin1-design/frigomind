@@ -16,7 +16,8 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
-} from 'firebase/auth'
+  sendEmailVerification,
+  } from 'firebase/auth'
 import { auth, googleProvider, appleProvider, isFirebaseConfigured } from '../firebase.js'
 
 const AuthContext = createContext(null)
@@ -112,6 +113,14 @@ export function AuthProvider({ children }) {
       const result = await createUserWithEmailAndPassword(auth, email, password)
       if (displayName) {
         await updateProfile(result.user, { displayName })
+      }
+      // Envoie l'email de confirmation d'inscription standard de Firebase
+      // (lien de vérification à cliquer). N'empêche jamais la création du
+      // compte si l'envoi échoue (ex: quota Firebase atteint).
+      try {
+        await sendEmailVerification(result.user)
+      } catch (e) {
+        console.warn('FrigoMind: email de confirmation non envoyé', e)
       }
       return result.user
     } catch (err) {
