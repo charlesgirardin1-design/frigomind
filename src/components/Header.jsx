@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, User } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
+import { useAuth } from '../state/AuthContext.jsx'
 
 const NAV_LINKS = [
   { view: 'home', label: 'Accueil' },
@@ -17,6 +18,7 @@ const NAV_LINKS = [
 // existant (goTo / state.view), sans dépendance de routing externe.
 export default function Header() {
   const { state, goTo, resetSession } = useApp()
+  const { user, logOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const navigate = (view) => {
@@ -24,6 +26,8 @@ export default function Header() {
     goTo(view)
     setMenuOpen(false)
   }
+
+  const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase()
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-neutral-100/80 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
@@ -57,6 +61,34 @@ export default function Header() {
           ))}
         </nav>
 
+        {/* Compte / connexion (desktop) */}
+        <div className="hidden sm:flex items-center ml-2 shrink-0">
+          {user ? (
+            <div className="flex items-center gap-2">
+              <div
+                className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm"
+                title={user.displayName || user.email}
+              >
+                {initial}
+              </div>
+              <button
+                onClick={() => logOut()}
+                className="text-sm font-medium text-neutral-500 hover:text-fresh-700 transition"
+              >
+                Déconnexion
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate('login')}
+              className="flex items-center gap-1.5 text-sm font-medium text-neutral-600 hover:text-fresh-700 transition px-3 py-1.5"
+            >
+              <User size={16} />
+              Se connecter
+            </button>
+          )}
+        </div>
+
         {/* Bouton hamburger mobile */}
         <button
           className="sm:hidden p-2 -mr-2 text-neutral-600 hover:text-neutral-900"
@@ -85,6 +117,23 @@ export default function Header() {
                 {link.label}
               </button>
             ))}
+            <div className="border-t border-neutral-100 mt-2 pt-2">
+              {user ? (
+                <button
+                  onClick={() => { logOut(); setMenuOpen(false) }}
+                  className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
+                >
+                  Déconnexion ({user.displayName || user.email})
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('login')}
+                  className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
+                >
+                  Se connecter
+                </button>
+              )}
+            </div>
           </div>
         </nav>
       )}
