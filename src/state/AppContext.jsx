@@ -100,7 +100,15 @@ function reducer(state, action) {
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const goTo = useCallback((view) => dispatch({ type: 'GO_TO', view }), [])
+  const goTo = useCallback((view) => {
+    // On nettoie systématiquement une éventuelle ancre (#cookies, etc.) laissée
+    // par la page légale : sinon elle traîne dans l'URL sur toutes les pages
+    // suivantes. goToLegalSection() (App.jsx) la redéfinit juste après si besoin.
+    if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    }
+    dispatch({ type: 'GO_TO', view })
+  }, [])
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
 
