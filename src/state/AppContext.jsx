@@ -110,7 +110,20 @@ export function AppProvider({ children }) {
     dispatch({ type: 'GO_TO', view })
   }, [])
 
-  const requireLogin = useCallback((from) => dispatch({ type: 'REQUIRE_LOGIN', from }), [])
+    // On mémorise aussi la page visée dans sessionStorage : si la connexion
+    // Google/Apple bascule sur une redirection complète (popup bloquée par le
+  // navigateur), l'état React est réinitialisé au rechargement de la page,
+  // mais sessionStorage survit et permet de renvoyer l'utilisateur au bon
+  // endroit une fois connecté (voir l'effet dans App.jsx).
+  const requireLogin = useCallback((from) => {
+    try {
+      sessionStorage.setItem('frigomind:pendingRedirect', from)
+    } catch {
+      // Stockage indisponible (navigation privée stricte, etc.) : tant pis,
+      // l'utilisateur retombera simplement sur l'accueil après connexion.
+    }
+    dispatch({ type: 'REQUIRE_LOGIN', from })
+  }, [])
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
 
