@@ -1,4 +1,14 @@
 import { useApp } from '../state/AppContext.jsx'
+import {
+  IllustrationTile,
+  FridgeGlyph,
+  CameraGlyph,
+  BookGlyph,
+  PotGlyph,
+  SproutGlyph,
+  CompassGlyph,
+  LockGlyph,
+} from '../components/Illustrations.jsx'
 
 // Page d'accueil : promesse claire + CTA unique pour lancer le flow en 3 clics,
 // puis contenu explicatif enrichi (étapes, valeurs, anti-gaspi) pour rassurer
@@ -7,33 +17,33 @@ export default function HomePage() {
   const { goTo } = useApp()
 
   const steps = [
-    { icon: '📸', bg: 'bg-fresh-50', title: 'Photo', text: 'Prenez en photo votre frigo ou votre table.' },
-    { icon: '✅', bg: 'bg-zest-50', title: 'Validez', text: 'Corrigez la liste d\'ingrédients détectée.' },
-    { icon: '🍽️', bg: 'bg-fresh-50', title: 'Cuisinez', text: 'Recevez 3 à 5 recettes prêtes à faire.' },
+    { Icon: CameraGlyph, tone: 'fresh', title: 'Photo', text: 'Prenez en photo votre frigo ou votre table.' },
+    { Icon: BookGlyph, tone: 'zest', title: 'Validez', text: 'Corrigez la liste d\'ingrédients détectée.' },
+    { Icon: PotGlyph, tone: 'fresh', title: 'Cuisinez', text: 'Recevez 3 à 5 recettes prêtes à faire.' },
   ]
 
   const values = [
     {
-      icon: '🌱',
-      bg: 'bg-fresh-50',
+      Icon: SproutGlyph,
+      tone: 'fresh',
       title: 'Anti-gaspi par défaut',
       text: 'FrigoMind priorise les ingrédients périssables pour vous aider à les cuisiner avant qu\'ils ne soient perdus.',
     },
     {
-      icon: '🎯',
-      bg: 'bg-zest-50',
+      Icon: CompassGlyph,
+      tone: 'zest',
       title: 'Toujours une solution',
       text: 'Même avec une combinaison d\'ingrédients inhabituelle, l\'app garantit 3 à 5 recettes réalistes, jamais un cul-de-sac.',
     },
     {
-      icon: '🔒',
-      bg: 'bg-neutral-100',
+      Icon: LockGlyph,
+      tone: 'neutral',
       title: 'Respect de vos données',
       text: 'Vos photos servent uniquement à l\'analyse IA et ne sont jamais stockées sur nos serveurs.',
     },
     {
-      icon: '💸',
-      bg: 'bg-fresh-50',
+      Icon: PotGlyph,
+      tone: 'fresh',
       title: '100% gratuit',
       text: 'Propulsé par Google Gemini, sans carte bancaire ni abonnement caché.',
     },
@@ -57,9 +67,10 @@ export default function HomePage() {
           aria-hidden
         />
 
-        <span className="inline-block text-6xl mb-4 animate-float" aria-hidden>
-          🥕🍅🧀
-        </span>
+        <IllustrationTile tone="fresh" size="xl" className="mx-auto mb-5 animate-float">
+          <FridgeGlyph className="w-full h-full" />
+        </IllustrationTile>
+
         <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900">
           Votre frigo, vos recettes, <span className="text-fresh-600">en 3 clics</span>.
         </h1>
@@ -82,9 +93,9 @@ export default function HomePage() {
       <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {steps.map((s, i) => (
           <div key={s.title} className="card p-5 text-center">
-            <div className={`icon-badge ${s.bg} mx-auto mb-3`} aria-hidden>
-              {s.icon}
-            </div>
+            <IllustrationTile tone={s.tone} size="sm" className="mx-auto mb-3">
+              <s.Icon className="w-full h-full" />
+            </IllustrationTile>
             <div className="font-semibold text-neutral-900">
               {i + 1}. {s.title}
             </div>
@@ -103,9 +114,9 @@ export default function HomePage() {
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {values.map((v) => (
             <div key={v.title} className="card p-5 flex gap-3">
-              <div className={`icon-badge ${v.bg} shrink-0`} aria-hidden>
-                {v.icon}
-              </div>
+              <IllustrationTile tone={v.tone} size="sm">
+                <v.Icon className="w-full h-full" />
+              </IllustrationTile>
               <div>
                 <div className="font-semibold text-neutral-900">{v.title}</div>
                 <p className="text-sm text-neutral-500 mt-1 leading-relaxed">{v.text}</p>
@@ -162,7 +173,9 @@ export default function HomePage() {
       </div>
 
       <div className="mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow">
-        <div className="text-4xl mb-2" aria-hidden>🎉</div>
+        <IllustrationTile tone="zest" size="md" className="mx-auto mb-3">
+          <PotGlyph className="w-full h-full" />
+        </IllustrationTile>
         <h2 className="text-lg sm:text-xl font-bold text-neutral-900">
           Prêt à vider votre frigo intelligemment ?
         </h2>

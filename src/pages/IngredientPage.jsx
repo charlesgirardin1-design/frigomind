@@ -5,6 +5,8 @@ import { isPerishable, isPantryStaple } from '../data/expiryData.js'
 import { isFavoriteRecipe } from '../utils/storage.js'
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, SearchGlyph } from '../components/Illustrations.jsx'
 
 // Page "Ingrédient" : cherchez un ingrédient (ou cliquez dessus depuis une
 // recette ou vos statistiques) pour voir toutes les recettes de la base qui
@@ -24,17 +26,15 @@ export default function IngredientPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Accueil
-      </button>
+      <PageHeader
+        onBack={() => goTo('home')}
+        backLabel="← Accueil"
+        icon={<SearchGlyph className="w-full h-full" />}
+        title="Recettes par ingrédient"
+        subtitle="Cherchez un ingrédient pour voir toutes les recettes qui l'utilisent, avec une astuce de conservation pour éviter de le gaspiller."
+      />
 
-      <h2 className="text-2xl font-bold text-neutral-900">Recettes par ingrédient</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Cherchez un ingrédient pour voir toutes les recettes qui l'utilisent, avec une astuce de conservation
-        pour éviter de le gaspiller.
-      </p>
-
-      <form onSubmit={handleSearch} className="mt-5 flex gap-2">
+      <form onSubmit={handleSearch} className="mt-6 flex gap-2">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -85,10 +85,13 @@ export default function IngredientPage() {
               ))}
             </div>
           ) : (
-            <div className="mt-4 card p-6 text-center">
-              <p className="text-neutral-500 text-sm">
-                Essayez un autre nom, ou scannez votre frigo pour découvrir des recettes adaptées à ce que vous
-                avez vraiment.
+            <div className="mt-4 card p-8 text-center flex flex-col items-center">
+              <IllustrationTile tone="neutral" size="lg" className="mb-4">
+                <SearchGlyph className="w-full h-full" />
+              </IllustrationTile>
+              <p className="text-neutral-500 text-sm max-w-xs">
+                Essayez un autre nom, ou scannez votre frigo pour découvrir des recettes adaptées à ce que
+                vous avez vraiment.
               </p>
               <button onClick={() => goTo('upload')} className="btn-primary mt-4 px-5 py-2.5 text-sm">
                 📸 Scanner mes ingrédients

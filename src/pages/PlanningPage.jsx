@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, CalendarGlyph } from '../components/Illustrations.jsx'
 import { DAYS_OF_WEEK } from '../utils/storage.js'
 import { dedupeIngredientList, copyTextToClipboard } from '../utils/shoppingList.js'
 
@@ -63,19 +65,20 @@ export default function PlanningPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Accueil
-      </button>
-
-      <h2 className="text-2xl font-bold text-neutral-900">Planning de la semaine</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Glissez une recette favorite sur un jour (ou touchez-la pour la sélectionner, puis touchez un jour sur
-        mobile).
-      </p>
+      <PageHeader
+        onBack={() => goTo('home')}
+        backLabel="← Accueil"
+        icon={<CalendarGlyph className="w-full h-full" />}
+        title="Planning de la semaine"
+        subtitle="Glissez une recette favorite sur un jour (ou touchez-la pour la sélectionner, puis touchez un jour sur mobile)."
+      />
 
       {favorites.length === 0 ? (
-        <div className="mt-8 card p-6 text-center">
-          <p className="text-neutral-500 text-sm">
+        <div className="mt-8 card p-8 text-center flex flex-col items-center">
+          <IllustrationTile tone="fresh" size="lg" className="mb-4">
+            <CalendarGlyph className="w-full h-full" />
+          </IllustrationTile>
+          <p className="text-neutral-500 text-sm max-w-xs">
             Ajoutez d'abord des recettes à vos favoris (❤️) pour pouvoir les planifier ici.
           </p>
           <button onClick={() => goTo('favorites')} className="btn-primary mt-4 px-5 py-2.5 text-sm">
@@ -84,7 +87,7 @@ export default function PlanningPage() {
         </div>
       ) : (
         <>
-          <div className="mt-6">
+          <div className="mt-7">
             <h3 className="font-semibold text-neutral-900 mb-2 text-sm">Vos recettes favorites</h3>
             <div className="flex flex-wrap gap-2">
               {favorites.map((recipe) => (

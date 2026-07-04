@@ -2,6 +2,7 @@ import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
 import { useApp } from '../state/AppContext.jsx'
 import { isFavoriteRecipe } from '../utils/storage.js'
+import { IllustrationTile, PotGlyph } from '../components/Illustrations.jsx'
 
 // Page résultats : grille de 3 à 5 recettes (ou 1 seule en mode "surprise").
 export default function ResultsPage() {
@@ -26,7 +27,10 @@ export default function ResultsPage() {
       )}
 
       {state.recipes.length === 0 ? (
-        <div className="card p-8 text-center mt-6">
+        <div className="card p-8 text-center mt-6 flex flex-col items-center">
+          <IllustrationTile tone="zest" size="lg" className="mb-4">
+            <PotGlyph className="w-full h-full" />
+          </IllustrationTile>
           <p className="text-neutral-500">
             Aucune recette trouvée pour l'instant — ajoutez un ou deux ingrédients de plus et réessayez.
           </p>

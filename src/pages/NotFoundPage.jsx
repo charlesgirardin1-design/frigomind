@@ -1,4 +1,5 @@
 import { useApp } from '../state/AppContext.jsx'
+import { IllustrationTile, CompassGlyph } from '../components/Illustrations.jsx'
 
 // Page 404 : affichée quand l'URL visitée ne correspond à aucune page connue.
 // Ton léger et cohérent avec l'identité food-tech du site.
@@ -15,9 +16,9 @@ export default function NotFoundPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-16 pb-20 text-center animate-fadeIn">
-      <span className="inline-block text-7xl mb-4" aria-hidden>
-        🥕🔍
-      </span>
+      <IllustrationTile tone="zest" size="xl" className="mx-auto mb-6 animate-float">
+        <CompassGlyph className="w-full h-full" />
+      </IllustrationTile>
       <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900">
         Oups, ce plat n'est pas au menu.
       </h1>

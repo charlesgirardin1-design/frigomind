@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, HeartPlateGlyph } from '../components/Illustrations.jsx'
 
 // Page "Mes favoris" : recettes mises de côté (❤️ sur une RecipeCard),
 // persistées en localStorage. Sert de réservoir de recettes pour le planning
@@ -12,19 +14,21 @@ export default function FavoritesPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Accueil
-      </button>
-
-      <h2 className="text-2xl font-bold text-neutral-900">Mes recettes favorites</h2>
-      <p className="text-neutral-500 mt-1 text-sm">
-        Retrouvez ici les recettes mises de côté avec le bouton ❤️. Elles servent aussi de base pour votre
-        planning de la semaine.
-      </p>
+      <PageHeader
+        onBack={() => goTo('home')}
+        backLabel="← Accueil"
+        icon={<HeartPlateGlyph className="w-full h-full" />}
+        tone="zest"
+        title="Mes recettes favorites"
+        subtitle="Retrouvez ici les recettes mises de côté avec le bouton ❤️. Elles servent aussi de base pour votre planning de la semaine."
+      />
 
       {state.favorites.length === 0 ? (
-        <div className="mt-8 card p-6 text-center">
-          <p className="text-neutral-500 text-sm">
+        <div className="mt-8 card p-8 text-center flex flex-col items-center">
+          <IllustrationTile tone="zest" size="lg" className="mb-4">
+            <HeartPlateGlyph className="w-full h-full" />
+          </IllustrationTile>
+          <p className="text-neutral-500 text-sm max-w-xs">
             Aucun favori pour le moment. Ouvrez une recette et cliquez sur 🤍 pour la garder sous la main.
           </p>
           <button onClick={() => goTo('upload')} className="btn-primary mt-4 px-5 py-2.5 text-sm">

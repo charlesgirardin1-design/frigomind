@@ -1,4 +1,6 @@
 import { useApp } from '../state/AppContext.jsx'
+import PageHeader from '../components/PageHeader.jsx'
+import { IllustrationTile, ClockGlyph } from '../components/Illustrations.jsx'
 
 function formatDate(iso) {
   const d = new Date(iso)
@@ -11,23 +13,33 @@ export default function HistoryPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Accueil
-      </button>
-
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-neutral-900">Historique</h2>
-        {state.history.length > 0 && (
-          <button onClick={wipeHistory} className="text-xs text-neutral-400 hover:text-red-500">
-            Effacer tout
-          </button>
-        )}
-      </div>
+      <PageHeader
+        onBack={() => goTo('home')}
+        backLabel="← Accueil"
+        icon={<ClockGlyph className="w-full h-full" />}
+        title="Historique"
+        subtitle="Vos sessions de recettes générées, conservées localement sur cet appareil."
+        action={
+          state.history.length > 0 && (
+            <button onClick={wipeHistory} className="text-xs text-neutral-400 hover:text-red-500">
+              Effacer tout
+            </button>
+          )
+        }
+      />
 
       {state.history.length === 0 ? (
-        <p className="text-neutral-400 mt-6 text-center">Aucune recette générée pour le moment.</p>
+        <div className="mt-8 card p-8 text-center flex flex-col items-center">
+          <IllustrationTile tone="neutral" size="lg" className="mb-4">
+            <ClockGlyph className="w-full h-full" />
+          </IllustrationTile>
+          <p className="text-neutral-500 text-sm max-w-xs">Aucune recette générée pour le moment.</p>
+          <button onClick={() => goTo('upload')} className="btn-primary mt-4 px-5 py-2.5 text-sm">
+            📸 Commencer
+          </button>
+        </div>
       ) : (
-        <div className="mt-5 space-y-3">
+        <div className="mt-6 space-y-3">
           {state.history.map((entry) => (
             <div key={entry.id} className="card p-4">
               <p className="text-xs text-neutral-400">{formatDate(entry.date)}</p>
