@@ -35,12 +35,15 @@ const initialState = {
   favorites: getFavorites(),
   planning: getPlanning(),
   activeIngredient: '',
+  redirectTo: null,
 }
 
 function reducer(state, action) {
   switch (action.type) {
     case 'GO_TO':
-      return { ...state, view: action.view }
+      return { ...state, view: action.view, redirectTo: null }
+    case 'REQUIRE_LOGIN':
+      return { ...state, view: 'login', redirectTo: action.from }
     case 'SET_PHOTO':
       return { ...state, photo: action.photo, ingredients: [], recipes: [] }
     case 'START_ANALYSIS':
@@ -101,14 +104,13 @@ export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   const goTo = useCallback((view) => {
-    // On nettoie systématiquement une éventuelle ancre (#cookies, etc.) laissée
-    // par la page légale : sinon elle traîne dans l'URL sur toutes les pages
-    // suivantes. goToLegalSection() (App.jsx) la redéfinit juste après si besoin.
-    if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {
+    if (typeof window !== 'undefined' && window.location.hash) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search)
     }
     dispatch({ type: 'GO_TO', view })
   }, [])
+
+  const requireLogin = useCallback((from) => dispatch({ type: 'REQUIRE_LOGIN', from }), [])
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
 
@@ -118,8 +120,6 @@ export function AppProvider({ children }) {
       const result = await analyzeImage(photoDataUrl, mode)
       dispatch({ type: 'ANALYSIS_DONE', items: result.items })
     } catch (e) {
-      // Même en cas d'erreur IA, on ne bloque jamais l'utilisateur :
-      // on lui propose une liste vide qu'il peut remplir à la main.
       console.warn('FrigoMind: analyse impossible, liste vide proposée', e)
       dispatch({ type: 'ANALYSIS_DONE', items: [] })
     }
@@ -171,10 +171,6 @@ export function AppProvider({ children }) {
     dispatch({ type: 'CLEAR_HISTORY' })
   }, [])
 
-  // Ajoute/retire une recette des favoris. On identifie un favori par
-  // id+nom (voir getFavoriteKey) car les recettes générées à la volée
-  // réutilisent le même id d'une session à l'autre ; chaque favori reçoit en
-  // plus un favId unique, utile pour le glisser-déposer dans le planning.
   const toggleFavorite = useCallback(
     (recipe) => {
       const key = getFavoriteKey(recipe)
@@ -209,6 +205,7 @@ export function AppProvider({ children }) {
     () => ({
       state,
       goTo,
+      requireLogin,
       setPhoto,
       analyzePhoto,
       toggleIngredient,
@@ -229,6 +226,7 @@ export function AppProvider({ children }) {
     [
       state,
       goTo,
+      requireLogin,
       setPhoto,
       analyzePhoto,
       toggleIngredient,
