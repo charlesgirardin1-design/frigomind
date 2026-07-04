@@ -20,7 +20,8 @@ import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
-// les mentions légales (obligatoires même sans compte) et la page 404.
+// les mentions légales (obligatoires même sans compte), la page 404, ainsi
+// que "à propos" et la FAQ (contenu informatif, sans données personnelles).
 // Toutes les autres pages exigent une connexion Google / Apple / email.
 const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
 
