@@ -187,20 +187,6 @@ export default function HomePage() {
           📸 Prendre une photo
         </button>
       </div>
-
-      <p className="mt-10 text-center text-xs text-neutral-400">
-        L'analyse d'image utilise une IA multimodale gratuite (Google Gemini) pour reconnaître vos
-        aliments. Vous pouvez toujours corriger ou compléter la liste à la main. Pour en savoir plus,
-        consultez la{' '}
-        <button onClick={() => goTo('faq')} className="underline underline-offset-2 hover:text-neutral-600">
-          FAQ
-        </button>{' '}
-        ou la page{' '}
-        <button onClick={() => goTo('about')} className="underline underline-offset-2 hover:text-neutral-600">
-          À propos
-        </button>
-        .
-      </p>
     </div>
   )
 }
