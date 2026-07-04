@@ -4,8 +4,6 @@ import { useAuth } from '../state/AuthContext.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { LockGlyph } from '../components/Illustrations.jsx'
 
-// Logo Google officiel (4 couleurs) en SVG inline — évite une dépendance
-// d'icônes supplémentaire pour une seule icône multicolore.
 function GoogleLogo(props) {
   return (
     <svg viewBox="0 0 48 48" width="20" height="20" {...props}>
@@ -17,7 +15,6 @@ function GoogleLogo(props) {
   )
 }
 
-// Logo Apple (silhouette noire) en SVG inline.
 function AppleLogo(props) {
   return (
     <svg viewBox="0 0 384 512" width="18" height="18" fill="currentColor" {...props}>
@@ -27,10 +24,11 @@ function AppleLogo(props) {
 }
 
 export default function LoginPage() {
-  const { goTo } = useApp()
+  const { state, goTo } = useApp()
   const { isFirebaseConfigured, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth()
+  const afterLogin = () => goTo(state.redirectTo || 'home')
 
-  const [mode, setMode] = useState('signin') // 'signin' | 'signup'
+  const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
@@ -42,7 +40,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await signInWithGoogle()
-      goTo('home')
+      afterLogin()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -55,7 +53,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await signInWithApple()
-      goTo('home')
+      afterLogin()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -77,7 +75,7 @@ export default function LoginPage() {
       } else {
         await signInWithEmail(email.trim(), password)
       }
-      goTo('home')
+      afterLogin()
     } catch (err) {
       setError(err.message)
     } finally {
