@@ -22,8 +22,6 @@ export default function LegalPage() {
     if (!el) return
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setHighlighted(id)
-    const timer = setTimeout(() => setHighlighted(null), 2000)
-    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {
@@ -34,6 +32,15 @@ export default function LegalPage() {
     window.addEventListener('hashchange', goToHashSection)
     return () => window.removeEventListener('hashchange', goToHashSection)
   }, [goToHashSection])
+
+  // Gère l'extinction du surlignage séparément : ainsi le timer est toujours
+  // nettoyé proprement (démontage du composant, ou nouvelle section ciblée
+  // avant la fin des 2 secondes) au lieu de s'accumuler.
+  useEffect(() => {
+    if (!highlighted) return
+    const timer = setTimeout(() => setHighlighted(null), 2000)
+    return () => clearTimeout(timer)
+  }, [highlighted])
 
   const sectionClass = (id) =>
     `-mx-3 px-3 py-2 rounded-lg transition-colors duration-700 ${
