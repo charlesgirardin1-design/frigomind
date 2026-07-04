@@ -39,6 +39,15 @@ const VIEWS = {
 
 export default function App() {
   const { state, goTo, resetSession } = useApp()
+
+  // Navigue vers les mentions légales et scrolle jusqu'à la section demandée
+  // (fonctionne qu'on soit déjà sur la page ou non, voir LegalPage.jsx).
+  function goToLegalSection(id) {
+    goTo('legal')
+    window.location.hash = `#${id}`
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
   const CurrentView = VIEWS[state.view] || HomePage
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
@@ -96,6 +105,12 @@ export default function App() {
             </button>
             <button onClick={() => goTo('legal')} className="text-neutral-500 hover:text-fresh-700 transition">
               Mentions légales
+            </button>
+            <button onClick={() => goToLegalSection('vos-informations-personnelles')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Vos informations personnelles
+            </button>
+            <button onClick={() => goToLegalSection('cookies')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Cookies
             </button>
           </div>
 
