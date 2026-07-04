@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { ShieldGlyph } from '../components/Illustrations.jsx'
@@ -7,6 +8,16 @@ import { ShieldGlyph } from '../components/Illustrations.jsx'
 // mise en production commerciale.
 export default function LegalPage() {
   const { goTo } = useApp()
+
+  // Si la page est ouverte avec un ancrage (#cookies, #vos-informations-personnelles...),
+  // on scrolle jusqu'à la section correspondante une fois la page affichée.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const id = window.location.hash?.replace('#', '')
+    if (!id) return
+    const el = document.getElementById(id)
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -35,8 +46,8 @@ export default function LegalPage() {
           </p>
         </section>
 
-        <section>
-          <h3 className="font-semibold text-neutral-900 mb-1.5">Données personnelles et photos</h3>
+        <section id="vos-informations-personnelles">
+          <h3 className="font-semibold text-neutral-900 mb-1.5">Vos informations personnelles</h3>
           <p>
             Les photos que vous prenez sont envoyées à l'API Google Gemini (Google LLC) uniquement pour
             être analysées et détecter les aliments visibles, via une fonction serverless qui garde la clé
@@ -50,7 +61,7 @@ export default function LegalPage() {
           </p>
         </section>
 
-        <section>
+        <section id="cookies">
           <h3 className="font-semibold text-neutral-900 mb-1.5">Cookies</h3>
           <p>
             FrigoMind n'utilise pas de cookies de suivi publicitaire. Le localStorage du navigateur est
