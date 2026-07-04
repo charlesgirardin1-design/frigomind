@@ -26,7 +26,7 @@ function AppleLogo(props) {
 export default function LoginPage() {
   const { state, goTo } = useApp()
   const { isFirebaseConfigured, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth()
-  const afterLogin = () => goTo(state.redirectTo || 'home')
+  const afterLogin = () => goTo(state.redirectTo && state.redirectTo !== 'login' ? state.redirectTo : 'home')
 
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
