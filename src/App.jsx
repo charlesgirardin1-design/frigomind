@@ -15,6 +15,7 @@ import ChangelogPage from './pages/ChangelogPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
 import { useApp } from './state/AppContext.jsx'
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -35,6 +36,7 @@ const VIEWS = {
   favorites: FavoritesPage,
   planning: PlanningPage,
   ingredient: IngredientPage,
+  login: LoginPage,
 }
 
 export default function App() {
@@ -112,6 +114,9 @@ export default function App() {
             </button>
             <button onClick={() => goToLegalSection('cookies')} className="text-neutral-500 hover:text-fresh-700 transition">
               Cookies
+            </button>
+            <button onClick={() => goTo('login')} className="text-neutral-500 hover:text-fresh-700 transition">
+              Se connecter
             </button>
           </div>
 
