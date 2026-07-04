@@ -44,9 +44,10 @@ export default function App() {
   // (fonctionne qu'on soit déjà sur la page ou non, voir LegalPage.jsx).
   function goToLegalSection(id) {
     goTo('legal')
+    // Le changement de hash déclenche un événement 'hashchange' que LegalPage
+    // écoute pour scroller jusqu'à la bonne section et la surligner —
+    // ça fonctionne qu'on soit déjà sur la page ou qu'on y arrive tout juste.
     window.location.hash = `#${id}`
-    const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
   const CurrentView = VIEWS[state.view] || HomePage
 
