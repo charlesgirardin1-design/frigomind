@@ -90,7 +90,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.view, user, authLoading])
 
-  const CurrentView = isProtectedView && authLoading ? AuthGateLoading : VIEWS[state.view] || HomePage
+  const CurrentView = isProtectedView && (authLoading || !user) ? AuthGateLoading : VIEWS[state.view] || HomePage
 
   return (
     <div className="min-h-screen flex flex-col">
