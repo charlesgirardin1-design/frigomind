@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { ShieldGlyph } from '../components/Illustrations.jsx'
@@ -8,16 +8,37 @@ import { ShieldGlyph } from '../components/Illustrations.jsx'
 // mise en production commerciale.
 export default function LegalPage() {
   const { goTo } = useApp()
+  const [highlighted, setHighlighted] = useState(null)
 
-  // Si la page est ouverte avec un ancrage (#cookies, #vos-informations-personnelles...),
-  // on scrolle jusqu'à la section correspondante une fois la page affichée.
-  useEffect(() => {
+  // Scrolle jusqu'à la section correspondant à l'ancre courante (#cookies,
+  // #vos-informations-personnelles...) et la surligne brièvement : la page
+  // étant courte, le défilement seul est parfois trop discret pour qu'on
+  // remarque qu'on est bien arrivé au bon endroit.
+  const goToHashSection = useCallback(() => {
     if (typeof window === 'undefined') return
     const id = window.location.hash?.replace('#', '')
     if (!id) return
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setHighlighted(id)
+    const timer = setTimeout(() => setHighlighted(null), 2000)
+    return () => clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    // Au montage (arrivée depuis une autre page)...
+    goToHashSection()
+    // ...et à chaque changement d'ancre pendant qu'on est déjà sur la page
+    // (ex : cliquer sur "Cookies" alors qu'on est déjà sur "Mentions légales").
+    window.addEventListener('hashchange', goToHashSection)
+    return () => window.removeEventListener('hashchange', goToHashSection)
+  }, [goToHashSection])
+
+  const sectionClass = (id) =>
+    `-mx-3 px-3 py-2 rounded-lg transition-colors duration-700 ${
+      highlighted === id ? 'bg-fresh-50 ring-2 ring-fresh-200' : ''
+    }`
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -46,7 +67,7 @@ export default function LegalPage() {
           </p>
         </section>
 
-        <section id="vos-informations-personnelles">
+        <section id="vos-informations-personnelles" className={sectionClass('vos-informations-personnelles')}>
           <h3 className="font-semibold text-neutral-900 mb-1.5">Vos informations personnelles</h3>
           <p>
             Les photos que vous prenez sont envoyées à l'API Google Gemini (Google LLC) uniquement pour
@@ -61,7 +82,7 @@ export default function LegalPage() {
           </p>
         </section>
 
-        <section id="cookies">
+        <section id="cookies" className={sectionClass('cookies')}>
           <h3 className="font-semibold text-neutral-900 mb-1.5">Cookies</h3>
           <p>
             FrigoMind n'utilise pas de cookies de suivi publicitaire. Le localStorage du navigateur est
