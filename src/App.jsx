@@ -22,7 +22,7 @@ import { useAuth } from './state/AuthContext.jsx'
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte) et la page 404.
 // Toutes les autres pages exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound'])
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
