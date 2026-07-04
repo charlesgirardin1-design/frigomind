@@ -60,7 +60,7 @@ async function signInWithProvider(provider) {
       // La page va se recharger : ce qui suit ne s'exécute jamais si la
       // redirection démarre correctement.
       await signInWithRedirect(auth, provider)
-      return null
+      return new Promise(() => {})
     }
     throw new Error(friendlyError(err))
   }
