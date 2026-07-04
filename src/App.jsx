@@ -91,6 +91,23 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.view, user, authLoading])
 
+  // Repli pour le cas où la connexion est passée par une redirection
+  // complète (popup bloquée, voir AuthContext.jsx) : la page vient de se
+  // recharger, l'état React est reparti de zéro, mais sessionStorage a
+  // gardé la page qu'on voulait vraiment atteindre.
+  useEffect(() => {
+    if (authLoading || !user) return
+    try {
+      const pending = sessionStorage.getItem('frigomind:pendingRedirect')
+      if (pending) {
+        sessionStorage.removeItem('frigomind:pendingRedirect')
+        if (pending !== 'login') goTo(pending)
+      }
+    } catch {
+      // Stockage indisponible : tant pis, l'utilisateur reste sur l'accueil.
+    }
+  }, [user, authLoading, goTo])
+
   const CurrentView = isProtectedView && (authLoading || !user) ? AuthGateLoading : VIEWS[state.view] || HomePage
 
   return (
