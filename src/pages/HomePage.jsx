@@ -62,15 +62,31 @@ const STRINGS = {
       "de tonnes de nourriture gaspillées chaque année dans le monde — soit plus d'1 milliard de repas jetés par jour.",
     wastePerPerson: '132 kg',
     wastePerPersonText: 'par personne et par an en moyenne dans le monde (dont environ 79 kg pour les seuls ménages).',
+    wasteCO2: '8 à 10 %',
+    wasteCO2Text:
+      "des émissions mondiales de gaz à effet de serre proviennent du gaspillage alimentaire — près de 5 fois les émissions du transport aérien.",
+    wasteCost: '~1 000 milliards $',
+    wasteCostText:
+      "de dollars perdus chaque année dans le monde à cause du gaspillage alimentaire (coût économique direct, hors impacts environnementaux et sociaux).",
+    chainTitle: 'Où se produit le gaspillage alimentaire dans le monde ?',
+    chain: [
+      { label: 'Ménages', pct: 60, tone: 'fresh' },
+      { label: 'Restauration', pct: 28, tone: 'zest' },
+      { label: 'Distribution / commerces', pct: 12, tone: 'neutral' },
+    ],
     countryWaste: [
       { country: '🇫🇷 France', kg: '~25 à 30 kg', source: 'ADEME' },
       { country: '🇬🇧 Royaume-Uni', kg: '~70 à 88 kg', source: 'WRAP' },
       { country: '🇺🇸 États-Unis', kg: '~71 à 73 kg', source: 'RTS / USDA' },
+      { country: '🇩🇪 Allemagne', kg: '~75 kg', source: 'UNEP 2024' },
+      { country: '🇮🇹 Italie', kg: '~100 kg', source: 'UNEP 2024' },
+      { country: '🇨🇳 Chine', kg: '~76 kg', source: 'UNEP 2024' },
+      { country: '🇳🇬 Nigeria', kg: '~106 kg', source: 'UNEP 2024' },
     ],
     countryTableTitle: 'Gaspillage alimentaire des ménages, par pays (ordres de grandeur)',
     perYearPerson: '/ an / personne',
     sources:
-      "Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux, données 2022) ; ADEME (France) ; WRAP (Royaume-Uni) ; RTS / USDA (États-Unis). Les méthodologies de mesure diffèrent selon les pays, ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.",
+      "Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux et par pays, données 2022) ; ADEME (France) ; WRAP (Royaume-Uni) ; RTS / USDA (États-Unis) ; FAO / UNEP (coût économique). Les méthodologies de mesure diffèrent selon les pays, ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.",
     ctaTitle: 'Prêt à vider votre frigo intelligemment ?',
     ctaText:
       "Une photo suffit pour démarrer. Vous pourrez toujours ajuster la liste d'ingrédients avant de voir vos recettes.",
@@ -125,15 +141,31 @@ const STRINGS = {
     wasteWorldTonnesText: 'tonnes of food wasted every year worldwide — more than 1 billion meals thrown away every day.',
     wastePerPerson: '132 kg',
     wastePerPersonText: 'per person per year on average worldwide (about 79 kg of that from households alone).',
+    wasteCO2: '8 to 10%',
+    wasteCO2Text:
+      "of global greenhouse gas emissions come from food waste — almost 5 times the emissions of the aviation sector.",
+    wasteCost: '~$1 trillion',
+    wasteCostText:
+      'lost worldwide every year because of food waste (direct economic cost, not counting environmental and social impacts).',
+    chainTitle: 'Where does food waste happen worldwide?',
+    chain: [
+      { label: 'Households', pct: 60, tone: 'fresh' },
+      { label: 'Food service', pct: 28, tone: 'zest' },
+      { label: 'Retail', pct: 12, tone: 'neutral' },
+    ],
     countryWaste: [
       { country: '🇫🇷 France', kg: '~25-30 kg', source: 'ADEME' },
       { country: '🇬🇧 United Kingdom', kg: '~70-88 kg', source: 'WRAP' },
       { country: '🇺🇸 United States', kg: '~71-73 kg', source: 'RTS / USDA' },
+      { country: '🇩🇪 Germany', kg: '~75 kg', source: 'UNEP 2024' },
+      { country: '🇮🇹 Italy', kg: '~100 kg', source: 'UNEP 2024' },
+      { country: '🇨🇳 China', kg: '~76 kg', source: 'UNEP 2024' },
+      { country: '🇳🇬 Nigeria', kg: '~106 kg', source: 'UNEP 2024' },
     ],
     countryTableTitle: 'Household food waste by country (rough estimates)',
     perYearPerson: '/ year / person',
     sources:
-      'Sources: UNEP Food Waste Index Report 2024 (global figures, 2022 data); ADEME (France); WRAP (UK); RTS / USDA (US). Measurement methodologies differ by country, so these figures are rough estimates rather than a strict comparison.',
+      'Sources: UNEP Food Waste Index Report 2024 (global and per-country figures, 2022 data); ADEME (France); WRAP (UK); RTS / USDA (US); FAO / UNEP (economic cost). Measurement methodologies differ by country, so these figures are rough estimates rather than a strict comparison.',
     ctaTitle: 'Ready to empty your fridge smartly?',
     ctaText: 'One photo is all it takes to start. You can always adjust the ingredient list before seeing your recipes.',
     ctaButton: '📸 Take a photo',
@@ -225,6 +257,38 @@ export default function HomePage() {
               {s.wastePerPerson}
             </div>
             <p className="text-sm text-neutral-500 mt-1">{s.wastePerPersonText}</p>
+          </div>
+          <div className="card p-5 text-center">
+            <div className="text-3xl mb-1" aria-hidden>🌫️</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{s.wasteCO2}</div>
+            <p className="text-sm text-neutral-500 mt-1">{s.wasteCO2Text}</p>
+          </div>
+          <div className="card p-5 text-center">
+            <div className="text-3xl mb-1" aria-hidden>💰</div>
+            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{s.wasteCost}</div>
+            <p className="text-sm text-neutral-500 mt-1">{s.wasteCostText}</p>
+          </div>
+        </div>
+
+        <div className="mt-4 card p-5">
+          <p className="font-semibold text-neutral-900 text-sm mb-3">{s.chainTitle}</p>
+          <div className="space-y-2.5">
+            {s.chain.map((c) => (
+              <div key={c.label}>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-neutral-700">{c.label}</span>
+                  <span className="text-neutral-500 font-medium">{c.pct}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-neutral-100 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${
+                      c.tone === 'fresh' ? 'bg-fresh-500' : c.tone === 'zest' ? 'bg-zest-500' : 'bg-neutral-400'
+                    }`}
+                    style={{ width: `${c.pct}%` }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
