@@ -9,6 +9,9 @@ const MAX_HISTORY = 20
 const FAVORITES_KEY = 'frigomind_favorites'
 const MAX_FAVORITES = 30
 const PLANNING_KEY = 'frigomind_planning'
+const PREFERENCES_KEY = 'frigomind_preferences'
+
+export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false }
 
 export const DAYS_OF_WEEK = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
 
@@ -99,4 +102,26 @@ export function savePlanning(planning) {
     console.warn('FrigoMind: écriture planning impossible', e)
   }
   return planning
+}
+
+// ---------- Préférences par défaut ----------
+// Dernières préférences de recettes utilisées (temps max, cuisine, régime),
+// réappliquées automatiquement à chaque nouvelle session.
+export function getPreferences() {
+  try {
+    const raw = localStorage.getItem(PREFERENCES_KEY)
+    return raw ? { ...DEFAULT_PREFERENCES, ...JSON.parse(raw) } : DEFAULT_PREFERENCES
+  } catch (e) {
+    console.warn('FrigoMind: lecture préférences impossible', e)
+    return DEFAULT_PREFERENCES
+  }
+}
+
+export function savePreferences(preferences) {
+  try {
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences))
+  } catch (e) {
+    console.warn('FrigoMind: écriture préférences impossible', e)
+  }
+  return preferences
 }
