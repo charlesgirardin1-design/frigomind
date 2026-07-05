@@ -11,7 +11,7 @@ const LEVEL_STYLES = {
 // `onOpen` reçoit la recette entière (pas juste son id) : les recettes
 // génériques réutilisent le même id d'une session à l'autre, donc seul
 // l'objet complet permet de retrouver la bonne recette de façon fiable
-// (favoris, planning...).
+// (favoris...).
 export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite }) {
   const lang = useLanguage()
   const c = COMMON[lang].recipe

@@ -13,7 +13,6 @@ import BlogPage from './pages/BlogPage.jsx'
 import StatsPage from './pages/StatsPage.jsx'
 import ChangelogPage from './pages/ChangelogPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
-import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
@@ -53,7 +52,6 @@ const VIEWS = {
   stats: StatsPage,
   changelog: ChangelogPage,
   favorites: FavoritesPage,
-  planning: PlanningPage,
   ingredient: IngredientPage,
   login: LoginPage,
   settings: SettingsPage,
@@ -150,9 +148,6 @@ export default function App() {
             </button>
             <button onClick={() => goTo('ingredient')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.ingredient}
-            </button>
-            <button onClick={() => goTo('planning')} className="text-neutral-500 hover:text-fresh-700 transition">
-              {lang === 'fr' ? 'Planning de la semaine' : 'Weekly planning'}
             </button>
             <button onClick={() => goTo('stats')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.stats}

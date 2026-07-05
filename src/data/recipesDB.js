@@ -847,7 +847,7 @@ export const RECIPES = [
 
 // Retrouve le nom/les étapes à afficher pour une recette dans la langue
 // demandée. `recipeLike` peut être une recette fraîchement générée ou un
-// instantané stocké (historique, favoris, planning) : dans les deux cas on
+// instantané stocké (historique, favoris) : dans les deux cas on
 // recherche la recette de référence par id pour récupérer sa traduction.
 // Les recettes génériques (construites à la volée à partir des ingrédients,
 // voir recipeEngine.js) n'ont pas d'entrée ici et restent donc en français
