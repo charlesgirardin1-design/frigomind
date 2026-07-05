@@ -37,7 +37,7 @@ export default function CookieBanner() {
         <p className="text-sm text-neutral-600 leading-relaxed flex-1">
           FrigoMind n'utilise pas de cookies de suivi publicitaire. Le stockage local de votre navigateur
           sert uniquement à conserver votre historique de recettes sur cet appareil.{' '}
-          <button onClick={goToCookiesSection} className="text-fresh-700 underline underline-offset-2">
+          <button type="button" onClick={goToCookiesSection} className="text-fresh-700 underline underline-offset-2">
             En savoir plus
           </button>
         </p>
