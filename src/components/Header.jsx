@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Menu, X, User } from 'lucide-react'
+import { Menu, X, User, Settings } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
 
@@ -65,12 +65,21 @@ export default function Header() {
         <div className="hidden sm:flex items-center ml-2 shrink-0">
           {user ? (
             <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm"
+              <button
+                onClick={() => navigate('settings')}
+                className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm hover:bg-fresh-200 transition"
                 title={user.displayName || user.email}
               >
                 {initial}
-              </div>
+              </button>
+              <button
+                onClick={() => navigate('settings')}
+                className="p-1.5 text-neutral-500 hover:text-fresh-700 transition"
+                title="Paramètres"
+                aria-label="Paramètres"
+              >
+                <Settings size={18} />
+              </button>
               <button
                 onClick={() => logOut()}
                 className="text-sm font-medium text-neutral-500 hover:text-fresh-700 transition"
@@ -119,12 +128,20 @@ export default function Header() {
             ))}
             <div className="border-t border-neutral-100 mt-2 pt-2">
               {user ? (
-                <button
-                  onClick={() => { logOut(); setMenuOpen(false) }}
-                  className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
-                >
-                  Déconnexion ({user.displayName || user.email})
-                </button>
+                <>
+                  <button
+                    onClick={() => navigate('settings')}
+                    className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
+                  >
+                    Paramètres
+                  </button>
+                  <button
+                    onClick={() => { logOut(); setMenuOpen(false) }}
+                    className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
+                  >
+                    Déconnexion ({user.displayName || user.email})
+                  </button>
+                </>
               ) : (
                 <button
                   onClick={() => navigate('login')}

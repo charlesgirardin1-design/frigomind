@@ -209,3 +209,12 @@ export function CameraGlyph(props) {
     </svg>
   )
 }
+
+export function GearGlyph(props) {
+  return (
+    <svg viewBox="0 0 48 48" {...base} {...props}>
+      <circle cx="24" cy="24" r="6.5" />
+      <path d="M24 6v5M24 37v5M6 24h5M37 24h5M11.5 11.5l3.5 3.5M33 33l3.5 3.5M36.5 11.5L33 15M15 33l-3.5 3.5" />
+    </svg>
+  )
+}
