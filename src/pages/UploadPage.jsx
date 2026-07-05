@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
 import { IllustrationTile, CameraGlyph } from '../components/Illustrations.jsx'
 import { resizeImageFile } from '../utils/image.js'
 
@@ -10,10 +12,45 @@ import { resizeImageFile } from '../utils/image.js'
 // de large et les recompresse en JPEG qualité ~0.82, largement suffisant pour
 // la reconnaissance d'aliments par l'IA.
 
+const STRINGS = {
+  fr: {
+    title: 'Ajoutez une photo',
+    subtitle: 'Votre frigo, un placard, ou quelques aliments sur la table.',
+    fridge: '🧊 Frigo',
+    pantry: '🥫 Vider le placard',
+    pantryHint: 'Mode placard : on cible les produits secs et de longue conservation (pâtes, riz, conserves, légumineuses...).',
+    fridgeHint: 'Mode frigo : on cible les produits frais.',
+    previewAlt: 'Aperçu de la photo importée',
+    change: '✕ Changer',
+    emptyState: 'Aucune image pour le moment. Prenez une photo ou importez-en une.',
+    takePhoto: '📸 Prendre une photo',
+    importPhoto: '🗂️ Importer une image',
+    analyzing: 'Analyse en cours…',
+    analyze: '🔍 Analyser mes ingrédients',
+  },
+  en: {
+    title: 'Add a photo',
+    subtitle: 'Your fridge, a cupboard, or a few items on the table.',
+    fridge: '🧊 Fridge',
+    pantry: '🥫 Empty the pantry',
+    pantryHint: 'Pantry mode: targets dry, long-lasting products (pasta, rice, canned goods, legumes...).',
+    fridgeHint: 'Fridge mode: targets fresh products.',
+    previewAlt: 'Preview of the imported photo',
+    change: '✕ Change',
+    emptyState: 'No image yet. Take a photo or import one.',
+    takePhoto: '📸 Take a photo',
+    importPhoto: '🗂️ Import an image',
+    analyzing: 'Analyzing…',
+    analyze: '🔍 Analyze my ingredients',
+  },
+}
+
 // Page d'upload : deux boutons (prendre une photo / importer une image),
 // aperçu immédiat, puis lancement de l'analyse IA (mock).
 export default function UploadPage() {
   const { state, setPhoto, analyzePhoto, goTo } = useApp()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
   const [localPreview, setLocalPreview] = useState(state.photo)
   const [scanMode, setScanMode] = useState('frigo')
   const cameraInputRef = useRef(null)
@@ -48,30 +85,28 @@ export default function UploadPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
       <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
+        {COMMON[lang].back}
       </button>
 
-      <h2 className="text-2xl font-bold text-neutral-900">Ajoutez une photo</h2>
-      <p className="text-neutral-500 mt-1">Votre frigo, un placard, ou quelques aliments sur la table.</p>
+      <h2 className="text-2xl font-bold text-neutral-900">{s.title}</h2>
+      <p className="text-neutral-500 mt-1">{s.subtitle}</p>
 
       <div className="mt-4 flex gap-2">
         <button
           onClick={() => setScanMode('frigo')}
           className={`chip ${scanMode === 'frigo' ? 'chip-active' : ''}`}
         >
-          🧊 Frigo
+          {s.fridge}
         </button>
         <button
           onClick={() => setScanMode('placard')}
           className={`chip ${scanMode === 'placard' ? 'chip-active' : ''}`}
         >
-          🥫 Vider le placard
+          {s.pantry}
         </button>
       </div>
       <p className="text-xs text-neutral-400 mt-1.5">
-        {scanMode === 'placard'
-          ? 'Mode placard : on cible les produits secs et de longue conservation (pâtes, riz, conserves, légumineuses...).'
-          : 'Mode frigo : on cible les produits frais.'}
+        {scanMode === 'placard' ? s.pantryHint : s.fridgeHint}
       </p>
 
       <div className="mt-6 card p-4">
@@ -79,7 +114,7 @@ export default function UploadPage() {
           <div className="relative">
             <img
               src={localPreview}
-              alt="Aperçu de la photo importée"
+              alt={s.previewAlt}
               className="w-full max-h-80 object-cover rounded-xl2"
             />
             <button
@@ -89,7 +124,7 @@ export default function UploadPage() {
               }}
               className="absolute top-2 right-2 bg-white/90 hover:bg-white text-neutral-700 text-xs font-medium px-3 py-1.5 rounded-full shadow-card"
             >
-              ✕ Changer
+              {s.change}
             </button>
           </div>
         ) : (
@@ -97,9 +132,7 @@ export default function UploadPage() {
             <IllustrationTile tone="fresh" size="lg">
               <CameraGlyph className="w-full h-full" />
             </IllustrationTile>
-            <p className="text-neutral-400 text-sm px-6">
-              Aucune image pour le moment. Prenez une photo ou importez-en une.
-            </p>
+            <p className="text-neutral-400 text-sm px-6">{s.emptyState}</p>
           </div>
         )}
       </div>
@@ -107,10 +140,10 @@ export default function UploadPage() {
       {!localPreview && (
         <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button className="btn-primary" onClick={() => cameraInputRef.current?.click()}>
-            📸 Prendre une photo
+            {s.takePhoto}
           </button>
           <button className="btn-secondary" onClick={() => galleryInputRef.current?.click()}>
-            🗂️ Importer une image
+            {s.importPhoto}
           </button>
           <input
             ref={cameraInputRef}
@@ -134,10 +167,10 @@ export default function UploadPage() {
             {state.isAnalyzing ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                Analyse en cours…
+                {s.analyzing}
               </span>
             ) : (
-              '🔍 Analyser mes ingrédients'
+              s.analyze
             )}
           </button>
         </div>

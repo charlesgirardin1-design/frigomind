@@ -26,28 +26,56 @@ import {
   } from 'firebase/auth'
 import { auth, googleProvider, appleProvider, isFirebaseConfigured } from '../firebase.js'
 import { getAvatar, saveAvatar, clearAvatar } from '../utils/storage.js'
+import { useLanguage } from './LanguageContext.jsx'
 
 const AuthContext = createContext(null)
 
-// Traduit les codes d'erreur Firebase les plus courants en français simple.
-function friendlyError(err) {
-  const code = err?.code || ''
-  const map = {
-    'auth/invalid-email': "Adresse email invalide.",
-    'auth/user-not-found': "Aucun compte ne correspond à cet email.",
-    'auth/wrong-password': "Mot de passe incorrect.",
-    'auth/invalid-credential': "Email ou mot de passe incorrect.",
-    'auth/email-already-in-use': "Un compte existe déjà avec cet email.",
-    'auth/weak-password': "Le mot de passe doit contenir au moins 6 caractères.",
-    'auth/popup-closed-by-user': "Connexion annulée.",
-    'auth/network-request-failed': "Problème réseau, réessayez.",
+// Traduit les codes d'erreur Firebase les plus courants en message simple,
+// dans la langue courante de l'interface.
+const ERROR_MESSAGES = {
+  fr: {
+    'auth/invalid-email': 'Adresse email invalide.',
+    'auth/user-not-found': 'Aucun compte ne correspond à cet email.',
+    'auth/wrong-password': 'Mot de passe incorrect.',
+    'auth/invalid-credential': 'Email ou mot de passe incorrect.',
+    'auth/email-already-in-use': 'Un compte existe déjà avec cet email.',
+    'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
+    'auth/popup-closed-by-user': 'Connexion annulée.',
+    'auth/network-request-failed': 'Problème réseau, réessayez.',
     'auth/operation-not-allowed': "Cette méthode de connexion n'est pas encore activée.",
-    'auth/account-exists-with-different-credential': "Un compte existe déjà avec cet email via un autre mode de connexion.",
-    'auth/unauthorized-domain': "Ce site n'est pas encore autorisé pour cette connexion (configuration Firebase à finaliser).",
-    'auth/requires-recent-login': "Par sécurité, reconnectez-vous avant de changer votre mot de passe.",
-    'auth/too-many-requests': "Trop de tentatives. Réessayez dans quelques minutes.",
-  }
-  return map[code] || "Une erreur est survenue. Réessayez."
+    'auth/account-exists-with-different-credential':
+      'Un compte existe déjà avec cet email via un autre mode de connexion.',
+    'auth/unauthorized-domain':
+      "Ce site n'est pas encore autorisé pour cette connexion (configuration Firebase à finaliser).",
+    'auth/requires-recent-login': 'Par sécurité, reconnectez-vous avant de changer votre mot de passe.',
+    'auth/too-many-requests': 'Trop de tentatives. Réessayez dans quelques minutes.',
+    default: 'Une erreur est survenue. Réessayez.',
+    notSignedIn: "Vous n'êtes pas connecté.",
+  },
+  en: {
+    'auth/invalid-email': 'Invalid email address.',
+    'auth/user-not-found': 'No account matches this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/invalid-credential': 'Incorrect email or password.',
+    'auth/email-already-in-use': 'An account already exists with this email.',
+    'auth/weak-password': 'Password must be at least 6 characters long.',
+    'auth/popup-closed-by-user': 'Sign-in cancelled.',
+    'auth/network-request-failed': 'Network issue, please try again.',
+    'auth/operation-not-allowed': 'This sign-in method is not enabled yet.',
+    'auth/account-exists-with-different-credential':
+      'An account already exists with this email via a different sign-in method.',
+    'auth/unauthorized-domain': 'This site is not yet authorized for this sign-in method (Firebase configuration pending).',
+    'auth/requires-recent-login': 'For security, please sign in again before changing your password.',
+    'auth/too-many-requests': 'Too many attempts. Please try again in a few minutes.',
+    default: 'Something went wrong. Please try again.',
+    notSignedIn: "You're not signed in.",
+  },
+}
+
+function friendlyError(err, lang) {
+  const code = err?.code || ''
+  const messages = ERROR_MESSAGES[lang] || ERROR_MESSAGES.fr
+  return messages[code] || messages.default
 }
 
 // Certains navigateurs bloquent ou ne supportent pas l'ouverture d'une popup
@@ -61,7 +89,7 @@ const POPUP_FALLBACK_CODES = new Set([
   'auth/operation-not-supported-in-this-environment',
 ])
 
-async function signInWithProvider(provider) {
+async function signInWithProvider(provider, lang) {
   try {
     const result = await signInWithPopup(auth, provider)
     return result.user
@@ -72,7 +100,7 @@ async function signInWithProvider(provider) {
       await signInWithRedirect(auth, provider)
       return new Promise(() => {})
     }
-    throw new Error(friendlyError(err))
+    throw new Error(friendlyError(err, lang))
   }
 }
 
@@ -80,6 +108,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
   const [localAvatar, setLocalAvatarState] = useState(null)
+  const lang = useLanguage()
 
   // Photo de profil : gardée en local (voir storage.js), propre à cet
   // appareil et à ce compte (aucun Firebase Storage configuré pour ce MVP).
@@ -118,13 +147,13 @@ export function AuthProvider({ children }) {
 
   const signInWithGoogle = useCallback(async () => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
-    return signInWithProvider(googleProvider)
-  }, [])
+    return signInWithProvider(googleProvider, lang)
+  }, [lang])
 
   const signInWithApple = useCallback(async () => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
-    return signInWithProvider(appleProvider)
-  }, [])
+    return signInWithProvider(appleProvider, lang)
+  }, [lang])
 
   const signInWithEmail = useCallback(async (email, password) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
@@ -132,9 +161,9 @@ export function AuthProvider({ children }) {
       const result = await signInWithEmailAndPassword(auth, email, password)
       return result.user
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   const signUpWithEmail = useCallback(async (email, password, displayName) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
@@ -153,9 +182,9 @@ export function AuthProvider({ children }) {
       }
       return result.user
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   const logOut = useCallback(async () => {
     if (!isFirebaseConfigured) return
@@ -170,9 +199,9 @@ export function AuthProvider({ children }) {
     try {
       await sendPasswordResetEmail(auth, email)
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   // Change le mot de passe depuis la page paramètres. Firebase exige une
   // connexion "récente" pour cette opération sensible : on se ré-authentifie
@@ -180,42 +209,42 @@ export function AuthProvider({ children }) {
   // face à une erreur "requires-recent-login" incompréhensible.
   const changePassword = useCallback(async (currentPassword, newPassword) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
-    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    if (!auth.currentUser) throw new Error(ERROR_MESSAGES[lang].notSignedIn)
     try {
       const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword)
       await reauthenticateWithCredential(auth.currentUser, credential)
       await updatePassword(auth.currentUser, newPassword)
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   // Renomme le compte (affiché dans le header et les emails Firebase).
   const changeDisplayName = useCallback(async (name) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
-    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    if (!auth.currentUser) throw new Error(ERROR_MESSAGES[lang].notSignedIn)
     try {
       await updateProfile(auth.currentUser, { displayName: name })
       // updateProfile ne déclenche pas onAuthStateChanged : on force une mise
       // à jour locale pour que le nouveau nom apparaisse immédiatement.
       setUser({ ...auth.currentUser })
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   // Renvoie l'email de vérification (compte email/mot de passe non encore
   // confirmé). Le lien envoyé par Firebase est le même que celui de l'email
   // initial reçu à l'inscription.
   const resendVerification = useCallback(async () => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
-    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    if (!auth.currentUser) throw new Error(ERROR_MESSAGES[lang].notSignedIn)
     try {
       await sendEmailVerification(auth.currentUser)
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   // Supprime définitivement le compte Firebase. Comme pour le changement de
   // mot de passe, Firebase exige une connexion "récente" : on se
@@ -225,7 +254,7 @@ export function AuthProvider({ children }) {
   const deleteAccount = useCallback(async (currentPassword) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
     const currentUser = auth.currentUser
-    if (!currentUser) throw new Error("Vous n'êtes pas connecté.")
+    if (!currentUser) throw new Error(ERROR_MESSAGES[lang].notSignedIn)
     try {
       const hasPasswordProvider = currentUser.providerData.some((p) => p.providerId === 'password')
       if (hasPasswordProvider) {
@@ -238,9 +267,9 @@ export function AuthProvider({ children }) {
       clearAvatar(currentUser.uid)
       await deleteUser(currentUser)
     } catch (err) {
-      throw new Error(friendlyError(err))
+      throw new Error(friendlyError(err, lang))
     }
-  }, [])
+  }, [lang])
 
   const value = useMemo(
     () => ({

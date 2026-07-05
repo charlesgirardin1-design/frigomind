@@ -1,3 +1,7 @@
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
+import { localizeRecipeName } from '../data/recipesDB.js'
+
 const LEVEL_STYLES = {
   facile: 'badge-fresh',
   moyen: 'badge-neutral',
@@ -9,6 +13,8 @@ const LEVEL_STYLES = {
 // l'objet complet permet de retrouver la bonne recette de façon fiable
 // (favoris, planning...).
 export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite }) {
+  const lang = useLanguage()
+  const c = COMMON[lang].recipe
   return (
     <div
       role="button"
@@ -27,14 +33,14 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
           {recipe.emoji}
         </span>
         <div className="flex items-center gap-1.5 shrink-0">
-          {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">♻️ anti-gaspi</span>}
+          {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">{c.antiGaspi}</span>}
           {onToggleFavorite && (
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onToggleFavorite(recipe)
               }}
-              aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+              aria-label={isFavorite ? c.removeFromFavorites : c.addToFavorites}
               className={`text-lg leading-none transition ${
                 isFavorite ? 'text-red-500' : 'text-neutral-300 hover:text-red-400'
               }`}
@@ -45,21 +51,23 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
         </div>
       </div>
 
-      <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{recipe.name}</h3>
+      <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{localizeRecipeName(recipe, lang)}</h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
         <span className="badge badge-neutral">⏱ {recipe.time} min</span>
-        <span className={`badge ${LEVEL_STYLES[recipe.level] || 'badge-neutral'}`}>{recipe.level}</span>
-        <span className="badge badge-neutral capitalize">{recipe.cuisine}</span>
+        <span className={`badge ${LEVEL_STYLES[recipe.level] || 'badge-neutral'}`}>
+          {c.level[recipe.level] || recipe.level}
+        </span>
+        <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>
       </div>
 
       {recipe.missingIngredients?.length > 0 && (
         <p className="mt-2 text-xs text-neutral-400">
-          À prévoir en plus : {recipe.missingIngredients.join(', ')}
+          {c.toBuy} : {recipe.missingIngredients.join(', ')}
         </p>
       )}
 
-      <p className="mt-3 text-xs font-medium text-fresh-600">Voir la recette →</p>
+      <p className="mt-3 text-xs font-medium text-fresh-600">{c.seeRecipe}</p>
     </div>
   )
 }

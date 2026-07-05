@@ -1,67 +1,130 @@
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, BookGlyph, FridgeGlyph, SproutGlyph, PotGlyph } from '../components/Illustrations.jsx'
 
 // Petits articles anti-gaspi : conseils de conservation et idées de recettes
 // de restes. Contenu généraliste, pas de recette liée à un ingrédient précis.
-const ARTICLES = [
-  {
-    tone: 'fresh',
-    Icon: FridgeGlyph,
-    title: 'Bien ranger son frigo pour que les aliments tiennent plus longtemps',
-    text: [
-      "Le frigo n'est pas uniforme : le bas (juste au-dessus du bac à légumes) est la zone la plus froide, idéale pour la viande, le poisson et les produits laitiers ouverts. La porte, plus tempérée, convient aux condiments et boissons, pas au lait ou aux œufs.",
-      "Les fruits et légumes se conservent mieux dans le bac dédié, qui limite leur dessèchement. Pensez aussi à séparer les fruits qui produisent de l'éthylène (pommes, bananes) des légumes sensibles, car ce gaz accélère leur maturation.",
-      "Enfin, un frigo trop rempli refroidit moins bien : l'air doit pouvoir circuler entre les aliments pour que le froid soit homogène partout.",
-    ],
+const ARTICLES = {
+  fr: [
+    {
+      tone: 'fresh',
+      Icon: FridgeGlyph,
+      title: 'Bien ranger son frigo pour que les aliments tiennent plus longtemps',
+      text: [
+        "Le frigo n'est pas uniforme : le bas (juste au-dessus du bac à légumes) est la zone la plus froide, idéale pour la viande, le poisson et les produits laitiers ouverts. La porte, plus tempérée, convient aux condiments et boissons, pas au lait ou aux œufs.",
+        "Les fruits et légumes se conservent mieux dans le bac dédié, qui limite leur dessèchement. Pensez aussi à séparer les fruits qui produisent de l'éthylène (pommes, bananes) des légumes sensibles, car ce gaz accélère leur maturation.",
+        "Enfin, un frigo trop rempli refroidit moins bien : l'air doit pouvoir circuler entre les aliments pour que le froid soit homogène partout.",
+      ],
+    },
+    {
+      tone: 'zest',
+      Icon: SproutGlyph,
+      title: 'Que faire avec des légumes un peu fatigués ?',
+      text: [
+        "Des légumes ramollis ou légèrement flétris ne sont pas perdus : ils sont parfaits pour une soupe, un velouté ou une poêlée, où la texture importe moins que dans une salade crue.",
+        "Les fanes de carottes ou de radis, souvent jetées, peuvent se cuisiner comme des épinards ou finir en pesto. Les épluchures bien lavées (carotte, pomme de terre) peuvent même être passées au four avec un peu d'huile pour des chips maison.",
+        "Un légume qui commence à germer (comme un oignon ou une pomme de terre) reste généralement utilisable : il suffit de retirer la partie germée avant cuisson.",
+      ],
+    },
+    {
+      tone: 'fresh',
+      Icon: PotGlyph,
+      title: 'Pain dur, restes de riz ou de pâtes : rien ne se perd',
+      text: [
+        "Le pain rassis se transforme facilement en croûtons pour une salade ou une soupe, en pain perdu sucré ou salé, ou encore en chapelure maison une fois mixé et séché.",
+        "Le riz ou les pâtes cuits en trop se réutilisent très bien le lendemain dans un riz sauté, une frittata, ou une salade froide avec ce qui traîne dans le frigo (légumes, fromage, restes de viande ou de poisson).",
+        "Une astuce simple : gardez toujours un bocal \"restes\" au frigo pour regrouper les petites quantités de légumes cuits, elles font souvent une excellente base de soupe en fin de semaine.",
+      ],
+    },
+    {
+      tone: 'zest',
+      Icon: BookGlyph,
+      title: 'DLC ou DDM : comprendre les dates sur les emballages',
+      text: [
+        "La DLC (date limite de consommation, \"à consommer jusqu'au\") concerne les produits périssables comme la viande fraîche ou le poisson : elle doit être respectée pour des raisons de sécurité alimentaire.",
+        "La DDM (date de durabilité minimale, \"à consommer de préférence avant\") concerne des produits plus stables (pâtes, riz, conserves, biscuits) : après cette date, le produit peut perdre en qualité (goût, texture) mais reste souvent consommable sans risque, sous réserve d'un aspect et d'une odeur normaux.",
+        "Confondre les deux est l'une des principales causes de gaspillage évitable à la maison : on jette par précaution un produit encore parfaitement bon.",
+      ],
+    },
+  ],
+  en: [
+    {
+      tone: 'fresh',
+      Icon: FridgeGlyph,
+      title: 'Organize your fridge so food lasts longer',
+      text: [
+        "The fridge isn't uniform: the bottom (just above the crisper drawer) is the coldest zone, ideal for meat, fish, and opened dairy products. The door, which is milder, suits condiments and drinks, but not milk or eggs.",
+        "Fruits and vegetables keep better in the dedicated crisper drawer, which limits dehydration. Also keep ethylene-producing fruits (apples, bananas) away from sensitive vegetables, since that gas speeds up ripening.",
+        "Finally, an overpacked fridge cools less efficiently: air needs to circulate between items for the cold to stay even throughout.",
+      ],
+    },
+    {
+      tone: 'zest',
+      Icon: SproutGlyph,
+      title: 'What to do with slightly tired vegetables?',
+      text: [
+        "Softened or slightly wilted vegetables aren't lost causes: they're perfect for a soup, a purée, or a stir-fry, where texture matters less than in a raw salad.",
+        "Carrot or radish tops, often thrown away, can be cooked like spinach or turned into pesto. Well-washed peels (carrot, potato) can even be baked with a little oil for homemade chips.",
+        "A vegetable that's starting to sprout (like an onion or a potato) is usually still usable: just remove the sprouted part before cooking.",
+      ],
+    },
+    {
+      tone: 'fresh',
+      Icon: PotGlyph,
+      title: "Stale bread, leftover rice or pasta: nothing goes to waste",
+      text: [
+        "Stale bread easily turns into croutons for a salad or soup, sweet or savory French toast, or homemade breadcrumbs once blended and dried.",
+        "Extra cooked rice or pasta reuses very well the next day in fried rice, a frittata, or a cold salad with whatever's left in the fridge (vegetables, cheese, leftover meat or fish).",
+        "A simple tip: always keep a \"leftovers\" jar in the fridge to collect small amounts of cooked vegetables — they often make an excellent soup base at the end of the week.",
+      ],
+    },
+    {
+      tone: 'zest',
+      Icon: BookGlyph,
+      title: 'Best-before vs. use-by: understanding the dates on packaging',
+      text: [
+        'The use-by date ("use by") applies to perishable products like fresh meat or fish: it must be respected for food safety reasons.',
+        'The best-before date ("best before") applies to more stable products (pasta, rice, canned goods, biscuits): after this date, the product may lose some quality (taste, texture) but is usually still safe to eat, provided it looks and smells normal.',
+        "Confusing the two is one of the main causes of avoidable waste at home: a perfectly good product gets thrown away out of caution.",
+      ],
+    },
+  ],
+}
+
+const STRINGS = {
+  fr: {
+    title: 'Astuces anti-gaspi',
+    subtitle: 'Quelques conseils simples pour jeter moins et cuisiner mieux ce que vous avez déjà.',
+    ctaText: 'Envie de mettre ça en pratique ?',
+    ctaLink: 'Prenez en photo ce qu\'il vous reste',
   },
-  {
-    tone: 'zest',
-    Icon: SproutGlyph,
-    title: 'Que faire avec des légumes un peu fatigués ?',
-    text: [
-      "Des légumes ramollis ou légèrement flétris ne sont pas perdus : ils sont parfaits pour une soupe, un velouté ou une poêlée, où la texture importe moins que dans une salade crue.",
-      "Les fanes de carottes ou de radis, souvent jetées, peuvent se cuisiner comme des épinards ou finir en pesto. Les épluchures bien lavées (carotte, pomme de terre) peuvent même être passées au four avec un peu d'huile pour des chips maison.",
-      "Un légume qui commence à germer (comme un oignon ou une pomme de terre) reste généralement utilisable : il suffit de retirer la partie germée avant cuisson.",
-    ],
+  en: {
+    title: 'Zero-waste tips',
+    subtitle: "A few simple tips to throw away less and cook better with what you already have.",
+    ctaText: 'Want to put this into practice?',
+    ctaLink: "Take a photo of what you have left",
   },
-  {
-    tone: 'fresh',
-    Icon: PotGlyph,
-    title: 'Pain dur, restes de riz ou de pâtes : rien ne se perd',
-    text: [
-      "Le pain rassis se transforme facilement en croûtons pour une salade ou une soupe, en pain perdu sucré ou salé, ou encore en chapelure maison une fois mixé et séché.",
-      "Le riz ou les pâtes cuits en trop se réutilisent très bien le lendemain dans un riz sauté, une frittata, ou une salade froide avec ce qui traîne dans le frigo (légumes, fromage, restes de viande ou de poisson).",
-      "Une astuce simple : gardez toujours un bocal \"restes\" au frigo pour regrouper les petites quantités de légumes cuits, elles font souvent une excellente base de soupe en fin de semaine.",
-    ],
-  },
-  {
-    tone: 'zest',
-    Icon: BookGlyph,
-    title: 'DLC ou DDM : comprendre les dates sur les emballages',
-    text: [
-      "La DLC (date limite de consommation, \"à consommer jusqu'au\") concerne les produits périssables comme la viande fraîche ou le poisson : elle doit être respectée pour des raisons de sécurité alimentaire.",
-      "La DDM (date de durabilité minimale, \"à consommer de préférence avant\") concerne des produits plus stables (pâtes, riz, conserves, biscuits) : après cette date, le produit peut perdre en qualité (goût, texture) mais reste souvent consommable sans risque, sous réserve d'un aspect et d'une odeur normaux.",
-      "Confondre les deux est l'une des principales causes de gaspillage évitable à la maison : on jette par précaution un produit encore parfaitement bon.",
-    ],
-  },
-]
+}
 
 // Page "Blog / Astuces anti-gaspi" : quelques articles courts et concrets.
 export default function BlogPage() {
   const { goTo } = useApp()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
+  const articles = ARTICLES[lang]
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
       <PageHeader
         onBack={() => goTo('home')}
         icon={<BookGlyph className="w-full h-full" />}
-        title="Astuces anti-gaspi"
-        subtitle="Quelques conseils simples pour jeter moins et cuisiner mieux ce que vous avez déjà."
+        title={s.title}
+        subtitle={s.subtitle}
       />
 
       <div className="mt-7 space-y-4">
-        {ARTICLES.map((article) => (
+        {articles.map((article) => (
           <article key={article.title} className="card p-5">
             <div className="flex items-start gap-3">
               <IllustrationTile tone={article.tone} size="sm">
@@ -79,9 +142,9 @@ export default function BlogPage() {
       </div>
 
       <p className="mt-8 text-center text-sm text-neutral-400">
-        Envie de mettre ça en pratique ?{' '}
+        {s.ctaText}{' '}
         <button onClick={() => goTo('upload')} className="text-fresh-700 underline underline-offset-2">
-          Prenez en photo ce qu'il vous reste
+          {s.ctaLink}
         </button>
         .
       </p>

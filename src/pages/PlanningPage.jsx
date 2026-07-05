@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
+import { localizeRecipeName } from '../data/recipesDB.js'
 import RecipeModal from '../components/RecipeModal.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, CalendarGlyph } from '../components/Illustrations.jsx'
@@ -7,13 +10,55 @@ import { DAYS_OF_WEEK } from '../utils/storage.js'
 import { dedupeIngredientList, copyTextToClipboard } from '../utils/shoppingList.js'
 
 const DAY_LABELS = {
-  lundi: 'Lundi',
-  mardi: 'Mardi',
-  mercredi: 'Mercredi',
-  jeudi: 'Jeudi',
-  vendredi: 'Vendredi',
-  samedi: 'Samedi',
-  dimanche: 'Dimanche',
+  fr: {
+    lundi: 'Lundi',
+    mardi: 'Mardi',
+    mercredi: 'Mercredi',
+    jeudi: 'Jeudi',
+    vendredi: 'Vendredi',
+    samedi: 'Samedi',
+    dimanche: 'Dimanche',
+  },
+  en: {
+    lundi: 'Monday',
+    mardi: 'Tuesday',
+    mercredi: 'Wednesday',
+    jeudi: 'Thursday',
+    vendredi: 'Friday',
+    samedi: 'Saturday',
+    dimanche: 'Sunday',
+  },
+}
+
+const STRINGS = {
+  fr: {
+    title: 'Planning de la semaine',
+    subtitle: 'Glissez une recette favorite sur un jour (ou touchez-la pour la sélectionner, puis touchez un jour sur mobile).',
+    empty: "Ajoutez d'abord des recettes à vos favoris (❤️) pour pouvoir les planifier ici.",
+    seeFavorites: '❤️ Voir mes favoris',
+    yourFavorites: 'Vos recettes favorites',
+    selected: (name) => `« ${name} » sélectionnée — touchez un jour pour l'y assigner.`,
+    removeAria: (day) => `Retirer la recette de ${day}`,
+    tapToAssign: 'Toucher pour assigner',
+    noRecipe: 'Aucune recette',
+    shoppingList: '🛒 Liste de courses de la semaine',
+    copy: 'Copier',
+    copied: '✅ Copié',
+  },
+  en: {
+    title: 'Weekly planning',
+    subtitle: 'Drag a favorite recipe onto a day (or tap it to select it, then tap a day on mobile).',
+    empty: 'First add recipes to your favorites (❤️) so you can plan them here.',
+    seeFavorites: '❤️ See my favorites',
+    yourFavorites: 'Your favorite recipes',
+    selected: (name) => `"${name}" selected — tap a day to assign it.`,
+    removeAria: (day) => `Remove the recipe from ${day}`,
+    tapToAssign: 'Tap to assign',
+    noRecipe: 'No recipe',
+    shoppingList: '🛒 Weekly shopping list',
+    copy: 'Copy',
+    copied: '✅ Copied',
+  },
 }
 
 // Page "Planning de la semaine" : on assigne des recettes favorites aux 7
@@ -22,6 +67,9 @@ const DAY_LABELS = {
 // En bas, liste de courses agrégée sur toutes les recettes de la semaine.
 export default function PlanningPage() {
   const { state, goTo, assignRecipeToDay, clearDay } = useApp()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
+  const dayLabels = DAY_LABELS[lang]
   const [selectedFavId, setSelectedFavId] = useState(null)
   const [activeRecipe, setActiveRecipe] = useState(null)
   const [copied, setCopied] = useState(false)
@@ -67,10 +115,10 @@ export default function PlanningPage() {
     <div className="max-w-3xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
       <PageHeader
         onBack={() => goTo('home')}
-        backLabel="← Accueil"
+        backLabel={COMMON[lang].backHome}
         icon={<CalendarGlyph className="w-full h-full" />}
-        title="Planning de la semaine"
-        subtitle="Glissez une recette favorite sur un jour (ou touchez-la pour la sélectionner, puis touchez un jour sur mobile)."
+        title={s.title}
+        subtitle={s.subtitle}
       />
 
       {favorites.length === 0 ? (
@@ -78,17 +126,15 @@ export default function PlanningPage() {
           <IllustrationTile tone="fresh" size="lg" className="mb-4">
             <CalendarGlyph className="w-full h-full" />
           </IllustrationTile>
-          <p className="text-neutral-500 text-sm max-w-xs">
-            Ajoutez d'abord des recettes à vos favoris (❤️) pour pouvoir les planifier ici.
-          </p>
+          <p className="text-neutral-500 text-sm max-w-xs">{s.empty}</p>
           <button onClick={() => goTo('favorites')} className="btn-primary mt-4 px-5 py-2.5 text-sm">
-            ❤️ Voir mes favoris
+            {s.seeFavorites}
           </button>
         </div>
       ) : (
         <>
           <div className="mt-7">
-            <h3 className="font-semibold text-neutral-900 mb-2 text-sm">Vos recettes favorites</h3>
+            <h3 className="font-semibold text-neutral-900 mb-2 text-sm">{s.yourFavorites}</h3>
             <div className="flex flex-wrap gap-2">
               {favorites.map((recipe) => (
                 <button
@@ -100,14 +146,12 @@ export default function PlanningPage() {
                     selectedFavId === recipe.favId ? 'chip-active' : ''
                   }`}
                 >
-                  {recipe.emoji} {recipe.name}
+                  {recipe.emoji} {localizeRecipeName(recipe, lang)}
                 </button>
               ))}
             </div>
             {selectedRecipe && (
-              <p className="text-xs text-fresh-700 mt-2">
-                « {selectedRecipe.name} » sélectionnée — touchez un jour pour l'y assigner.
-              </p>
+              <p className="text-xs text-fresh-700 mt-2">{s.selected(localizeRecipeName(selectedRecipe, lang))}</p>
             )}
           </div>
 
@@ -125,19 +169,19 @@ export default function PlanningPage() {
                   }`}
                 >
                   <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wide">
-                    {DAY_LABELS[day]}
+                    {dayLabels[day]}
                   </p>
                   {recipe ? (
                     <div className="mt-1 flex items-center justify-between gap-2">
                       <span className="text-sm text-neutral-800 truncate">
-                        {recipe.emoji} {recipe.name}
+                        {recipe.emoji} {localizeRecipeName(recipe, lang)}
                       </span>
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           clearDay(day)
                         }}
-                        aria-label={`Retirer la recette de ${DAY_LABELS[day]}`}
+                        aria-label={s.removeAria(dayLabels[day])}
                         className="shrink-0 text-neutral-300 hover:text-red-500 text-sm px-1"
                       >
                         ✕
@@ -145,7 +189,7 @@ export default function PlanningPage() {
                     </div>
                   ) : (
                     <p className="mt-1 text-sm text-neutral-300">
-                      {selectedRecipe ? 'Toucher pour assigner' : 'Aucune recette'}
+                      {selectedRecipe ? s.tapToAssign : s.noRecipe}
                     </p>
                   )}
                 </div>
@@ -156,9 +200,9 @@ export default function PlanningPage() {
           {shoppingList.length > 0 && (
             <div className="mt-8 card p-5">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="font-semibold text-neutral-900">🛒 Liste de courses de la semaine</h3>
+                <h3 className="font-semibold text-neutral-900">{s.shoppingList}</h3>
                 <button onClick={handleCopy} className="btn-secondary !py-1.5 !px-3 text-xs shrink-0">
-                  {copied ? '✅ Copié' : 'Copier'}
+                  {copied ? s.copied : s.copy}
                 </button>
               </div>
               <ul className="mt-3 flex flex-wrap gap-1.5">

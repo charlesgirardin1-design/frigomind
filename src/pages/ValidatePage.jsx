@@ -1,18 +1,55 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
 import PreferencesPanel from '../components/PreferencesPanel.jsx'
 import AntiGaspiBanner from '../components/AntiGaspiBanner.jsx'
 import IngredientSuggestions from '../components/IngredientSuggestions.jsx'
 import { suggestComplementaryIngredients } from '../logic/recipeEngine.js'
 
-function ConfidenceBadge({ confidence }) {
+const STRINGS = {
+  fr: {
+    title: "Voici ce que j'ai détecté",
+    subtitle: 'Cochez, décochez, renommez ou ajoutez des ingrédients avant de générer vos recettes.',
+    photoAlt: 'Photo analysée',
+    emptyState:
+      "Aucun ingrédient détecté automatiquement sur cette photo (photo peu nette, ou reconnaissance IA pas encore configurée sur ce déploiement). Ajoutez vos ingrédients manuellement ci-dessous 👇",
+    orMaybe: 'Ou peut-être :',
+    removeAria: (name) => `Supprimer ${name}`,
+    addPlaceholder: 'Ajouter un ingrédient (ex : oignon)',
+    add: '+ Ajouter',
+    seeRecipes: '🍽️ Voir mes recettes',
+    surpriseMe: "🎲 J'ai faim, surprends-moi",
+    confidenceProbable: 'probable',
+    confidenceToConfirm: 'à confirmer',
+    confidenceUncertain: 'incertain',
+  },
+  en: {
+    title: 'Here’s what I detected',
+    subtitle: 'Check, uncheck, rename, or add ingredients before generating your recipes.',
+    photoAlt: 'Analyzed photo',
+    emptyState:
+      "No ingredients were automatically detected in this photo (blurry photo, or AI recognition not yet configured on this deployment). Add your ingredients manually below 👇",
+    orMaybe: 'Or maybe:',
+    removeAria: (name) => `Remove ${name}`,
+    addPlaceholder: 'Add an ingredient (e.g. onion)',
+    add: '+ Add',
+    seeRecipes: '🍽️ See my recipes',
+    surpriseMe: "🎲 I'm hungry, surprise me",
+    confidenceProbable: 'likely',
+    confidenceToConfirm: 'to confirm',
+    confidenceUncertain: 'uncertain',
+  },
+}
+
+function ConfidenceBadge({ confidence, s }) {
   if (confidence >= 0.75) {
-    return <span className="badge badge-fresh">probable</span>
+    return <span className="badge badge-fresh">{s.confidenceProbable}</span>
   }
   if (confidence >= 0.5) {
-    return <span className="badge badge-neutral">à confirmer</span>
+    return <span className="badge badge-neutral">{s.confidenceToConfirm}</span>
   }
-  return <span className="badge badge-zest">incertain</span>
+  return <span className="badge badge-zest">{s.confidenceUncertain}</span>
 }
 
 // Page de validation : liste modifiable des ingrédients détectés + préférences.
@@ -21,6 +58,8 @@ function ConfidenceBadge({ confidence }) {
 export default function ValidatePage() {
   const { state, toggleIngredient, renameIngredient, removeIngredient, addIngredient, generateFromValidated, surpriseMe, goTo } =
     useApp()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
   const [newIngredient, setNewIngredient] = useState('')
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
@@ -37,25 +76,19 @@ export default function ValidatePage() {
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-28 animate-fadeIn">
       <button onClick={() => goTo('upload')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Retour
+        {COMMON[lang].back}
       </button>
 
-      <h2 className="text-2xl font-bold text-neutral-900">Voici ce que j'ai détecté</h2>
-      <p className="text-neutral-500 mt-1">
-        Cochez, décochez, renommez ou ajoutez des ingrédients avant de générer vos recettes.
-      </p>
+      <h2 className="text-2xl font-bold text-neutral-900">{s.title}</h2>
+      <p className="text-neutral-500 mt-1">{s.subtitle}</p>
 
       {state.photo && (
-        <img src={state.photo} alt="Photo analysée" className="mt-4 w-28 h-28 object-cover rounded-xl2 shadow-card" />
+        <img src={state.photo} alt={s.photoAlt} className="mt-4 w-28 h-28 object-cover rounded-xl2 shadow-card" />
       )}
 
       <div className="mt-5 card divide-y divide-neutral-100">
         {state.ingredients.length === 0 && (
-          <p className="p-4 text-sm text-neutral-400 text-center">
-            Aucun ingrédient détecté automatiquement sur cette photo (photo peu nette, ou
-            reconnaissance IA pas encore configurée sur ce déploiement). Ajoutez vos ingrédients
-            manuellement ci-dessous 👇
-          </p>
+          <p className="p-4 text-sm text-neutral-400 text-center">{s.emptyState}</p>
         )}
 
         {state.ingredients.map((ing) => (
@@ -71,12 +104,12 @@ export default function ValidatePage() {
                 <span className={`font-medium capitalize ${ing.checked ? 'text-neutral-900' : 'text-neutral-400 line-through'}`}>
                   {ing.name}
                 </span>
-                <ConfidenceBadge confidence={ing.confidence} />
+                <ConfidenceBadge confidence={ing.confidence} s={s} />
               </div>
 
               {ing.alternatives?.length > 0 && (
                 <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs text-neutral-400">Ou peut-être :</span>
+                  <span className="text-xs text-neutral-400">{s.orMaybe}</span>
                   {ing.alternatives.map((alt) => (
                     <button
                       key={alt}
@@ -92,7 +125,7 @@ export default function ValidatePage() {
 
             <button
               onClick={() => removeIngredient(ing.id)}
-              aria-label={`Supprimer ${ing.name}`}
+              aria-label={s.removeAria(ing.name)}
               className="shrink-0 text-neutral-300 hover:text-red-500 text-lg leading-none px-1"
             >
               ✕
@@ -105,11 +138,11 @@ export default function ValidatePage() {
             value={newIngredient}
             onChange={(e) => setNewIngredient(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-            placeholder="Ajouter un ingrédient (ex : oignon)"
+            placeholder={s.addPlaceholder}
             className="flex-1 text-sm border border-neutral-200 rounded-full px-4 py-2 outline-none focus:border-fresh-400 focus:ring-2 focus:ring-fresh-100"
           />
           <button onClick={handleAdd} className="btn-secondary !py-2 !px-4 text-sm">
-            + Ajouter
+            {s.add}
           </button>
         </div>
       </div>
@@ -135,14 +168,14 @@ export default function ValidatePage() {
             disabled={!hasAtLeastOne}
             className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            🍽️ Voir mes recettes
+            {s.seeRecipes}
           </button>
           <button
             onClick={surpriseMe}
             disabled={!hasAtLeastOne}
             className="btn-secondary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            🎲 J'ai faim, surprends-moi
+            {s.surpriseMe}
           </button>
         </div>
       </div>

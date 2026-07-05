@@ -20,6 +20,8 @@ import SettingsPage from './pages/SettingsPage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
+import { useLanguage } from './state/LanguageContext.jsx'
+import { COMMON } from './i18n/common.js'
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
@@ -31,7 +33,8 @@ const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'fa
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
 // (ou un aller-retour vers la connexion) le temps que Firebase réponde.
 function AuthGateLoading() {
-  return <div className="flex items-center justify-center py-24 text-neutral-400 text-sm">Chargement…</div>
+  const lang = useLanguage()
+  return <div className="flex items-center justify-center py-24 text-neutral-400 text-sm">{COMMON[lang].loading}</div>
 }
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -59,6 +62,8 @@ const VIEWS = {
 export default function App() {
   const { state, goTo, resetSession, requireLogin } = useApp()
   const { user, authLoading } = useAuth()
+  const lang = useLanguage()
+  const c = COMMON[lang]
 
   // Navigue vers les mentions légales et scrolle jusqu'à la section demandée
   // (fonctionne qu'on soit déjà sur la page ou non, voir LegalPage.jsx).
@@ -135,42 +140,42 @@ export default function App() {
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-sm">
             <button onClick={() => goTo('about')} className="text-neutral-500 hover:text-fresh-700 transition">
-              À propos
+              {c.nav.about}
             </button>
             <button onClick={() => goTo('faq')} className="text-neutral-500 hover:text-fresh-700 transition">
-              FAQ
+              {c.nav.faq}
             </button>
             <button onClick={() => goTo('blog')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Astuces anti-gaspi
+              {c.nav.blog}
             </button>
             <button onClick={() => goTo('ingredient')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Ingrédients
+              {c.nav.ingredient}
             </button>
             <button onClick={() => goTo('planning')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Planning de la semaine
+              {lang === 'fr' ? 'Planning de la semaine' : 'Weekly planning'}
             </button>
             <button onClick={() => goTo('stats')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Statistiques
+              {c.nav.stats}
             </button>
             <button onClick={() => goTo('changelog')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Nouveautés
+              {c.nav.changelog}
             </button>
             <button onClick={() => goTo('legal')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Mentions légales
+              {c.nav.legal}
             </button>
             <button onClick={() => goToLegalSection('vos-informations-personnelles')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Vos informations personnelles
+              {c.nav.personalData}
             </button>
             <button onClick={() => goToLegalSection('cookies')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Cookies
+              {c.nav.cookies}
             </button>
             <button onClick={() => goTo('login')} className="text-neutral-500 hover:text-fresh-700 transition">
-              Se connecter
+              {c.nav.login}
             </button>
           </div>
 
           <p className="text-xs text-neutral-400 mt-6">
-            FrigoMind — MVP · analyse IA via Google Gemini (gratuit)
+            {c.footerTagline}
           </p>
         </div>
       </footer>
