@@ -18,10 +18,11 @@ const NAV_LINKS = [
 // existant (goTo / state.view), sans dépendance de routing externe.
 export default function Header() {
   const { state, goTo, resetSession } = useApp()
-  const { user } = useAuth()
+  const { user, localAvatar } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [avatarError, setAvatarError] = useState(false)
-  useEffect(() => setAvatarError(false), [user?.photoURL])
+  const avatarUrl = localAvatar || user?.photoURL
+  useEffect(() => setAvatarError(false), [avatarUrl])
 
   const navigate = (view) => {
     if (view === 'home') resetSession()
@@ -74,9 +75,9 @@ export default function Header() {
                 className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm hover:bg-fresh-200 transition overflow-hidden"
                 title={user.displayName || user.email}
               >
-                {user.photoURL && !avatarError ? (
+                {avatarUrl && !avatarError ? (
                   <img
-                    src={user.photoURL}
+                    src={avatarUrl}
                     alt=""
                     className="w-full h-full object-cover"
                     onError={() => setAvatarError(true)}

@@ -6,9 +6,10 @@
 // sans dépendance compliquée (contrainte du projet).
 // -----------------------------------------------------------------------------
 
-import { createContext, useCallback, useContext, useMemo, useReducer } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
 import { analyzeImage } from '../data/mockVision.js'
 import { generateRecipes, surpriseRecipe } from '../logic/recipeEngine.js'
+import { useAuth } from './AuthContext.jsx'
 import {
   getHistory,
   saveHistoryEntry,
@@ -20,22 +21,32 @@ import {
   savePlanning,
   getPreferences,
   savePreferences,
+  DEFAULT_PREFERENCES,
+  DAYS_OF_WEEK,
 } from '../utils/storage.js'
 
 const AppStateContext = createContext(null)
 
+const EMPTY_PLANNING = Object.fromEntries(DAYS_OF_WEEK.map((day) => [day, null]))
+
+// L'historique, les favoris, le planning et les préférences sont propres au
+// compte connecté (voir storage.js) : on ne peut donc pas les lire au chargement
+// du module (l'utilisateur Firebase n'est pas encore connu à cet instant). On
+// démarre à vide et on les charge dès que le compte est connu (voir l'effet
+// LOAD_USER_DATA ci-dessous), pour ne jamais afficher les données d'un autre
+// compte utilisé précédemment sur cet appareil.
 const initialState = {
   view: 'home', // 'home' | 'upload' | 'validate' | 'results' | 'history' | 'favorites' | 'planning' | 'ingredient'
   photo: null,
   isAnalyzing: false,
   ingredients: [], // [{id, name, confidence, alternatives, checked}]
-  preferences: getPreferences(),
+  preferences: DEFAULT_PREFERENCES,
   recipes: [],
   activeRecipeId: null,
-  history: getHistory(),
+  history: [],
   isSurprise: false,
-  favorites: getFavorites(),
-  planning: getPlanning(),
+  favorites: [],
+  planning: EMPTY_PLANNING,
   activeIngredient: '',
   redirectTo: null,
 }
@@ -96,7 +107,21 @@ function reducer(state, action) {
     case 'SET_ACTIVE_INGREDIENT':
       return { ...state, activeIngredient: action.name, view: 'ingredient' }
     case 'RESET_SESSION':
-      return { ...initialState, history: state.history, favorites: state.favorites, planning: state.planning }
+      return {
+        ...initialState,
+        history: state.history,
+        favorites: state.favorites,
+        planning: state.planning,
+        preferences: state.preferences,
+      }
+    case 'LOAD_USER_DATA':
+      return {
+        ...state,
+        history: action.history,
+        favorites: action.favorites,
+        planning: action.planning,
+        preferences: action.preferences,
+      }
     default:
       return state
   }
@@ -104,6 +129,22 @@ function reducer(state, action) {
 
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
+  const { user, authLoading } = useAuth()
+  const uid = user?.uid || null
+
+  // Recharge historique/favoris/planning/préférences dès que le compte
+  // connecté change (connexion, déconnexion, ou changement de compte sur le
+  // même appareil) pour ne jamais mélanger les données de deux comptes.
+  useEffect(() => {
+    if (authLoading) return
+    dispatch({
+      type: 'LOAD_USER_DATA',
+      history: getHistory(uid),
+      favorites: getFavorites(uid),
+      planning: getPlanning(uid),
+      preferences: getPreferences(uid),
+    })
+  }, [uid, authLoading])
 
   const goTo = useCallback((view) => {
     if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {
@@ -148,10 +189,10 @@ export function AppProvider({ children }) {
   // par défaut pour la prochaine session (voir initialState / page paramètres).
   const setPreferences = useCallback(
     (prefs) => {
-      savePreferences({ ...state.preferences, ...prefs })
+      savePreferences(uid, { ...state.preferences, ...prefs })
       dispatch({ type: 'SET_PREFERENCES', prefs })
     },
-    [state.preferences]
+    [state.preferences, uid]
   )
 
   const getValidatedNames = useCallback(
@@ -166,9 +207,9 @@ export function AppProvider({ children }) {
       ingredients: validatedNames,
       recipes: recipes.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji, time: r.time })),
     }
-    const updated = saveHistoryEntry(entry)
+    const updated = saveHistoryEntry(uid, entry)
     dispatch({ type: 'PUSH_HISTORY', history: updated })
-  }, [])
+  }, [uid])
 
   const generateFromValidated = useCallback(() => {
     const validatedNames = getValidatedNames(state.ingredients)
@@ -190,9 +231,9 @@ export function AppProvider({ children }) {
   const resetSession = useCallback(() => dispatch({ type: 'RESET_SESSION' }), [])
 
   const wipeHistory = useCallback(() => {
-    clearHistory()
+    clearHistory(uid)
     dispatch({ type: 'CLEAR_HISTORY' })
-  }, [])
+  }, [uid])
 
   const toggleFavorite = useCallback(
     (recipe) => {
@@ -201,35 +242,35 @@ export function AppProvider({ children }) {
       const updated = exists
         ? state.favorites.filter((r) => r.favId !== exists.favId)
         : [{ ...recipe, favId: `fav-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` }, ...state.favorites]
-      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(updated) })
+      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, updated) })
     },
-    [state.favorites]
+    [state.favorites, uid]
   )
 
   const clearFavorites = useCallback(() => {
-    dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites([]) })
-  }, [])
+    dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, []) })
+  }, [uid])
 
   const assignRecipeToDay = useCallback(
     (day, recipe) => {
       const updated = { ...state.planning, [day]: recipe }
-      dispatch({ type: 'SET_PLANNING', planning: savePlanning(updated) })
+      dispatch({ type: 'SET_PLANNING', planning: savePlanning(uid, updated) })
     },
-    [state.planning]
+    [state.planning, uid]
   )
 
   const clearDay = useCallback(
     (day) => {
       const updated = { ...state.planning, [day]: null }
-      dispatch({ type: 'SET_PLANNING', planning: savePlanning(updated) })
+      dispatch({ type: 'SET_PLANNING', planning: savePlanning(uid, updated) })
     },
-    [state.planning]
+    [state.planning, uid]
   )
 
   const clearPlanning = useCallback(() => {
     const emptied = Object.fromEntries(Object.keys(state.planning).map((day) => [day, null]))
-    dispatch({ type: 'SET_PLANNING', planning: savePlanning(emptied) })
-  }, [state.planning])
+    dispatch({ type: 'SET_PLANNING', planning: savePlanning(uid, emptied) })
+  }, [state.planning, uid])
 
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
 
