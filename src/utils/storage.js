@@ -1,7 +1,10 @@
 // -----------------------------------------------------------------------------
 // storage.js
-// Petit wrapper localStorage pour l'historique, les favoris et le planning de
-// la semaine (fonctionnalités bonus). Aucune dépendance externe.
+// Petit wrapper localStorage pour l'historique, les favoris, le planning de
+// la semaine et les préférences (fonctionnalités bonus). Tout est propre au
+// compte connecté (clé suffixée par son uid) : sur un même appareil, deux
+// comptes FrigoMind ne partagent jamais leur historique/favoris/stats.
+// Aucune dépendance externe.
 // -----------------------------------------------------------------------------
 
 const HISTORY_KEY = 'frigomind_history'
@@ -15,9 +18,16 @@ export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', 
 
 export const DAYS_OF_WEEK = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
 
-export function getHistory() {
+// Sans compte connecté (ne devrait pas arriver : ces données ne sont
+// utilisées que sur des pages qui exigent une connexion), on retombe sur un
+// compartiment "invité" plutôt que de planter.
+function scopedKey(base, uid) {
+  return `${base}_${uid || 'guest'}`
+}
+
+export function getHistory(uid) {
   try {
-    const raw = localStorage.getItem(HISTORY_KEY)
+    const raw = localStorage.getItem(scopedKey(HISTORY_KEY, uid))
     return raw ? JSON.parse(raw) : []
   } catch (e) {
     console.warn('FrigoMind: lecture historique impossible', e)
@@ -25,21 +35,21 @@ export function getHistory() {
   }
 }
 
-export function saveHistoryEntry(entry) {
+export function saveHistoryEntry(uid, entry) {
   try {
-    const current = getHistory()
+    const current = getHistory(uid)
     const updated = [entry, ...current].slice(0, MAX_HISTORY)
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(updated))
+    localStorage.setItem(scopedKey(HISTORY_KEY, uid), JSON.stringify(updated))
     return updated
   } catch (e) {
     console.warn('FrigoMind: écriture historique impossible', e)
-    return getHistory()
+    return getHistory(uid)
   }
 }
 
-export function clearHistory() {
+export function clearHistory(uid) {
   try {
-    localStorage.removeItem(HISTORY_KEY)
+    localStorage.removeItem(scopedKey(HISTORY_KEY, uid))
   } catch (e) {
     console.warn('FrigoMind: suppression historique impossible', e)
   }
@@ -57,9 +67,9 @@ export function getFavoriteKey(recipe) {
   return `${recipe.id}::${recipe.name}`
 }
 
-export function getFavorites() {
+export function getFavorites(uid) {
   try {
-    const raw = localStorage.getItem(FAVORITES_KEY)
+    const raw = localStorage.getItem(scopedKey(FAVORITES_KEY, uid))
     return raw ? JSON.parse(raw) : []
   } catch (e) {
     console.warn('FrigoMind: lecture favoris impossible', e)
@@ -67,10 +77,10 @@ export function getFavorites() {
   }
 }
 
-export function saveFavorites(favorites) {
+export function saveFavorites(uid, favorites) {
   const trimmed = favorites.slice(0, MAX_FAVORITES)
   try {
-    localStorage.setItem(FAVORITES_KEY, JSON.stringify(trimmed))
+    localStorage.setItem(scopedKey(FAVORITES_KEY, uid), JSON.stringify(trimmed))
   } catch (e) {
     console.warn('FrigoMind: écriture favoris impossible', e)
   }
@@ -83,10 +93,10 @@ export function isFavoriteRecipe(favorites, recipe) {
 }
 
 // ---------- Planning de la semaine ----------
-export function getPlanning() {
+export function getPlanning(uid) {
   const empty = Object.fromEntries(DAYS_OF_WEEK.map((day) => [day, null]))
   try {
-    const raw = localStorage.getItem(PLANNING_KEY)
+    const raw = localStorage.getItem(scopedKey(PLANNING_KEY, uid))
     const parsed = raw ? JSON.parse(raw) : {}
     return { ...empty, ...parsed }
   } catch (e) {
@@ -95,9 +105,9 @@ export function getPlanning() {
   }
 }
 
-export function savePlanning(planning) {
+export function savePlanning(uid, planning) {
   try {
-    localStorage.setItem(PLANNING_KEY, JSON.stringify(planning))
+    localStorage.setItem(scopedKey(PLANNING_KEY, uid), JSON.stringify(planning))
   } catch (e) {
     console.warn('FrigoMind: écriture planning impossible', e)
   }
@@ -106,10 +116,10 @@ export function savePlanning(planning) {
 
 // ---------- Préférences par défaut ----------
 // Dernières préférences de recettes utilisées (temps max, cuisine, régime),
-// réappliquées automatiquement à chaque nouvelle session.
-export function getPreferences() {
+// réappliquées automatiquement à chaque nouvelle session sur ce compte.
+export function getPreferences(uid) {
   try {
-    const raw = localStorage.getItem(PREFERENCES_KEY)
+    const raw = localStorage.getItem(scopedKey(PREFERENCES_KEY, uid))
     return raw ? { ...DEFAULT_PREFERENCES, ...JSON.parse(raw) } : DEFAULT_PREFERENCES
   } catch (e) {
     console.warn('FrigoMind: lecture préférences impossible', e)
@@ -117,11 +127,46 @@ export function getPreferences() {
   }
 }
 
-export function savePreferences(preferences) {
+export function savePreferences(uid, preferences) {
   try {
-    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(preferences))
+    localStorage.setItem(scopedKey(PREFERENCES_KEY, uid), JSON.stringify(preferences))
   } catch (e) {
     console.warn('FrigoMind: écriture préférences impossible', e)
   }
   return preferences
+}
+
+// ---------- Photo de profil ----------
+// Aucun stockage serveur (Firebase Storage) n'est configuré pour ce MVP : la
+// photo de profil (prise avec l'appareil ou importée) est donc gardée en
+// local, propre à cet appareil, plutôt que synchronisée sur le compte.
+function avatarKey(uid) {
+  return `frigomind_avatar_${uid}`
+}
+
+export function getAvatar(uid) {
+  if (!uid) return null
+  try {
+    return localStorage.getItem(avatarKey(uid))
+  } catch (e) {
+    console.warn('FrigoMind: lecture photo de profil impossible', e)
+    return null
+  }
+}
+
+export function saveAvatar(uid, dataUrl) {
+  try {
+    localStorage.setItem(avatarKey(uid), dataUrl)
+  } catch (e) {
+    console.warn('FrigoMind: écriture photo de profil impossible', e)
+  }
+  return dataUrl
+}
+
+export function clearAvatar(uid) {
+  try {
+    localStorage.removeItem(avatarKey(uid))
+  } catch (e) {
+    console.warn('FrigoMind: suppression photo de profil impossible', e)
+  }
 }

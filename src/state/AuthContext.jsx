@@ -21,8 +21,11 @@ import {
   updatePassword,
   EmailAuthProvider,
   reauthenticateWithCredential,
+  reauthenticateWithPopup,
+  deleteUser,
   } from 'firebase/auth'
 import { auth, googleProvider, appleProvider, isFirebaseConfigured } from '../firebase.js'
+import { getAvatar, saveAvatar, clearAvatar } from '../utils/storage.js'
 
 const AuthContext = createContext(null)
 
@@ -76,6 +79,26 @@ async function signInWithProvider(provider) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const [localAvatar, setLocalAvatarState] = useState(null)
+
+  // Photo de profil : gardée en local (voir storage.js), propre à cet
+  // appareil et à ce compte (aucun Firebase Storage configuré pour ce MVP).
+  useEffect(() => {
+    setLocalAvatarState(user ? getAvatar(user.uid) : null)
+  }, [user?.uid])
+
+  const setLocalAvatar = useCallback(
+    (dataUrl) => {
+      if (!user) return
+      if (dataUrl) {
+        saveAvatar(user.uid, dataUrl)
+      } else {
+        clearAvatar(user.uid)
+      }
+      setLocalAvatarState(dataUrl)
+    },
+    [user]
+  )
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -167,16 +190,14 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // Renomme le compte et/ou change sa photo (affichés dans le header et les
-  // emails Firebase). photoURL peut être une chaîne vide/null pour retirer
-  // la photo actuelle.
-  const updateProfileDetails = useCallback(async ({ displayName, photoURL }) => {
+  // Renomme le compte (affiché dans le header et les emails Firebase).
+  const changeDisplayName = useCallback(async (name) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
     if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
     try {
-      await updateProfile(auth.currentUser, { displayName, photoURL: photoURL || null })
+      await updateProfile(auth.currentUser, { displayName: name })
       // updateProfile ne déclenche pas onAuthStateChanged : on force une mise
-      // à jour locale pour que les changements apparaissent immédiatement.
+      // à jour locale pour que le nouveau nom apparaisse immédiatement.
       setUser({ ...auth.currentUser })
     } catch (err) {
       throw new Error(friendlyError(err))
@@ -196,11 +217,38 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  // Supprime définitivement le compte Firebase. Comme pour le changement de
+  // mot de passe, Firebase exige une connexion "récente" : on se
+  // ré-authentifie d'abord (mot de passe pour un compte email, popup
+  // Google/Apple sinon) plutôt que de laisser échouer avec une erreur
+  // "requires-recent-login" incompréhensible.
+  const deleteAccount = useCallback(async (currentPassword) => {
+    if (!isFirebaseConfigured) throw new Error('not-configured')
+    const currentUser = auth.currentUser
+    if (!currentUser) throw new Error("Vous n'êtes pas connecté.")
+    try {
+      const hasPasswordProvider = currentUser.providerData.some((p) => p.providerId === 'password')
+      if (hasPasswordProvider) {
+        const credential = EmailAuthProvider.credential(currentUser.email, currentPassword)
+        await reauthenticateWithCredential(currentUser, credential)
+      } else {
+        const providerId = currentUser.providerData[0]?.providerId
+        await reauthenticateWithPopup(currentUser, providerId === 'apple.com' ? appleProvider : googleProvider)
+      }
+      clearAvatar(currentUser.uid)
+      await deleteUser(currentUser)
+    } catch (err) {
+      throw new Error(friendlyError(err))
+    }
+  }, [])
+
   const value = useMemo(
     () => ({
       user,
       authLoading,
       isFirebaseConfigured,
+      localAvatar,
+      setLocalAvatar,
       signInWithGoogle,
       signInWithApple,
       signInWithEmail,
@@ -208,12 +256,15 @@ export function AuthProvider({ children }) {
       logOut,
       resetPassword,
       changePassword,
-      updateProfileDetails,
+      changeDisplayName,
       resendVerification,
+      deleteAccount,
     }),
     [
       user,
       authLoading,
+      localAvatar,
+      setLocalAvatar,
       signInWithGoogle,
       signInWithApple,
       signInWithEmail,
@@ -221,8 +272,9 @@ export function AuthProvider({ children }) {
       logOut,
       resetPassword,
       changePassword,
-      updateProfileDetails,
+      changeDisplayName,
       resendVerification,
+      deleteAccount,
     ]
   )
 
