@@ -2,8 +2,41 @@ import { useEffect, useState } from 'react'
 import { Menu, X, User, Settings } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
-import { useLanguage } from '../state/LanguageContext.jsx'
+import { useLanguage, useLanguageControls } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
+
+// Sélecteur de langue (drapeaux FR/EN) : la langue est détectée
+// automatiquement à la première visite, mais reste modifiable manuellement
+// ici — le choix est alors mémorisé (localStorage) pour les prochaines fois.
+function LanguageSwitcher({ className = '' }) {
+  const { lang, setLang } = useLanguageControls()
+  return (
+    <div className={`flex items-center gap-0.5 ${className}`}>
+      <button
+        type="button"
+        onClick={() => setLang('fr')}
+        aria-label="Français"
+        aria-pressed={lang === 'fr'}
+        className={`text-base leading-none rounded-full p-1 transition ${
+          lang === 'fr' ? 'ring-2 ring-fresh-300' : 'opacity-40 hover:opacity-80'
+        }`}
+      >
+        🇫🇷
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang('en')}
+        aria-label="English"
+        aria-pressed={lang === 'en'}
+        className={`text-base leading-none rounded-full p-1 transition ${
+          lang === 'en' ? 'ring-2 ring-fresh-300' : 'opacity-40 hover:opacity-80'
+        }`}
+      >
+        🇬🇧
+      </button>
+    </div>
+  )
+}
 
 // Menu de navigation principal du site : liens visibles en desktop,
 // menu déroulant hamburger en mobile. Reste basé sur le routeur d'état
@@ -70,7 +103,8 @@ export default function Header() {
         </nav>
 
         {/* Compte / connexion (desktop) */}
-        <div className="hidden sm:flex items-center ml-2 shrink-0">
+        <div className="hidden sm:flex items-center gap-3 ml-2 shrink-0">
+          <LanguageSwitcher />
           {user ? (
             <div className="flex items-center gap-2">
               <button
@@ -137,6 +171,10 @@ export default function Header() {
                 {link.label}
               </button>
             ))}
+            <div className="border-t border-neutral-100 mt-2 pt-2 flex items-center justify-between gap-3">
+              <span className="text-xs text-neutral-400 px-2">{lang === 'fr' ? 'Langue' : 'Language'}</span>
+              <LanguageSwitcher />
+            </div>
             <div className="border-t border-neutral-100 mt-2 pt-2">
               {user ? (
                 <button
