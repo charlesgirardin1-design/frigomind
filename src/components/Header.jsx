@@ -31,7 +31,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-neutral-100/80 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
-      <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
         <button
           className="flex items-center gap-2.5 font-extrabold text-lg text-neutral-900 shrink-0 group"
           onClick={() => navigate('home')}
@@ -44,13 +44,15 @@ export default function Header() {
           <span>Frigo<span className="text-fresh-600">Mind</span></span>
         </button>
 
-        {/* Navigation desktop */}
-        <nav className="hidden sm:flex items-center flex-wrap justify-end gap-1 bg-neutral-50/70 rounded-full p-1 border border-neutral-100">
+        {/* Navigation desktop : toujours sur une seule ligne — défile
+            horizontalement plutôt que de passer à la ligne si l'écran est
+            trop étroit pour tout afficher. */}
+        <nav className="hidden sm:flex items-center flex-nowrap overflow-x-auto no-scrollbar gap-1 bg-neutral-50/70 rounded-full p-1 border border-neutral-100 min-w-0">
           {NAV_LINKS.map((link) => (
             <button
               key={link.view}
               onClick={() => navigate(link.view)}
-              className={`text-sm font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition-all duration-150 ${
+              className={`text-sm font-medium px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 transition-all duration-150 ${
                 state.view === link.view
                   ? 'bg-white text-fresh-700 shadow-card'
                   : 'text-neutral-500 hover:text-neutral-900 hover:bg-white/70'
