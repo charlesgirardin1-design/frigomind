@@ -18,6 +18,8 @@ import {
   getFavoriteKey,
   getPlanning,
   savePlanning,
+  getPreferences,
+  savePreferences,
 } from '../utils/storage.js'
 
 const AppStateContext = createContext(null)
@@ -27,7 +29,7 @@ const initialState = {
   photo: null,
   isAnalyzing: false,
   ingredients: [], // [{id, name, confidence, alternatives, checked}]
-  preferences: { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false },
+  preferences: getPreferences(),
   recipes: [],
   activeRecipeId: null,
   history: getHistory(),
@@ -142,7 +144,15 @@ export function AppProvider({ children }) {
   const renameIngredient = useCallback((id, name) => dispatch({ type: 'RENAME_INGREDIENT', id, name }), [])
   const removeIngredient = useCallback((id) => dispatch({ type: 'REMOVE_INGREDIENT', id }), [])
   const addIngredient = useCallback((name) => dispatch({ type: 'ADD_INGREDIENT', name }), [])
-  const setPreferences = useCallback((prefs) => dispatch({ type: 'SET_PREFERENCES', prefs }), [])
+  // Persiste les préférences à chaque changement : elles servent de valeurs
+  // par défaut pour la prochaine session (voir initialState / page paramètres).
+  const setPreferences = useCallback(
+    (prefs) => {
+      savePreferences({ ...state.preferences, ...prefs })
+      dispatch({ type: 'SET_PREFERENCES', prefs })
+    },
+    [state.preferences]
+  )
 
   const getValidatedNames = useCallback(
     (ingredients) => ingredients.filter((i) => i.checked).map((i) => i.name),
@@ -196,6 +206,10 @@ export function AppProvider({ children }) {
     [state.favorites]
   )
 
+  const clearFavorites = useCallback(() => {
+    dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites([]) })
+  }, [])
+
   const assignRecipeToDay = useCallback(
     (day, recipe) => {
       const updated = { ...state.planning, [day]: recipe }
@@ -211,6 +225,11 @@ export function AppProvider({ children }) {
     },
     [state.planning]
   )
+
+  const clearPlanning = useCallback(() => {
+    const emptied = Object.fromEntries(Object.keys(state.planning).map((day) => [day, null]))
+    dispatch({ type: 'SET_PLANNING', planning: savePlanning(emptied) })
+  }, [state.planning])
 
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
 
@@ -232,8 +251,10 @@ export function AppProvider({ children }) {
       resetSession,
       wipeHistory,
       toggleFavorite,
+      clearFavorites,
       assignRecipeToDay,
       clearDay,
+      clearPlanning,
       goToIngredient,
     }),
     [
@@ -253,8 +274,10 @@ export function AppProvider({ children }) {
       resetSession,
       wipeHistory,
       toggleFavorite,
+      clearFavorites,
       assignRecipeToDay,
       clearDay,
+      clearPlanning,
       goToIngredient,
     ]
   )

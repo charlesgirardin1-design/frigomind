@@ -167,15 +167,30 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  // Renomme le compte (affiché dans le header et les emails Firebase).
-  const changeDisplayName = useCallback(async (name) => {
+  // Renomme le compte et/ou change sa photo (affichés dans le header et les
+  // emails Firebase). photoURL peut être une chaîne vide/null pour retirer
+  // la photo actuelle.
+  const updateProfileDetails = useCallback(async ({ displayName, photoURL }) => {
     if (!isFirebaseConfigured) throw new Error('not-configured')
     if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
     try {
-      await updateProfile(auth.currentUser, { displayName: name })
+      await updateProfile(auth.currentUser, { displayName, photoURL: photoURL || null })
       // updateProfile ne déclenche pas onAuthStateChanged : on force une mise
-      // à jour locale pour que le nouveau nom apparaisse immédiatement.
+      // à jour locale pour que les changements apparaissent immédiatement.
       setUser({ ...auth.currentUser })
+    } catch (err) {
+      throw new Error(friendlyError(err))
+    }
+  }, [])
+
+  // Renvoie l'email de vérification (compte email/mot de passe non encore
+  // confirmé). Le lien envoyé par Firebase est le même que celui de l'email
+  // initial reçu à l'inscription.
+  const resendVerification = useCallback(async () => {
+    if (!isFirebaseConfigured) throw new Error('not-configured')
+    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    try {
+      await sendEmailVerification(auth.currentUser)
     } catch (err) {
       throw new Error(friendlyError(err))
     }
@@ -193,7 +208,8 @@ export function AuthProvider({ children }) {
       logOut,
       resetPassword,
       changePassword,
-      changeDisplayName,
+      updateProfileDetails,
+      resendVerification,
     }),
     [
       user,
@@ -205,7 +221,8 @@ export function AuthProvider({ children }) {
       logOut,
       resetPassword,
       changePassword,
-      changeDisplayName,
+      updateProfileDetails,
+      resendVerification,
     ]
   )
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Menu, X, User, Settings } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
@@ -20,6 +20,8 @@ export default function Header() {
   const { state, goTo, resetSession } = useApp()
   const { user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [avatarError, setAvatarError] = useState(false)
+  useEffect(() => setAvatarError(false), [user?.photoURL])
 
   const navigate = (view) => {
     if (view === 'home') resetSession()
@@ -69,10 +71,19 @@ export default function Header() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate('settings')}
-                className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm hover:bg-fresh-200 transition"
+                className="w-8 h-8 rounded-full bg-fresh-100 text-fresh-700 font-semibold flex items-center justify-center text-sm hover:bg-fresh-200 transition overflow-hidden"
                 title={user.displayName || user.email}
               >
-                {initial}
+                {user.photoURL && !avatarError ? (
+                  <img
+                    src={user.photoURL}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={() => setAvatarError(true)}
+                  />
+                ) : (
+                  initial
+                )}
               </button>
               <button
                 onClick={() => navigate('settings')}
