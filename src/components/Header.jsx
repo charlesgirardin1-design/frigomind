@@ -2,16 +2,8 @@ import { useEffect, useState } from 'react'
 import { Menu, X, User, Settings } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
-
-const NAV_LINKS = [
-  { view: 'home', label: 'Accueil' },
-  { view: 'favorites', label: 'Favoris' },
-  { view: 'planning', label: 'Planning' },
-  { view: 'history', label: 'Historique' },
-  { view: 'stats', label: 'Statistiques' },
-  { view: 'about', label: 'À propos' },
-  { view: 'faq', label: 'FAQ' },
-]
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
 
 // Menu de navigation principal du site : liens visibles en desktop,
 // menu déroulant hamburger en mobile. Reste basé sur le routeur d'état
@@ -19,6 +11,17 @@ const NAV_LINKS = [
 export default function Header() {
   const { state, goTo, resetSession } = useApp()
   const { user, localAvatar } = useAuth()
+  const lang = useLanguage()
+  const c = COMMON[lang]
+  const NAV_LINKS = [
+    { view: 'home', label: c.nav.home },
+    { view: 'favorites', label: c.nav.favorites },
+    { view: 'planning', label: c.nav.planning },
+    { view: 'history', label: c.nav.history },
+    { view: 'stats', label: c.nav.stats },
+    { view: 'about', label: c.nav.about },
+    { view: 'faq', label: c.nav.faq },
+  ]
   const [menuOpen, setMenuOpen] = useState(false)
   const [avatarError, setAvatarError] = useState(false)
   const avatarUrl = localAvatar || user?.photoURL
@@ -89,8 +92,8 @@ export default function Header() {
               <button
                 onClick={() => navigate('settings')}
                 className="p-1.5 text-neutral-500 hover:text-fresh-700 transition"
-                title="Paramètres"
-                aria-label="Paramètres"
+                title={c.nav.settings}
+                aria-label={c.nav.settings}
               >
                 <Settings size={18} />
               </button>
@@ -101,7 +104,7 @@ export default function Header() {
               className="flex items-center gap-1.5 text-sm font-medium text-neutral-600 hover:text-fresh-700 transition px-3 py-1.5"
             >
               <User size={16} />
-              Se connecter
+              {c.nav.login}
             </button>
           )}
         </div>
@@ -110,7 +113,7 @@ export default function Header() {
         <button
           className="sm:hidden p-2 -mr-2 text-neutral-600 hover:text-neutral-900"
           onClick={() => setMenuOpen((v) => !v)}
-          aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+          aria-label={menuOpen ? (lang === 'fr' ? 'Fermer le menu' : 'Close menu') : (lang === 'fr' ? 'Ouvrir le menu' : 'Open menu')}
           aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -140,14 +143,14 @@ export default function Header() {
                   onClick={() => navigate('settings')}
                   className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
                 >
-                  Paramètres ({user.displayName || user.email})
+                  {c.nav.settings} ({user.displayName || user.email})
                 </button>
               ) : (
                 <button
                   onClick={() => navigate('login')}
                   className="text-left w-full text-sm font-medium px-2 py-2.5 rounded-lg text-neutral-600 hover:bg-neutral-50 transition"
                 >
-                  Se connecter
+                  {c.nav.login}
                 </button>
               )}
             </div>

@@ -4,12 +4,21 @@
 // recommandation (recipeEngine.js). Chaque recette liste ses ingrédients
 // requis et optionnels afin de calculer un score de correspondance avec
 // les ingrédients validés par l'utilisateur.
+//
+// i18n : `name`/`steps` restent la version française (utilisée aussi comme
+// valeur par défaut). `nameEn`/`stepsEn` sont l'affichage anglais. Les
+// ingrédients (`required`/`optional`) restent en français dans les deux
+// langues : ils servent de clé de correspondance avec les ingrédients
+// détectés par l'IA (toujours en français), donc les traduire casserait le
+// matching sans reconstruire tout le moteur en bilingue. Voir
+// localizeRecipeName / localizeRecipeSteps ci-dessous pour l'affichage.
 // -----------------------------------------------------------------------------
 
 export const RECIPES = [
   {
     id: 'omelette-tomate-fromage',
     name: 'Omelette tomates & fromage',
+    nameEn: 'Tomato & cheese omelette',
     emoji: '🍳',
     time: 10,
     level: 'facile',
@@ -24,10 +33,18 @@ export const RECIPES = [
       'Verser les œufs, ajouter tomates et fromage.',
       'Cuire 4 à 5 minutes à feu moyen jusqu\'à ce que l\'omelette soit prise.',
     ],
+    stepsEn: [
+      'Beat the eggs in a bowl with a pinch of salt.',
+      'Cut the tomatoes and cheese into small pieces.',
+      'Heat a little butter in a pan.',
+      'Pour in the eggs, add the tomatoes and cheese.',
+      'Cook for 4-5 minutes over medium heat until the omelette sets.',
+    ],
   },
   {
     id: 'poulet-riz-poivron',
     name: 'Poulet sauté riz & poivron',
+    nameEn: 'Chicken stir-fry with rice & bell pepper',
     emoji: '🍗',
     time: 25,
     level: 'moyen',
@@ -42,10 +59,18 @@ export const RECIPES = [
       'Ajouter poivron (et carotte si dispo), cuire 5 min de plus.',
       'Servir le poulet sauté sur le riz chaud.',
     ],
+    stepsEn: [
+      'Cook the rice in salted boiling water (about 12 min).',
+      'Dice the chicken, thinly slice the bell pepper and onion.',
+      'Sauté the garlic, then the chicken, for 6-8 minutes over high heat.',
+      'Add the bell pepper (and carrot if you have some), cook for 5 more minutes.',
+      'Serve the stir-fried chicken over hot rice.',
+    ],
   },
   {
     id: 'pates-tomate-basilic',
     name: 'Pâtes tomate & basilic',
+    nameEn: 'Tomato & basil pasta',
     emoji: '🍝',
     time: 15,
     level: 'facile',
@@ -60,10 +85,18 @@ export const RECIPES = [
       'Égoutter les pâtes, mélanger avec la sauce.',
       'Parsemer de basilic et de parmesan avant de servir.',
     ],
+    stepsEn: [
+      'Cook the pasta in salted boiling water.',
+      'Meanwhile, sauté the garlic, then the diced tomatoes.',
+      'Simmer for 5-6 minutes to form a sauce.',
+      'Drain the pasta, mix with the sauce.',
+      'Sprinkle with basil and parmesan before serving.',
+    ],
   },
   {
     id: 'croque-jambon-fromage',
     name: 'Croque-monsieur express',
+    nameEn: 'Quick ham & cheese toastie',
     emoji: '🥪',
     time: 10,
     level: 'facile',
@@ -77,10 +110,17 @@ export const RECIPES = [
       'Passer à la poêle ou au four 5-6 minutes jusqu\'à ce que ça dore.',
       'Couper en deux et servir chaud.',
     ],
+    stepsEn: [
+      'Lightly butter two slices of bread.',
+      'Fill with ham and cheese.',
+      'Cook in a pan or oven for 5-6 minutes until golden.',
+      'Cut in half and serve hot.',
+    ],
   },
   {
     id: 'bowl-yaourt-banane',
     name: 'Bowl petit-déj yaourt & banane',
+    nameEn: 'Yogurt & banana breakfast bowl',
     emoji: '🥣',
     time: 5,
     level: 'facile',
@@ -94,10 +134,17 @@ export const RECIPES = [
       'Ajouter flocons d\'avoine et/ou noix si disponibles.',
       'Terminer avec un filet de miel.',
     ],
+    stepsEn: [
+      'Pour the yogurt into a bowl.',
+      'Slice the banana and add it.',
+      'Add oats and/or nuts if you have some.',
+      'Finish with a drizzle of honey.',
+    ],
   },
   {
     id: 'salade-thon-pois-chiches',
     name: 'Salade thon & pois chiches',
+    nameEn: 'Tuna & chickpea salad',
     emoji: '🥗',
     time: 10,
     level: 'facile',
@@ -111,10 +158,17 @@ export const RECIPES = [
       'Mélanger le tout dans un saladier.',
       'Assaisonner d\'un filet de citron, de sel et d\'huile.',
     ],
+    stepsEn: [
+      'Drain the tuna and chickpeas.',
+      'Cut the tomatoes and red onion into small pieces.',
+      'Mix everything together in a bowl.',
+      'Season with a squeeze of lemon, salt and oil.',
+    ],
   },
   {
     id: 'poulet-champignons-creme',
     name: 'Poulet crémeux aux champignons',
+    nameEn: 'Creamy chicken with mushrooms',
     emoji: '🍗',
     time: 25,
     level: 'moyen',
@@ -129,10 +183,18 @@ export const RECIPES = [
       'Incorporer la crème fraîche, laisser mijoter 8-10 minutes.',
       'Servir bien chaud, avec du riz ou des pâtes si vous en avez.',
     ],
+    stepsEn: [
+      'Cut the chicken into pieces, thinly slice the mushrooms and shallot.',
+      'Brown the chicken for 5 minutes in a pan.',
+      'Add the shallot and mushrooms, cook for 5 minutes.',
+      'Stir in the crème fraîche, simmer for 8-10 minutes.',
+      'Serve hot, with rice or pasta if you have some.',
+    ],
   },
   {
     id: 'tartiflette-express',
     name: 'Pommes de terre gratinées façon tartiflette',
+    nameEn: 'Tartiflette-style baked potatoes',
     emoji: '🧀',
     time: 30,
     level: 'moyen',
@@ -146,10 +208,17 @@ export const RECIPES = [
       'Disposer pommes de terre et lardons/oignon dans un plat.',
       'Recouvrir de fromage et passer 15 minutes au four à 200°C.',
     ],
+    stepsEn: [
+      'Slice the potatoes and cook them for 10 min in boiling water.',
+      'Sauté the onion and bacon lardons if you have some.',
+      'Arrange the potatoes and lardons/onion in a baking dish.',
+      'Cover with cheese and bake for 15 minutes at 200°C.',
+    ],
   },
   {
     id: 'frittata-courgette-oeufs',
     name: 'Frittata courgette & fromage',
+    nameEn: 'Zucchini & cheese frittata',
     emoji: '🥚',
     time: 20,
     level: 'facile',
@@ -164,10 +233,18 @@ export const RECIPES = [
       'Cuire à couvert 8-10 minutes à feu doux jusqu\'à ce que ce soit pris.',
       'Parsemer d\'herbes fraîches avant de servir.',
     ],
+    stepsEn: [
+      'Cut the zucchini into thin rounds.',
+      'Sauté the zucchini for 5 minutes in a pan.',
+      'Beat the eggs with the cheese, pour over the zucchini.',
+      'Cook covered for 8-10 minutes over low heat until set.',
+      'Sprinkle with fresh herbs before serving.',
+    ],
   },
   {
     id: 'epinards-oeufs-fromage-blanc',
     name: 'Œufs brouillés épinards & fromage blanc',
+    nameEn: 'Scrambled eggs with spinach & fromage blanc',
     emoji: '🥬',
     time: 12,
     level: 'facile',
@@ -181,10 +258,17 @@ export const RECIPES = [
       'Remuer doucement jusqu\'à obtenir des œufs brouillés crémeux.',
       'Ajouter une cuillère de fromage blanc hors du feu pour plus d\'onctuosité.',
     ],
+    stepsEn: [
+      'Wilt the spinach for a few minutes in a pan.',
+      'Beat the eggs and pour them over the spinach.',
+      'Stir gently until you get creamy scrambled eggs.',
+      'Add a spoonful of fromage blanc off the heat for extra creaminess.',
+    ],
   },
   {
     id: 'riz-cantonais-maison',
     name: 'Riz sauté façon cantonais',
+    nameEn: 'Homemade egg fried rice',
     emoji: '🍚',
     time: 20,
     level: 'facile',
@@ -198,10 +282,17 @@ export const RECIPES = [
       'Ajouter le riz, puis jambon/carotte/oignon selon disponibilité.',
       'Faire sauter le tout 5-6 minutes à feu vif en remuant.',
     ],
+    stepsEn: [
+      'Cook the rice ahead of time (ideally the day before).',
+      'Beat the eggs and cook them into small pieces in a pan.',
+      'Add the rice, then ham/carrot/onion depending on what you have.',
+      'Stir-fry everything for 5-6 minutes over high heat.',
+    ],
   },
   {
     id: 'soupe-carotte-pomme-terre',
     name: 'Velouté carotte & pomme de terre',
+    nameEn: 'Carrot & potato soup',
     emoji: '🥕',
     time: 25,
     level: 'facile',
@@ -215,10 +306,17 @@ export const RECIPES = [
       'Couvrir d\'eau et laisser cuire 20 minutes.',
       'Mixer jusqu\'à obtenir un velouté lisse, ajouter un peu de crème fraîche.',
     ],
+    stepsEn: [
+      'Peel and cut the carrots and potatoes into chunks.',
+      'Sauté the onion if you have some, then add the vegetables.',
+      'Cover with water and cook for 20 minutes.',
+      'Blend until smooth, add a little crème fraîche.',
+    ],
   },
   {
     id: 'toast-avocat-oeuf',
     name: 'Tartine œuf & fromage grillé',
+    nameEn: 'Egg & melted cheese toast',
     emoji: '🍞',
     time: 8,
     level: 'facile',
@@ -232,10 +330,17 @@ export const RECIPES = [
       'Déposer le fromage sur le pain chaud pour qu\'il fonde.',
       'Ajouter l\'œuf au plat par-dessus et servir aussitôt.',
     ],
+    stepsEn: [
+      'Toast the lightly buttered bread.',
+      'Fry an egg on the side.',
+      'Place the cheese on the hot toast so it melts.',
+      'Add the fried egg on top and serve right away.',
+    ],
   },
   {
     id: 'pates-champignons-creme',
     name: 'Pâtes crémeuses aux champignons',
+    nameEn: 'Creamy mushroom pasta',
     emoji: '🍄',
     time: 20,
     level: 'facile',
@@ -249,10 +354,17 @@ export const RECIPES = [
       'Ajouter la crème fraîche, laisser mijoter 3-4 minutes.',
       'Mélanger avec les pâtes égouttées, parsemer de parmesan.',
     ],
+    stepsEn: [
+      'Cook the pasta in salted boiling water.',
+      'Sauté the sliced mushrooms with garlic for 5 minutes.',
+      'Add the crème fraîche, simmer for 3-4 minutes.',
+      'Mix with the drained pasta, sprinkle with parmesan.',
+    ],
   },
   {
     id: 'salade-pois-chiches-citron',
     name: 'Salade de pois chiches au citron',
+    nameEn: 'Lemony chickpea salad',
     emoji: '🍋',
     time: 8,
     level: 'facile',
@@ -266,10 +378,17 @@ export const RECIPES = [
       'Mélanger le tout avec le jus de citron, sel, poivre et huile.',
       'Laisser reposer 5 minutes au frais avant de servir.',
     ],
+    stepsEn: [
+      'Drain and rinse the chickpeas.',
+      'Cut the red onion and tomatoes if you have some.',
+      'Mix everything with lemon juice, salt, pepper and oil.',
+      'Let rest in the fridge for 5 minutes before serving.',
+    ],
   },
   {
     id: 'salade-fruits-maison',
     name: 'Salade de fruits maison',
+    nameEn: 'Homemade fruit salad',
     emoji: '🍎🍌',
     time: 10,
     level: 'facile',
@@ -283,10 +402,17 @@ export const RECIPES = [
       'Ajouter un filet de citron pour éviter que la pomme ne noircisse.',
       'Sucrer avec un peu de miel si besoin, servir frais.',
     ],
+    stepsEn: [
+      'Peel and cut the apple, banana and orange into pieces.',
+      'Mix all the fruit together in a bowl.',
+      'Add a squeeze of lemon to keep the apple from browning.',
+      'Sweeten with a little honey if needed, serve chilled.',
+    ],
   },
   {
     id: 'brocoli-vapeur-citron',
     name: 'Brocoli vapeur, sauce citron',
+    nameEn: 'Steamed broccoli with lemon sauce',
     emoji: '🥦',
     time: 12,
     level: 'facile',
@@ -300,10 +426,17 @@ export const RECIPES = [
       'Mélanger un filet de citron et d\'huile d\'olive pour la sauce.',
       'Arroser le brocoli chaud avec la sauce avant de servir.',
     ],
+    stepsEn: [
+      'Cut the broccoli into small florets.',
+      'Steam (or boil) for 8 to 10 minutes.',
+      'Mix a squeeze of lemon and olive oil for the sauce.',
+      'Drizzle the hot broccoli with the sauce before serving.',
+    ],
   },
   {
     id: 'compote-pomme-maison',
     name: 'Compote de pommes maison',
+    nameEn: 'Homemade applesauce',
     emoji: '🍎',
     time: 20,
     level: 'facile',
@@ -317,10 +450,17 @@ export const RECIPES = [
       'Cuire à feu doux 15 minutes en remuant de temps en temps.',
       'Écraser à la fourchette ou mixer selon la texture voulue.',
     ],
+    stepsEn: [
+      'Peel and cut the apples into pieces.',
+      'Put them in a saucepan with a splash of water.',
+      'Cook over low heat for 15 minutes, stirring occasionally.',
+      'Mash with a fork or blend, depending on the texture you want.',
+    ],
   },
   {
     id: 'saumon-riz-brocoli',
     name: 'Saumon, riz & brocoli vapeur',
+    nameEn: 'Salmon with rice & steamed broccoli',
     emoji: '🐟',
     time: 25,
     level: 'moyen',
@@ -334,10 +474,17 @@ export const RECIPES = [
       'Faire cuire le saumon à la poêle 3-4 minutes de chaque côté.',
       'Servir le saumon avec le riz et le brocoli, un filet de citron ou de sauce soja.',
     ],
+    stepsEn: [
+      'Cook the rice in salted boiling water (about 12 minutes).',
+      'Steam the broccoli for 8 to 10 minutes.',
+      'Cook the salmon in a pan for 3-4 minutes on each side.',
+      'Serve the salmon with the rice and broccoli, with a squeeze of lemon or soy sauce.',
+    ],
   },
   {
     id: 'boeuf-oignon-poivron-fajitas',
     name: 'Poêlée façon fajitas bœuf, oignon & poivron',
+    nameEn: 'Beef fajita-style stir-fry with onion & bell pepper',
     emoji: '🌮',
     time: 20,
     level: 'moyen',
@@ -352,10 +499,18 @@ export const RECIPES = [
       'Faire revenir oignon et poivron 5 minutes, remettre le bœuf.',
       'Servir tel quel, ou garni dans une tortilla avec fromage et crème fraîche si disponibles.',
     ],
+    stepsEn: [
+      'Cut the beef into thin strips, thinly slice the onion and bell pepper.',
+      'Heat a very hot pan with a drizzle of oil.',
+      'Sear the beef for 2-3 minutes, set aside.',
+      'Sauté the onion and bell pepper for 5 minutes, add the beef back in.',
+      'Serve as is, or wrapped in a tortilla with cheese and crème fraîche if you have some.',
+    ],
   },
   {
     id: 'crevettes-riz-sautees',
     name: 'Riz sauté aux crevettes',
+    nameEn: 'Shrimp fried rice',
     emoji: '🍤',
     time: 20,
     level: 'facile',
@@ -369,10 +524,17 @@ export const RECIPES = [
       'Ajouter le riz (et les petits pois si disponibles), faire sauter 5 minutes.',
       'Terminer avec un filet de citron avant de servir.',
     ],
+    stepsEn: [
+      'Cook the rice ahead of time (ideally the day before).',
+      'Sauté the garlic, then add the shrimp for 3-4 minutes.',
+      'Add the rice (and peas if you have some), stir-fry for 5 minutes.',
+      'Finish with a squeeze of lemon before serving.',
+    ],
   },
   {
     id: 'lentilles-carotte-oignon-soupe',
     name: 'Soupe de lentilles, carotte & oignon',
+    nameEn: 'Lentil, carrot & onion soup',
     emoji: '🍲',
     time: 30,
     level: 'facile',
@@ -386,10 +548,17 @@ export const RECIPES = [
       'Couvrir d\'eau, ajouter une pincée de cumin si disponible.',
       'Laisser mijoter 20 à 25 minutes jusqu\'à ce que les lentilles soient tendres.',
     ],
+    stepsEn: [
+      'Sauté the onion (and garlic) for a few minutes in a saucepan.',
+      'Add the diced carrot and the rinsed lentils.',
+      'Cover with water, add a pinch of cumin if you have some.',
+      'Simmer for 20 to 25 minutes until the lentils are tender.',
+    ],
   },
   {
     id: 'pois-chiches-epinards-curry',
     name: 'Curry de pois chiches & épinards',
+    nameEn: 'Chickpea & spinach curry',
     emoji: '🍛',
     time: 20,
     level: 'facile',
@@ -403,10 +572,17 @@ export const RECIPES = [
       'Ajouter les épinards et un peu de lait de coco si disponible.',
       'Laisser mijoter 8-10 minutes, servir chaud (avec du riz si vous en avez).',
     ],
+    stepsEn: [
+      'Sauté the garlic with a pinch of curry powder if you have some.',
+      'Add the drained chickpeas, cook for 3-4 minutes.',
+      'Add the spinach and a little coconut milk if you have some.',
+      'Simmer for 8-10 minutes, serve hot (with rice if you have some).',
+    ],
   },
   {
     id: 'avocat-tomate-toast',
     name: 'Tartine avocat & tomate',
+    nameEn: 'Avocado & tomato toast',
     emoji: '🥑',
     time: 10,
     level: 'facile',
@@ -420,10 +596,17 @@ export const RECIPES = [
       'Tartiner l\'avocat sur du pain grillé si disponible.',
       'Ajouter la tomate par-dessus, saler et poivrer.',
     ],
+    stepsEn: [
+      'Mash the avocado with a fork and a squeeze of lemon.',
+      'Cut the tomato (and red onion) into small dice.',
+      'Spread the avocado on toasted bread if you have some.',
+      'Add the tomato on top, season with salt and pepper.',
+    ],
   },
   {
     id: 'mangue-ananas-salade-tropicale',
     name: 'Salade tropicale mangue & ananas',
+    nameEn: 'Tropical mango & pineapple salad',
     emoji: '🥭',
     time: 10,
     level: 'facile',
@@ -437,10 +620,17 @@ export const RECIPES = [
       'Ajouter un peu de noix de coco râpée et un filet de citron vert si disponibles.',
       'Servir bien frais.',
     ],
+    stepsEn: [
+      'Peel and cut the mango and pineapple into pieces.',
+      'Mix together in a bowl.',
+      'Add a little shredded coconut and a squeeze of lime if you have some.',
+      'Serve well chilled.',
+    ],
   },
   {
     id: 'fraises-yaourt-bowl',
     name: 'Bowl fraises & yaourt',
+    nameEn: 'Strawberry & yogurt bowl',
     emoji: '🍓',
     time: 5,
     level: 'facile',
@@ -453,10 +643,16 @@ export const RECIPES = [
       'Verser le yaourt dans un bol, ajouter les fraises.',
       'Ajouter flocons d\'avoine et un filet de miel si disponibles.',
     ],
+    stepsEn: [
+      'Cut the strawberries into pieces.',
+      'Pour the yogurt into a bowl, add the strawberries.',
+      'Add oats and a drizzle of honey if you have some.',
+    ],
   },
   {
     id: 'poire-fromage-planche',
     name: 'Planche poire & fromage',
+    nameEn: 'Pear & cheese board',
     emoji: '🍐',
     time: 10,
     level: 'facile',
@@ -470,10 +666,17 @@ export const RECIPES = [
       'Ajouter quelques noix et un filet de miel si disponibles.',
       'Servir avec un peu de salade en accompagnement si vous en avez.',
     ],
+    stepsEn: [
+      'Cut the pear into thin slices.',
+      'Arrange on a board with the cheese cut into pieces.',
+      'Add a few walnuts and a drizzle of honey if you have some.',
+      'Serve with a little salad on the side if you have some.',
+    ],
   },
   {
     id: 'mais-thon-tomate-salade',
     name: 'Salade maïs, thon & tomate',
+    nameEn: 'Corn, tuna & tomato salad',
     emoji: '🌽',
     time: 10,
     level: 'facile',
@@ -487,10 +690,17 @@ export const RECIPES = [
       'Mélanger le tout dans un saladier.',
       'Assaisonner avec un peu de mayonnaise ou d\'huile, sel et poivre.',
     ],
+    stepsEn: [
+      'Drain the corn and tuna.',
+      'Dice the tomato (and red onion).',
+      'Mix everything together in a bowl.',
+      'Season with a little mayonnaise or oil, salt and pepper.',
+    ],
   },
   {
     id: 'dinde-champignons-creme',
     name: 'Dinde crémeuse aux champignons',
+    nameEn: 'Creamy turkey with mushrooms',
     emoji: '🦃',
     time: 25,
     level: 'moyen',
@@ -505,10 +715,18 @@ export const RECIPES = [
       'Incorporer la crème fraîche, laisser mijoter 8-10 minutes.',
       'Servir avec du riz si vous en avez.',
     ],
+    stepsEn: [
+      'Cut the turkey into pieces, thinly slice the mushrooms (and shallot).',
+      'Brown the turkey for 5 minutes in a pan.',
+      'Add the shallot and mushrooms, cook for 5 minutes.',
+      'Stir in the crème fraîche, simmer for 8-10 minutes.',
+      'Serve with rice if you have some.',
+    ],
   },
   {
     id: 'porc-ananas-riz',
     name: 'Porc sauté ananas & riz façon hawaïenne',
+    nameEn: 'Hawaiian-style pork stir-fry with pineapple & rice',
     emoji: '🍍',
     time: 25,
     level: 'moyen',
@@ -522,10 +740,17 @@ export const RECIPES = [
       'Ajouter l\'ananas coupé en morceaux (et le poivron si disponible), cuire 5 minutes.',
       'Ajouter un peu de sauce soja, servir sur le riz chaud.',
     ],
+    stepsEn: [
+      'Cook the rice in salted boiling water.',
+      'Dice the pork, sauté for 6-8 minutes over high heat.',
+      'Add the diced pineapple (and bell pepper if you have some), cook for 5 minutes.',
+      'Add a little soy sauce, serve over hot rice.',
+    ],
   },
   {
     id: 'saucisse-pdt-oignon-poelee',
     name: 'Poêlée de saucisse, pommes de terre & oignon',
+    nameEn: 'Sausage, potato & onion skillet',
     emoji: '🌭',
     time: 25,
     level: 'facile',
@@ -539,10 +764,17 @@ export const RECIPES = [
       'Faire revenir le tout ensemble 10 minutes à la poêle jusqu\'à coloration.',
       'Ajouter un peu de fromage râpé par-dessus si disponible, servir chaud.',
     ],
+    stepsEn: [
+      'Dice the potatoes and parboil them for 10 minutes in boiling water.',
+      'Slice the sausage into rounds, thinly slice the onion.',
+      'Sauté everything together for 10 minutes until browned.',
+      'Add a little grated cheese on top if you have some, serve hot.',
+    ],
   },
   {
     id: 'concombre-tomate-feta-salade',
     name: 'Salade concombre, tomate & feta',
+    nameEn: 'Cucumber, tomato & feta salad',
     emoji: '🥒',
     time: 10,
     level: 'facile',
@@ -556,10 +788,17 @@ export const RECIPES = [
       'Ajouter olives et oignon rouge si disponibles.',
       'Assaisonner d\'huile d\'olive, sel et poivre.',
     ],
+    stepsEn: [
+      'Cut the cucumber and tomato into pieces.',
+      'Crumble the feta on top.',
+      'Add olives and red onion if you have some.',
+      'Season with olive oil, salt and pepper.',
+    ],
   },
   {
     id: 'mais-carotte-macedoine',
     name: 'Macédoine maïs, carotte & petits pois',
+    nameEn: 'Corn, carrot & pea medley',
     emoji: '🥕',
     time: 10,
     level: 'facile',
@@ -573,10 +812,17 @@ export const RECIPES = [
       'Ajouter un peu de mayonnaise et de jambon en dés si disponibles.',
       'Servir frais.',
     ],
+    stepsEn: [
+      'Cook the carrot and peas in boiling water for 8-10 minutes (or use pre-cooked/canned vegetables).',
+      'Drain the corn, mix all the vegetables together.',
+      'Add a little mayonnaise and diced ham if you have some.',
+      'Serve chilled.',
+    ],
   },
   {
     id: 'banane-chocolat-bowl',
     name: 'Bowl gourmand banane & chocolat',
+    nameEn: 'Indulgent banana & chocolate bowl',
     emoji: '🍌',
     time: 15,
     level: 'facile',
@@ -590,5 +836,30 @@ export const RECIPES = [
       'Napper la banane de chocolat fondu.',
       'Ajouter des flocons d\'avoine pour le croquant si disponibles.',
     ],
+    stepsEn: [
+      'Slice the banana into rounds.',
+      'Melt a little chocolate (double boiler or microwave).',
+      'Drizzle the banana with melted chocolate.',
+      'Add oats for some crunch if you have some.',
+    ],
   },
 ]
+
+// Retrouve le nom/les étapes à afficher pour une recette dans la langue
+// demandée. `recipeLike` peut être une recette fraîchement générée ou un
+// instantané stocké (historique, favoris, planning) : dans les deux cas on
+// recherche la recette de référence par id pour récupérer sa traduction.
+// Les recettes génériques (construites à la volée à partir des ingrédients,
+// voir recipeEngine.js) n'ont pas d'entrée ici et restent donc en français
+// quelle que soit la langue de l'interface.
+export function localizeRecipeName(recipeLike, lang) {
+  if (lang !== 'en') return recipeLike.name
+  const dbRecipe = RECIPES.find((r) => r.id === recipeLike.id)
+  return dbRecipe?.nameEn || recipeLike.name
+}
+
+export function localizeRecipeSteps(recipeLike, lang) {
+  if (lang !== 'en') return recipeLike.steps
+  const dbRecipe = RECIPES.find((r) => r.id === recipeLike.id)
+  return dbRecipe?.stepsEn || recipeLike.steps
+}

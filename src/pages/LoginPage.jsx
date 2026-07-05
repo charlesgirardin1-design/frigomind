@@ -1,8 +1,72 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { LockGlyph } from '../components/Illustrations.jsx'
+
+const STRINGS = {
+  fr: {
+    signinTitle: 'Se connecter',
+    signupTitle: 'Créer un compte',
+    resetTitle: 'Mot de passe oublié',
+    signinSubtitle: 'Retrouvez votre historique et vos favoris sur tous vos appareils.',
+    resetSubtitle: 'Indiquez votre email pour recevoir un lien de réinitialisation.',
+    notConfigured:
+      "La connexion n'est pas encore configurée sur ce site (clés Firebase manquantes). Cette page est prête côté code — il ne reste qu'à renseigner les variables d'environnement Firebase pour l'activer.",
+    continueGoogle: 'Continuer avec Google',
+    continueApple: 'Continuer avec Apple',
+    orEmail: 'ou avec votre email',
+    resetSentPrefix: 'Si un compte existe pour',
+    resetSentSuffix: ', un email vient de vous être envoyé avec un lien pour choisir un nouveau mot de passe.',
+    backToSignin: 'Retour à la connexion',
+    backToSigninArrow: '← Retour à la connexion',
+    emailPlaceholder: 'Adresse email',
+    sendResetLink: 'Envoyer le lien de réinitialisation',
+    namePlaceholder: 'Votre prénom',
+    passwordPlaceholder: 'Mot de passe',
+    forgotPassword: 'Mot de passe oublié ?',
+    oneMoment: 'Un instant…',
+    createAccount: 'Créer mon compte',
+    alreadyAccount: 'Déjà un compte ?',
+    noAccountYet: 'Pas encore de compte ?',
+    signup: 'Créer un compte',
+    fillEmailPassword: 'Merci de renseigner un email et un mot de passe.',
+    fillEmail: 'Merci de renseigner votre adresse email.',
+    legalPrefix: 'En continuant, vous acceptez nos',
+    legalLink: 'mentions légales',
+  },
+  en: {
+    signinTitle: 'Sign in',
+    signupTitle: 'Create an account',
+    resetTitle: 'Forgot password',
+    signinSubtitle: 'Access your history and favorites on all your devices.',
+    resetSubtitle: 'Enter your email to receive a reset link.',
+    notConfigured:
+      "Sign-in isn't configured on this site yet (missing Firebase keys). This page is ready in the code — Firebase environment variables just need to be set to enable it.",
+    continueGoogle: 'Continue with Google',
+    continueApple: 'Continue with Apple',
+    orEmail: 'or with your email',
+    resetSentPrefix: 'If an account exists for',
+    resetSentSuffix: ', an email was just sent with a link to choose a new password.',
+    backToSignin: 'Back to sign in',
+    backToSigninArrow: '← Back to sign in',
+    emailPlaceholder: 'Email address',
+    sendResetLink: 'Send reset link',
+    namePlaceholder: 'Your first name',
+    passwordPlaceholder: 'Password',
+    forgotPassword: 'Forgot password?',
+    oneMoment: 'One moment…',
+    createAccount: 'Create my account',
+    alreadyAccount: 'Already have an account?',
+    noAccountYet: "Don't have an account yet?",
+    signup: 'Create an account',
+    fillEmailPassword: 'Please enter an email and a password.',
+    fillEmail: 'Please enter your email address.',
+    legalPrefix: 'By continuing, you accept our',
+    legalLink: 'legal notice',
+  },
+}
 
 function GoogleLogo(props) {
   return (
@@ -26,6 +90,8 @@ function AppleLogo(props) {
 export default function LoginPage() {
   const { state, goTo } = useApp()
   const { isFirebaseConfigured, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, resetPassword } = useAuth()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
   const afterLogin = () => goTo(state.redirectTo && state.redirectTo !== 'login' ? state.redirectTo : 'home')
 
   const [mode, setMode] = useState('signin') // 'signin' | 'signup' | 'reset'
@@ -66,7 +132,7 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     if (!email.trim() || !password.trim()) {
-      setError('Merci de renseigner un email et un mot de passe.')
+      setError(s.fillEmailPassword)
       return
     }
     setLoading(true)
@@ -88,7 +154,7 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
     if (!email.trim()) {
-      setError('Merci de renseigner votre adresse email.')
+      setError(s.fillEmail)
       return
     }
     setLoading(true)
@@ -114,19 +180,13 @@ export default function LoginPage() {
         onBack={() => goTo('home')}
         icon={<LockGlyph className="w-full h-full" />}
         tone="neutral"
-        title={mode === 'signup' ? 'Créer un compte' : mode === 'reset' ? 'Mot de passe oublié' : 'Se connecter'}
-        subtitle={
-          mode === 'reset'
-            ? 'Indiquez votre email pour recevoir un lien de réinitialisation.'
-            : 'Retrouvez votre historique et vos favoris sur tous vos appareils.'
-        }
+        title={mode === 'signup' ? s.signupTitle : mode === 'reset' ? s.resetTitle : s.signinTitle}
+        subtitle={mode === 'reset' ? s.resetSubtitle : s.signinSubtitle}
       />
 
       {!isFirebaseConfigured && (
         <div className="mt-6 rounded-xl border border-zest-200 bg-zest-50 text-zest-800 text-sm px-4 py-3">
-          La connexion n'est pas encore configurée sur ce site (clés Firebase manquantes). Cette page est
-          prête côté code — il ne reste qu'à renseigner les variables d'environnement Firebase pour
-          l'activer.
+          {s.notConfigured}
         </div>
       )}
 
@@ -140,7 +200,7 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <GoogleLogo />
-              Continuer avec Google
+              {s.continueGoogle}
             </button>
 
             <button
@@ -150,12 +210,12 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 mt-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <AppleLogo />
-              Continuer avec Apple
+              {s.continueApple}
             </button>
 
             <div className="flex items-center gap-3 my-5">
               <div className="h-px bg-neutral-100 flex-1" />
-              <span className="text-xs text-neutral-400">ou avec votre email</span>
+              <span className="text-xs text-neutral-400">{s.orEmail}</span>
               <div className="h-px bg-neutral-100 flex-1" />
             </div>
           </>
@@ -165,22 +225,22 @@ export default function LoginPage() {
           resetSent ? (
             <div className="text-center py-2">
               <p className="text-sm text-neutral-600">
-                Si un compte existe pour <span className="font-medium">{email.trim()}</span>, un email vient
-                de vous être envoyé avec un lien pour choisir un nouveau mot de passe.
+                {s.resetSentPrefix} <span className="font-medium">{email.trim()}</span>
+                {s.resetSentSuffix}
               </p>
               <button
                 type="button"
                 onClick={() => switchMode('signin')}
                 className="mt-5 text-fresh-700 font-medium underline underline-offset-2 text-sm"
               >
-                Retour à la connexion
+                {s.backToSignin}
               </button>
             </div>
           ) : (
             <form onSubmit={handleReset} className="space-y-3">
               <input
                 type="email"
-                placeholder="Adresse email"
+                placeholder={s.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -194,7 +254,7 @@ export default function LoginPage() {
                 disabled={loading || !isFirebaseConfigured}
                 className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Un instant…' : 'Envoyer le lien de réinitialisation'}
+                {loading ? s.oneMoment : s.sendResetLink}
               </button>
 
               <button
@@ -202,7 +262,7 @@ export default function LoginPage() {
                 onClick={() => switchMode('signin')}
                 className="w-full text-center text-sm text-neutral-500 hover:text-neutral-700 transition"
               >
-                ← Retour à la connexion
+                {s.backToSigninArrow}
               </button>
             </form>
           )
@@ -212,7 +272,7 @@ export default function LoginPage() {
               {mode === 'signup' && (
                 <input
                   type="text"
-                  placeholder="Votre prénom"
+                  placeholder={s.namePlaceholder}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
@@ -220,7 +280,7 @@ export default function LoginPage() {
               )}
               <input
                 type="email"
-                placeholder="Adresse email"
+                placeholder={s.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
@@ -228,7 +288,7 @@ export default function LoginPage() {
               />
               <input
                 type="password"
-                placeholder="Mot de passe"
+                placeholder={s.passwordPlaceholder}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
@@ -242,7 +302,7 @@ export default function LoginPage() {
                     onClick={() => switchMode('reset')}
                     className="text-xs text-neutral-500 hover:text-fresh-700 underline underline-offset-2 transition"
                   >
-                    Mot de passe oublié ?
+                    {s.forgotPassword}
                   </button>
                 </div>
               )}
@@ -254,31 +314,31 @@ export default function LoginPage() {
                 disabled={loading || !isFirebaseConfigured}
                 className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Un instant…' : mode === 'signup' ? 'Créer mon compte' : 'Se connecter'}
+                {loading ? s.oneMoment : mode === 'signup' ? s.createAccount : s.signinTitle}
               </button>
             </form>
 
             <p className="text-center text-sm text-neutral-500 mt-5">
               {mode === 'signup' ? (
                 <>
-                  Déjà un compte ?{' '}
+                  {s.alreadyAccount}{' '}
                   <button
                     type="button"
                     onClick={() => switchMode('signin')}
                     className="text-fresh-700 font-medium underline underline-offset-2"
                   >
-                    Se connecter
+                    {s.signinTitle}
                   </button>
                 </>
               ) : (
                 <>
-                  Pas encore de compte ?{' '}
+                  {s.noAccountYet}{' '}
                   <button
                     type="button"
                     onClick={() => switchMode('signup')}
                     className="text-fresh-700 font-medium underline underline-offset-2"
                   >
-                    Créer un compte
+                    {s.signup}
                   </button>
                 </>
               )}
@@ -288,10 +348,11 @@ export default function LoginPage() {
       </div>
 
       <p className="text-xs text-neutral-400 text-center mt-6">
-        En continuant, vous acceptez nos{' '}
+        {s.legalPrefix}{' '}
         <button onClick={() => goTo('legal')} className="underline underline-offset-2 hover:text-neutral-600">
-          mentions légales
-        </button>.
+          {s.legalLink}
+        </button>
+        .
       </p>
     </div>
   )

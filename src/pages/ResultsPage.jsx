@@ -1,12 +1,38 @@
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
 import { isFavoriteRecipe } from '../utils/storage.js'
 import { IllustrationTile, PotGlyph } from '../components/Illustrations.jsx'
+
+const STRINGS = {
+  fr: {
+    backEdit: '← Modifier les ingrédients',
+    surpriseTitle: '🎲 Votre recette surprise',
+    normalTitle: 'Vos recettes personnalisées',
+    from: 'À partir de :',
+    noRecipes: "Aucune recette trouvée pour l'instant — ajoutez un ou deux ingrédients de plus et réessayez.",
+    anotherSurprise: '🎲 Une autre surprise',
+    restart: '🔄 Recommencer avec une nouvelle photo',
+    seeHistory: "📜 Voir l'historique",
+  },
+  en: {
+    backEdit: '← Edit ingredients',
+    surpriseTitle: '🎲 Your surprise recipe',
+    normalTitle: 'Your personalized recipes',
+    from: 'Based on:',
+    noRecipes: 'No recipe found yet — add one or two more ingredients and try again.',
+    anotherSurprise: '🎲 Another surprise',
+    restart: '🔄 Start over with a new photo',
+    seeHistory: '📜 See history',
+  },
+}
 
 // Page résultats : grille de 3 à 5 recettes (ou 1 seule en mode "surprise").
 export default function ResultsPage() {
   const { state, setActiveRecipe, goTo, resetSession, surpriseMe, toggleFavorite } = useApp()
+  const lang = useLanguage()
+  const s = STRINGS[lang]
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
   const activeRecipe = state.recipes.find((r) => r.id === state.activeRecipeId) || null
@@ -14,15 +40,15 @@ export default function ResultsPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
       <button onClick={() => goTo('validate')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
-        ← Modifier les ingrédients
+        {s.backEdit}
       </button>
 
       <h2 className="text-2xl font-bold text-neutral-900">
-        {state.isSurprise ? '🎲 Votre recette surprise' : 'Vos recettes personnalisées'}
+        {state.isSurprise ? s.surpriseTitle : s.normalTitle}
       </h2>
       {checkedNames.length > 0 && (
         <p className="text-neutral-500 mt-1 text-sm">
-          À partir de : <span className="text-neutral-700">{checkedNames.join(', ')}</span>
+          {s.from} <span className="text-neutral-700">{checkedNames.join(', ')}</span>
         </p>
       )}
 
@@ -31,9 +57,7 @@ export default function ResultsPage() {
           <IllustrationTile tone="zest" size="lg" className="mb-4">
             <PotGlyph className="w-full h-full" />
           </IllustrationTile>
-          <p className="text-neutral-500">
-            Aucune recette trouvée pour l'instant — ajoutez un ou deux ingrédients de plus et réessayez.
-          </p>
+          <p className="text-neutral-500">{s.noRecipes}</p>
         </div>
       ) : (
         <div
@@ -56,7 +80,7 @@ export default function ResultsPage() {
       <div className="mt-8 flex flex-col sm:flex-row gap-3">
         {state.isSurprise && (
           <button onClick={surpriseMe} className="btn-secondary">
-            🎲 Une autre surprise
+            {s.anotherSurprise}
           </button>
         )}
         <button
@@ -66,10 +90,10 @@ export default function ResultsPage() {
           }}
           className="btn-secondary"
         >
-          🔄 Recommencer avec une nouvelle photo
+          {s.restart}
         </button>
         <button onClick={() => goTo('history')} className="btn-secondary">
-          📜 Voir l'historique
+          {s.seeHistory}
         </button>
       </div>
 

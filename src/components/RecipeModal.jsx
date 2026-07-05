@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useLanguage } from '../state/LanguageContext.jsx'
+import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
+import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 
 // Modale plein détail d'une recette : ingrédients, étapes numérotées.
 export default function RecipeModal({ recipe, onClose }) {
   const { goToIngredient } = useApp()
+  const lang = useLanguage()
+  const c = COMMON[lang].recipe
   const [copied, setCopied] = useState(false)
 
   useEffect(() => {
@@ -47,17 +52,17 @@ export default function RecipeModal({ recipe, onClose }) {
             <span className="text-3xl" aria-hidden>
               {recipe.emoji}
             </span>
-            <h2 className="text-xl font-bold text-neutral-900 mt-1">{recipe.name}</h2>
+            <h2 className="text-xl font-bold text-neutral-900 mt-1">{localizeRecipeName(recipe, lang)}</h2>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
-              <span className="badge badge-neutral">{recipe.level}</span>
-              <span className="badge badge-neutral capitalize">{recipe.cuisine}</span>
-              {recipe.antiGaspi && <span className="badge badge-zest">♻️ anti-gaspi</span>}
+              <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
+              <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>
+              {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
             </div>
           </div>
           <button
             onClick={onClose}
-            aria-label="Fermer"
+            aria-label={c.close}
             className="text-neutral-400 hover:text-neutral-900 text-xl leading-none px-1"
           >
             ✕
@@ -66,7 +71,7 @@ export default function RecipeModal({ recipe, onClose }) {
 
         <div className="p-5 space-y-5">
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-2">Ingrédients</h3>
+            <h3 className="font-semibold text-neutral-900 mb-2">{c.ingredients}</h3>
             <ul className="space-y-1 text-sm">
               {allIngredients.map((ing) => {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
@@ -82,8 +87,8 @@ export default function RecipeModal({ recipe, onClose }) {
                     >
                       {ing}
                     </button>
-                    {isMissing && <em className="text-xs text-zest-600">(à acheter)</em>}
-                    {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> (optionnel)</em>}
+                    {isMissing && <em className="text-xs text-zest-600">({c.toBuyParens})</em>}
+                    {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> ({c.optional})</em>}
                   </li>
                 )
               })}
@@ -93,9 +98,9 @@ export default function RecipeModal({ recipe, onClose }) {
           {missing.length > 0 && (
             <div className="bg-zest-50 border border-zest-200 rounded-xl2 p-4">
               <div className="flex items-center justify-between gap-3">
-                <h3 className="font-semibold text-neutral-900 text-sm">🛒 Liste de courses</h3>
+                <h3 className="font-semibold text-neutral-900 text-sm">{c.shoppingList}</h3>
                 <button onClick={handleCopyList} className="btn-secondary !py-1.5 !px-3 text-xs shrink-0">
-                  {copied ? '✅ Copié' : 'Copier'}
+                  {copied ? c.copied : c.copy}
                 </button>
               </div>
               <p className="text-sm text-neutral-600 mt-1.5">{missing.join(', ')}</p>
@@ -103,9 +108,9 @@ export default function RecipeModal({ recipe, onClose }) {
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-2">Étapes</h3>
+            <h3 className="font-semibold text-neutral-900 mb-2">{c.steps}</h3>
             <ol className="space-y-3">
-              {recipe.steps.map((step, i) => (
+              {localizeRecipeSteps(recipe, lang).map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm text-neutral-700">
                   <span className="shrink-0 w-6 h-6 rounded-full bg-fresh-100 text-fresh-700 font-semibold text-xs flex items-center justify-center">
                     {i + 1}
