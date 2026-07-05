@@ -16,6 +16,7 @@ import FavoritesPage from './pages/FavoritesPage.jsx'
 import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import CookieBanner from './components/CookieBanner.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 
@@ -171,6 +172,7 @@ export default function App() {
           </p>
         </div>
       </footer>
+      <CookieBanner />
     </div>
   )
 }
