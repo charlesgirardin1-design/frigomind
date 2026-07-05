@@ -17,6 +17,10 @@ import {
   onAuthStateChanged,
   updateProfile,
   sendEmailVerification,
+  sendPasswordResetEmail,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
   } from 'firebase/auth'
 import { auth, googleProvider, appleProvider, isFirebaseConfigured } from '../firebase.js'
 
@@ -37,6 +41,8 @@ function friendlyError(err) {
     'auth/operation-not-allowed': "Cette méthode de connexion n'est pas encore activée.",
     'auth/account-exists-with-different-credential': "Un compte existe déjà avec cet email via un autre mode de connexion.",
     'auth/unauthorized-domain': "Ce site n'est pas encore autorisé pour cette connexion (configuration Firebase à finaliser).",
+    'auth/requires-recent-login': "Par sécurité, reconnectez-vous avant de changer votre mot de passe.",
+    'auth/too-many-requests': "Trop de tentatives. Réessayez dans quelques minutes.",
   }
   return map[code] || "Une erreur est survenue. Réessayez."
 }
@@ -133,6 +139,48 @@ export function AuthProvider({ children }) {
     await signOut(auth)
   }, [])
 
+  // Envoie l'email standard Firebase "réinitialiser votre mot de passe"
+  // (lien à cliquer). Utilisé depuis la page de connexion ("mot de passe
+  // oublié ?") : ne révèle jamais si l'email existe ou non côté UI.
+  const resetPassword = useCallback(async (email) => {
+    if (!isFirebaseConfigured) throw new Error('not-configured')
+    try {
+      await sendPasswordResetEmail(auth, email)
+    } catch (err) {
+      throw new Error(friendlyError(err))
+    }
+  }, [])
+
+  // Change le mot de passe depuis la page paramètres. Firebase exige une
+  // connexion "récente" pour cette opération sensible : on se ré-authentifie
+  // d'abord avec le mot de passe actuel plutôt que de laisser l'utilisateur
+  // face à une erreur "requires-recent-login" incompréhensible.
+  const changePassword = useCallback(async (currentPassword, newPassword) => {
+    if (!isFirebaseConfigured) throw new Error('not-configured')
+    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    try {
+      const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword)
+      await reauthenticateWithCredential(auth.currentUser, credential)
+      await updatePassword(auth.currentUser, newPassword)
+    } catch (err) {
+      throw new Error(friendlyError(err))
+    }
+  }, [])
+
+  // Renomme le compte (affiché dans le header et les emails Firebase).
+  const changeDisplayName = useCallback(async (name) => {
+    if (!isFirebaseConfigured) throw new Error('not-configured')
+    if (!auth.currentUser) throw new Error("Vous n'êtes pas connecté.")
+    try {
+      await updateProfile(auth.currentUser, { displayName: name })
+      // updateProfile ne déclenche pas onAuthStateChanged : on force une mise
+      // à jour locale pour que le nouveau nom apparaisse immédiatement.
+      setUser({ ...auth.currentUser })
+    } catch (err) {
+      throw new Error(friendlyError(err))
+    }
+  }, [])
+
   const value = useMemo(
     () => ({
       user,
@@ -143,8 +191,22 @@ export function AuthProvider({ children }) {
       signInWithEmail,
       signUpWithEmail,
       logOut,
+      resetPassword,
+      changePassword,
+      changeDisplayName,
     }),
-    [user, authLoading, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, logOut]
+    [
+      user,
+      authLoading,
+      signInWithGoogle,
+      signInWithApple,
+      signInWithEmail,
+      signUpWithEmail,
+      logOut,
+      resetPassword,
+      changePassword,
+      changeDisplayName,
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

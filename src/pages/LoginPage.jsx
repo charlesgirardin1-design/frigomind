@@ -25,15 +25,16 @@ function AppleLogo(props) {
 
 export default function LoginPage() {
   const { state, goTo } = useApp()
-  const { isFirebaseConfigured, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail } = useAuth()
+  const { isFirebaseConfigured, signInWithGoogle, signInWithApple, signInWithEmail, signUpWithEmail, resetPassword } = useAuth()
   const afterLogin = () => goTo(state.redirectTo && state.redirectTo !== 'login' ? state.redirectTo : 'home')
 
-  const [mode, setMode] = useState('signin')
+  const [mode, setMode] = useState('signin') // 'signin' | 'signup' | 'reset'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resetSent, setResetSent] = useState(false)
 
   async function handleGoogle() {
     setError('')
@@ -83,14 +84,42 @@ export default function LoginPage() {
     }
   }
 
+  async function handleReset(e) {
+    e.preventDefault()
+    setError('')
+    if (!email.trim()) {
+      setError('Merci de renseigner votre adresse email.')
+      return
+    }
+    setLoading(true)
+    try {
+      await resetPassword(email.trim())
+      setResetSent(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function switchMode(next) {
+    setMode(next)
+    setError('')
+    setResetSent(false)
+  }
+
   return (
     <div className="max-w-md mx-auto px-4 pt-8 pb-16 animate-fadeIn">
       <PageHeader
         onBack={() => goTo('home')}
         icon={<LockGlyph className="w-full h-full" />}
         tone="neutral"
-        title={mode === 'signup' ? 'Créer un compte' : 'Se connecter'}
-        subtitle="Retrouvez votre historique et vos favoris sur tous vos appareils."
+        title={mode === 'signup' ? 'Créer un compte' : mode === 'reset' ? 'Mot de passe oublié' : 'Se connecter'}
+        subtitle={
+          mode === 'reset'
+            ? 'Indiquez votre email pour recevoir un lien de réinitialisation.'
+            : 'Retrouvez votre historique et vos favoris sur tous vos appareils.'
+        }
       />
 
       {!isFirebaseConfigured && (
@@ -102,95 +131,160 @@ export default function LoginPage() {
       )}
 
       <div className="mt-7 bg-white rounded-2xl border border-neutral-100 shadow-card p-6">
-        <button
-          type="button"
-          onClick={handleGoogle}
-          disabled={loading || !isFirebaseConfigured}
-          className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <GoogleLogo />
-          Continuer avec Google
-        </button>
+        {mode !== 'reset' && (
+          <>
+            <button
+              type="button"
+              onClick={handleGoogle}
+              disabled={loading || !isFirebaseConfigured}
+              className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <GoogleLogo />
+              Continuer avec Google
+            </button>
 
-        <button
-          type="button"
-          onClick={handleApple}
-          disabled={loading || !isFirebaseConfigured}
-          className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 mt-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <AppleLogo />
-          Continuer avec Apple
-        </button>
+            <button
+              type="button"
+              onClick={handleApple}
+              disabled={loading || !isFirebaseConfigured}
+              className="w-full flex items-center justify-center gap-2.5 border border-neutral-200 rounded-xl py-2.5 mt-2.5 font-medium text-neutral-700 hover:bg-neutral-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <AppleLogo />
+              Continuer avec Apple
+            </button>
 
-        <div className="flex items-center gap-3 my-5">
-          <div className="h-px bg-neutral-100 flex-1" />
-          <span className="text-xs text-neutral-400">ou avec votre email</span>
-          <div className="h-px bg-neutral-100 flex-1" />
-        </div>
+            <div className="flex items-center gap-3 my-5">
+              <div className="h-px bg-neutral-100 flex-1" />
+              <span className="text-xs text-neutral-400">ou avec votre email</span>
+              <div className="h-px bg-neutral-100 flex-1" />
+            </div>
+          </>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {mode === 'signup' && (
-            <input
-              type="text"
-              placeholder="Votre prénom"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
-            />
-          )}
-          <input
-            type="email"
-            placeholder="Adresse email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
-          />
-          <input
-            type="password"
-            placeholder="Mot de passe"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
-          />
-
-          {error && <p className="text-sm text-red-600">{error}</p>}
-
-          <button
-            type="submit"
-            disabled={loading || !isFirebaseConfigured}
-            className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Un instant…' : mode === 'signup' ? 'Créer mon compte' : 'Se connecter'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-neutral-500 mt-5">
-          {mode === 'signup' ? (
-            <>
-              Déjà un compte ?{' '}
+        {mode === 'reset' ? (
+          resetSent ? (
+            <div className="text-center py-2">
+              <p className="text-sm text-neutral-600">
+                Si un compte existe pour <span className="font-medium">{email.trim()}</span>, un email vient
+                de vous être envoyé avec un lien pour choisir un nouveau mot de passe.
+              </p>
               <button
                 type="button"
-                onClick={() => { setMode('signin'); setError('') }}
-                className="text-fresh-700 font-medium underline underline-offset-2"
+                onClick={() => switchMode('signin')}
+                className="mt-5 text-fresh-700 font-medium underline underline-offset-2 text-sm"
               >
-                Se connecter
+                Retour à la connexion
               </button>
-            </>
+            </div>
           ) : (
-            <>
-              Pas encore de compte ?{' '}
+            <form onSubmit={handleReset} className="space-y-3">
+              <input
+                type="email"
+                placeholder="Adresse email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
+              />
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading || !isFirebaseConfigured}
+                className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Un instant…' : 'Envoyer le lien de réinitialisation'}
+              </button>
+
               <button
                 type="button"
-                onClick={() => { setMode('signup'); setError('') }}
-                className="text-fresh-700 font-medium underline underline-offset-2"
+                onClick={() => switchMode('signin')}
+                className="w-full text-center text-sm text-neutral-500 hover:text-neutral-700 transition"
               >
-                Créer un compte
+                ← Retour à la connexion
               </button>
-            </>
-          )}
-        </p>
+            </form>
+          )
+        ) : (
+          <>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {mode === 'signup' && (
+                <input
+                  type="text"
+                  placeholder="Votre prénom"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
+                />
+              )}
+              <input
+                type="email"
+                placeholder="Adresse email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="email"
+                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
+              />
+              <input
+                type="password"
+                placeholder="Mot de passe"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-fresh-200 focus:border-fresh-400"
+              />
+
+              {mode === 'signin' && (
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => switchMode('reset')}
+                    className="text-xs text-neutral-500 hover:text-fresh-700 underline underline-offset-2 transition"
+                  >
+                    Mot de passe oublié ?
+                  </button>
+                </div>
+              )}
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <button
+                type="submit"
+                disabled={loading || !isFirebaseConfigured}
+                className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Un instant…' : mode === 'signup' ? 'Créer mon compte' : 'Se connecter'}
+              </button>
+            </form>
+
+            <p className="text-center text-sm text-neutral-500 mt-5">
+              {mode === 'signup' ? (
+                <>
+                  Déjà un compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('signin')}
+                    className="text-fresh-700 font-medium underline underline-offset-2"
+                  >
+                    Se connecter
+                  </button>
+                </>
+              ) : (
+                <>
+                  Pas encore de compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('signup')}
+                    className="text-fresh-700 font-medium underline underline-offset-2"
+                  >
+                    Créer un compte
+                  </button>
+                </>
+              )}
+            </p>
+          </>
+        )}
       </div>
 
       <p className="text-xs text-neutral-400 text-center mt-6">

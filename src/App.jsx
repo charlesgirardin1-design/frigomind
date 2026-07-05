@@ -16,6 +16,7 @@ import FavoritesPage from './pages/FavoritesPage.jsx'
 import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import SettingsPage from './pages/SettingsPage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
@@ -52,6 +53,7 @@ const VIEWS = {
   planning: PlanningPage,
   ingredient: IngredientPage,
   login: LoginPage,
+  settings: SettingsPage,
 }
 
 export default function App() {
