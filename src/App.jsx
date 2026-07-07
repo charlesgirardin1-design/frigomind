@@ -115,7 +115,9 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <CurrentView />
+        <div key={state.view} className="animate-fadeIn">
+          <CurrentView />
+        </div>
       </main>
       <footer className="border-t border-neutral-100 bg-white/60 mt-4">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center">
