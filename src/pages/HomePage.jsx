@@ -180,11 +180,12 @@ export default function HomePage() {
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16 animate-fadeIn">
       <div className="relative text-center overflow-hidden">
         <div
-          className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-fresh-200/40 blur-3xl -z-10"
+          className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-fresh-200/40 blur-3xl -z-10 animate-blob"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-zest-200/40 blur-3xl -z-10"
+          className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-zest-200/40 blur-3xl -z-10 animate-blob"
+          style={{ animationDelay: '-4s' }}
           aria-hidden
         />
 
