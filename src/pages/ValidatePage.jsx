@@ -22,6 +22,11 @@ export default function ValidatePage() {
   const { state, toggleIngredient, renameIngredient, removeIngredient, addIngredient, generateFromValidated, surpriseMe, goTo } =
     useApp()
   const [newIngredient, setNewIngredient] = useState('')
+  // generateFromValidated/surpriseMe sont synchrones et basculent state.view
+  // en un seul tick : sans ce délai artificiel, l'écran passe instantanément
+  // à ResultsPage, ce qui ressemble à un bug plutôt qu'à "l'IA réfléchit".
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null) // 'recipes' | 'surprise' | null
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
   const allNames = state.ingredients.map((i) => i.name)
@@ -32,6 +37,24 @@ export default function ValidatePage() {
     if (!newIngredient.trim()) return
     addIngredient(newIngredient)
     setNewIngredient('')
+  }
+
+  function handleGenerateFromValidated() {
+    if (!hasAtLeastOne || isGenerating) return
+    setPendingAction('recipes')
+    setIsGenerating(true)
+    setTimeout(() => {
+      generateFromValidated()
+    }, 650)
+  }
+
+  function handleSurpriseMe() {
+    if (!hasAtLeastOne || isGenerating) return
+    setPendingAction('surprise')
+    setIsGenerating(true)
+    setTimeout(() => {
+      surpriseMe()
+    }, 650)
   }
 
   return (
@@ -58,8 +81,12 @@ export default function ValidatePage() {
           </p>
         )}
 
-        {state.ingredients.map((ing) => (
-          <div key={ing.id} className="p-3.5 flex items-center gap-3">
+        {state.ingredients.map((ing, index) => (
+          <div
+            key={ing.id}
+            className="p-3.5 flex items-center gap-3 animate-fadeIn"
+            style={{ animationDelay: `${Math.min(index, 10) * 60}ms` }}
+          >
             <input
               type="checkbox"
               checked={ing.checked}
@@ -131,18 +158,32 @@ export default function ValidatePage() {
       <div className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-neutral-100 px-4 py-3">
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2">
           <button
-            onClick={generateFromValidated}
-            disabled={!hasAtLeastOne}
+            onClick={handleGenerateFromValidated}
+            disabled={!hasAtLeastOne || isGenerating}
             className="btn-primary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            🍽️ Voir mes recettes
+            {isGenerating && pendingAction === 'recipes' ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
+                Préparation de vos recettes…
+              </span>
+            ) : (
+              '🍽️ Voir mes recettes'
+            )}
           </button>
           <button
-            onClick={surpriseMe}
-            disabled={!hasAtLeastOne}
+            onClick={handleSurpriseMe}
+            disabled={!hasAtLeastOne || isGenerating}
             className="btn-secondary flex-1 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            🎲 J'ai faim, surprends-moi
+            {isGenerating && pendingAction === 'surprise' ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 rounded-full border-2 border-neutral-300 border-t-neutral-600 animate-spin" />
+                On cherche une surprise…
+              </span>
+            ) : (
+              "🎲 J'ai faim, surprends-moi"
+            )}
           </button>
         </div>
       </div>
