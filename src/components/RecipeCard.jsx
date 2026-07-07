@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 const LEVEL_STYLES = {
   facile: 'badge-fresh',
   moyen: 'badge-neutral',
@@ -9,6 +11,11 @@ const LEVEL_STYLES = {
 // l'objet complet permet de retrouver la bonne recette de façon fiable
 // (favoris, planning...).
 export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite }) {
+  // Compteur incrémenté à chaque clic sur le cœur : changer la `key` force React
+  // à remonter le <span>, ce qui relance l'animation CSS à chaque clic (y compris
+  // pour retirer un favori), sans dépendre d'un setTimeout à annuler.
+  const [popTrigger, setPopTrigger] = useState(0)
+
   return (
     <div
       role="button"
@@ -32,6 +39,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                setPopTrigger((n) => n + 1)
                 onToggleFavorite(recipe)
               }}
               aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
@@ -39,7 +47,12 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
                 isFavorite ? 'text-red-500' : 'text-neutral-300 hover:text-red-400'
               }`}
             >
-              {isFavorite ? '❤️' : '🤍'}
+              <span
+                key={popTrigger}
+                className={`inline-block ${popTrigger > 0 ? 'animate-heartPop' : ''}`}
+              >
+                {isFavorite ? '❤️' : '🤍'}
+              </span>
             </button>
           )}
         </div>

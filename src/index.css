@@ -27,6 +27,19 @@ body {
   color: #116e46;
 }
 
+/* Respecte la préférence système "réduire les animations" : on ne supprime pas
+   les animations (ça casserait des boucles infinies comme `float`/`blob` en les
+   figeant à mi-course), on les rend juste quasi instantanées. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ---------- Composants réutilisables (design system minimal) ---------- */
 
 @layer components {
