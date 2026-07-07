@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useAuth } from '../state/AuthContext.jsx'
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
 import PageHeader from '../components/PageHeader.jsx'
+import SkeletonCard from '../components/Skeleton.jsx'
 import { IllustrationTile, HeartPlateGlyph } from '../components/Illustrations.jsx'
 
 // Page "Mes favoris" : recettes mises de côté (❤️ sur une RecipeCard),
@@ -10,7 +12,13 @@ import { IllustrationTile, HeartPlateGlyph } from '../components/Illustrations.j
 // de la semaine.
 export default function FavoritesPage() {
   const { state, goTo, toggleFavorite } = useApp()
+  const { authLoading } = useAuth()
   const [activeRecipe, setActiveRecipe] = useState(null)
+  // Fenêtre de chargement : le temps que Firebase confirme la session avant
+  // que l'effet LOAD_USER_DATA (dans AppContext) ne peuple state.favorites.
+  // On affiche des squelettes plutôt que le message "aucun favori", qui
+  // sinon flasherait avant l'arrivée des vraies données.
+  const isLoadingUserData = authLoading
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -23,7 +31,13 @@ export default function FavoritesPage() {
         subtitle="Retrouvez ici les recettes mises de côté avec le bouton ❤️. Elles servent aussi de base pour votre planning de la semaine."
       />
 
-      {state.favorites.length === 0 ? (
+      {isLoadingUserData ? (
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : state.favorites.length === 0 ? (
         <div className="mt-8 card p-8 text-center flex flex-col items-center">
           <IllustrationTile tone="zest" size="lg" className="mb-4">
             <HeartPlateGlyph className="w-full h-full" />
@@ -38,14 +52,14 @@ export default function FavoritesPage() {
       ) : (
         <>
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {state.favorites.map((recipe) => (
-              <RecipeCard
+            {state.favorites.map((recipe, index) => (
+              <div
                 key={recipe.favId}
-                recipe={recipe}
-                onOpen={setActiveRecipe}
-                isFavorite
-                onToggleFavorite={toggleFavorite}
-              />
+                className="animate-fadeIn"
+                style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
+              >
+                <RecipeCard recipe={recipe} onOpen={setActiveRecipe} isFavorite onToggleFavorite={toggleFavorite} />
+              </div>
             ))}
           </div>
 
