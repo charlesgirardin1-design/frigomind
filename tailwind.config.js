@@ -51,12 +51,19 @@ export default {
           '33%': { transform: 'translate(12px,-14px) scale(1.05)' },
           '66%': { transform: 'translate(-10px,10px) scale(0.97)' },
         },
+        // Petit "pop" tactile pour le cœur des favoris (scale avec léger rebond)
+        heartPop: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.3)' },
+          '100%': { transform: 'scale(1)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
         popIn: 'popIn 0.2s ease-out both',
         float: 'float 4.5s ease-in-out infinite',
         blob: 'blob 12s ease-in-out infinite',
+        heartPop: 'heartPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
       },
     },
   },
