@@ -97,10 +97,10 @@ export default function UploadPage() {
           height: 30%;
           background: linear-gradient(
             to bottom,
-            rgba(34, 197, 94, 0) 0%,
-            rgba(34, 197, 94, 0.35) 45%,
-            rgba(234, 179, 8, 0.35) 55%,
-            rgba(234, 179, 8, 0) 100%
+            rgba(34, 168, 106, 0) 0%,
+            rgba(34, 168, 106, 0.35) 45%,
+            rgba(255, 122, 26, 0.35) 55%,
+            rgba(255, 122, 26, 0) 100%
           );
           animation: fmScanSweep 2.4s ease-in-out infinite;
         }
