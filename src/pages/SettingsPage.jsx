@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
+import { useToast } from '../state/ToastContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { GearGlyph } from '../components/Illustrations.jsx'
@@ -59,6 +60,8 @@ const STRINGS = {
     historyCount: (n) => `Historique — ${n} session${n > 1 ? 's' : ''}`,
     favoritesCount: (n) => `Favoris — ${n} recette${n > 1 ? 's' : ''}`,
     clear: 'Effacer',
+    historyCleared: 'Historique effacé.',
+    favoritesCleared: 'Favoris effacés.',
     logoutTitle: 'Déconnexion',
     logoutSubtitle: 'Se déconnecter de FrigoMind sur cet appareil.',
     logout: 'Se déconnecter',
@@ -119,6 +122,8 @@ const STRINGS = {
     historyCount: (n) => `History — ${n} session${n > 1 ? 's' : ''}`,
     favoritesCount: (n) => `Favorites — ${n} recipe${n > 1 ? 's' : ''}`,
     clear: 'Clear',
+    historyCleared: 'History cleared.',
+    favoritesCleared: 'Favorites cleared.',
     logoutTitle: 'Sign out',
     logoutSubtitle: 'Sign out of FrigoMind on this device.',
     logout: 'Sign out',
@@ -144,6 +149,7 @@ export default function SettingsPage() {
   const lang = useLanguage()
   const s = STRINGS[lang]
   const confirmWord = DELETE_CONFIRM_WORD[lang]
+  const { showToast } = useToast()
 
   const hasPasswordProvider = !!user?.providerData?.some((p) => p.providerId === 'password')
 
@@ -452,7 +458,13 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-700">{s.historyCount(state.history.length)}</span>
             {state.history.length > 0 && (
-              <button onClick={wipeHistory} className="text-sm text-neutral-400 hover:text-red-600 shrink-0">
+              <button
+                onClick={() => {
+                  wipeHistory()
+                  showToast(s.historyCleared)
+                }}
+                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+              >
                 {s.clear}
               </button>
             )}
@@ -460,7 +472,13 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-700">{s.favoritesCount(state.favorites.length)}</span>
             {state.favorites.length > 0 && (
-              <button onClick={clearFavorites} className="text-sm text-neutral-400 hover:text-red-600 shrink-0">
+              <button
+                onClick={() => {
+                  clearFavorites()
+                  showToast(s.favoritesCleared)
+                }}
+                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+              >
                 {s.clear}
               </button>
             )}
