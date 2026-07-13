@@ -1,8 +1,10 @@
 import { useApp } from '../state/AppContext.jsx'
+import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { localizeRecipeName } from '../data/recipesDB.js'
 import PageHeader from '../components/PageHeader.jsx'
+import SkeletonCard from '../components/Skeleton.jsx'
 import { IllustrationTile, ClockGlyph } from '../components/Illustrations.jsx'
 
 const STRINGS = {
@@ -34,8 +36,13 @@ function formatDate(iso, locale) {
 // Historique (bonus) des sessions de recettes générées, persistées en localStorage.
 export default function HistoryPage() {
   const { state, goTo, wipeHistory } = useApp()
+  const { authLoading } = useAuth()
   const lang = useLanguage()
   const s = STRINGS[lang]
+  // Fenêtre de chargement : le temps que Firebase confirme la session avant
+  // que state.history ne soit peuplé. On affiche des squelettes plutôt que
+  // le message "aucune recette", qui sinon flasherait avant les vraies données.
+  const isLoadingUserData = authLoading
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -54,7 +61,13 @@ export default function HistoryPage() {
         }
       />
 
-      {state.history.length === 0 ? (
+      {isLoadingUserData ? (
+        <div className="mt-6 space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : state.history.length === 0 ? (
         <div className="mt-8 card p-8 text-center flex flex-col items-center">
           <IllustrationTile tone="neutral" size="lg" className="mb-4">
             <ClockGlyph className="w-full h-full" />
@@ -66,8 +79,12 @@ export default function HistoryPage() {
         </div>
       ) : (
         <div className="mt-6 space-y-3">
-          {state.history.map((entry) => (
-            <div key={entry.id} className="card p-4">
+          {state.history.map((entry, index) => (
+            <div
+              key={entry.id}
+              className="card p-4 animate-fadeIn"
+              style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
+            >
               <p className="text-xs text-neutral-400">{formatDate(entry.date, s.dateLocale)}</p>
               <p className="text-sm text-neutral-600 mt-1">
                 {s.ingredients} <span className="text-neutral-800">{entry.ingredients.join(', ') || '—'}</span>

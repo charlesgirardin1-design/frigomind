@@ -65,14 +65,15 @@ export default function ResultsPage() {
             state.isSurprise ? 'grid-cols-1 max-w-md' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
           }`}
         >
-          {state.recipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onOpen={(r) => setActiveRecipe(r.id)}
-              isFavorite={isFavoriteRecipe(state.favorites, recipe)}
-              onToggleFavorite={toggleFavorite}
-            />
+          {state.recipes.map((recipe, index) => (
+            <div key={recipe.id} className="animate-fadeIn" style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}>
+              <RecipeCard
+                recipe={recipe}
+                onOpen={(r) => setActiveRecipe(r.id)}
+                isFavorite={isFavoriteRecipe(state.favorites, recipe)}
+                onToggleFavorite={toggleFavorite}
+              />
+            </div>
           ))}
         </div>
       )}

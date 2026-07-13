@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
+import { useToast } from '../state/ToastContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { GearGlyph } from '../components/Illustrations.jsx'
@@ -58,14 +59,15 @@ const STRINGS = {
     dataSubtitle: "Stockées uniquement sur cet appareil (rien n'est envoyé à un serveur).",
     historyCount: (n) => `Historique — ${n} session${n > 1 ? 's' : ''}`,
     favoritesCount: (n) => `Favoris — ${n} recette${n > 1 ? 's' : ''}`,
-    planningCount: (n) => `Planning — ${n} jour${n > 1 ? 's' : ''} rempli${n > 1 ? 's' : ''}`,
     clear: 'Effacer',
+    historyCleared: 'Historique effacé.',
+    favoritesCleared: 'Favoris effacés.',
     logoutTitle: 'Déconnexion',
     logoutSubtitle: 'Se déconnecter de FrigoMind sur cet appareil.',
     logout: 'Se déconnecter',
     dangerTitle: 'Zone dangereuse',
     dangerSubtitle:
-      'Supprime définitivement votre compte FrigoMind ainsi que votre accès à votre historique, vos favoris et votre planning liés à ce compte. Cette action est irréversible.',
+      'Supprime définitivement votre compte FrigoMind ainsi que votre accès à votre historique et vos favoris liés à ce compte. Cette action est irréversible.',
     deleteConfirmPlaceholder: (word) => `Tapez "${word}" pour confirmer`,
     deleteConfirmError: (word) => `Tapez "${word}" pour confirmer.`,
     deleting: 'Suppression…',
@@ -119,14 +121,15 @@ const STRINGS = {
     dataSubtitle: "Stored only on this device (nothing is sent to a server).",
     historyCount: (n) => `History — ${n} session${n > 1 ? 's' : ''}`,
     favoritesCount: (n) => `Favorites — ${n} recipe${n > 1 ? 's' : ''}`,
-    planningCount: (n) => `Planning — ${n} day${n > 1 ? 's' : ''} filled`,
     clear: 'Clear',
+    historyCleared: 'History cleared.',
+    favoritesCleared: 'Favorites cleared.',
     logoutTitle: 'Sign out',
     logoutSubtitle: 'Sign out of FrigoMind on this device.',
     logout: 'Sign out',
     dangerTitle: 'Danger zone',
     dangerSubtitle:
-      'Permanently deletes your FrigoMind account, along with your access to the history, favorites and planning tied to this account. This action is irreversible.',
+      'Permanently deletes your FrigoMind account, along with your access to the history and favorites tied to this account. This action is irreversible.',
     deleteConfirmPlaceholder: (word) => `Type "${word}" to confirm`,
     deleteConfirmError: (word) => `Type "${word}" to confirm.`,
     deleting: 'Deleting…',
@@ -140,15 +143,15 @@ const STRINGS = {
 // pour les comptes email/mot de passe — les comptes Google/Apple n'en ont pas
 // (ils se ré-authentifient via une popup à la place).
 export default function SettingsPage() {
-  const { state, goTo, setPreferences, wipeHistory, clearFavorites, clearPlanning } = useApp()
+  const { state, goTo, setPreferences, wipeHistory, clearFavorites } = useApp()
   const { user, logOut, localAvatar, setLocalAvatar, changeDisplayName, changePassword, resendVerification, deleteAccount } =
     useAuth()
   const lang = useLanguage()
   const s = STRINGS[lang]
   const confirmWord = DELETE_CONFIRM_WORD[lang]
+  const { showToast } = useToast()
 
   const hasPasswordProvider = !!user?.providerData?.some((p) => p.providerId === 'password')
-  const planningCount = Object.values(state.planning).filter(Boolean).length
 
   const [name, setName] = useState(user?.displayName || '')
   const [nameStatus, setNameStatus] = useState({ error: '', success: '', loading: false })
@@ -455,7 +458,13 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-700">{s.historyCount(state.history.length)}</span>
             {state.history.length > 0 && (
-              <button onClick={wipeHistory} className="text-sm text-neutral-400 hover:text-red-600 shrink-0">
+              <button
+                onClick={() => {
+                  wipeHistory()
+                  showToast(s.historyCleared)
+                }}
+                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+              >
                 {s.clear}
               </button>
             )}
@@ -463,15 +472,13 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-neutral-700">{s.favoritesCount(state.favorites.length)}</span>
             {state.favorites.length > 0 && (
-              <button onClick={clearFavorites} className="text-sm text-neutral-400 hover:text-red-600 shrink-0">
-                {s.clear}
-              </button>
-            )}
-          </div>
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-neutral-700">{s.planningCount(planningCount)}</span>
-            {planningCount > 0 && (
-              <button onClick={clearPlanning} className="text-sm text-neutral-400 hover:text-red-600 shrink-0">
+              <button
+                onClick={() => {
+                  clearFavorites()
+                  showToast(s.favoritesCleared)
+                }}
+                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+              >
                 {s.clear}
               </button>
             )}

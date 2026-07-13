@@ -15,7 +15,6 @@ export const COMMON = {
     nav: {
       home: 'Accueil',
       favorites: 'Favoris',
-      planning: 'Planning',
       history: 'Historique',
       stats: 'Statistiques',
       about: 'À propos',
@@ -56,7 +55,6 @@ export const COMMON = {
     nav: {
       home: 'Home',
       favorites: 'Favorites',
-      planning: 'Planning',
       history: 'History',
       stats: 'Stats',
       about: 'About',

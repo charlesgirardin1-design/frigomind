@@ -1,26 +1,8 @@
 // -----------------------------------------------------------------------------
 // shoppingList.js
-// Petits helpers partagés par la modale de recette et la page planning pour
-// construire et copier une liste de courses (ingrédients manquants).
+// Petits helpers pour construire et copier une liste de courses (ingrédients
+// manquants), utilisés par la modale de recette.
 // -----------------------------------------------------------------------------
-
-/**
- * Dé-doublonne une liste de noms d'ingrédients (insensible à la casse/aux
- * espaces), en conservant la première graphie rencontrée.
- * @param {string[]} names
- * @returns {string[]}
- */
-export function dedupeIngredientList(names) {
-  const seen = new Set()
-  const result = []
-  for (const name of names) {
-    const key = name.trim().toLowerCase()
-    if (!key || seen.has(key)) continue
-    seen.add(key)
-    result.push(name.trim())
-  }
-  return result
-}
 
 /**
  * Copie un texte dans le presse-papiers. Ne bloque jamais l'utilisateur :

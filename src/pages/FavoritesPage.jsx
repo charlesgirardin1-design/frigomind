@@ -1,40 +1,42 @@
 import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
+import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import RecipeCard from '../components/RecipeCard.jsx'
 import RecipeModal from '../components/RecipeModal.jsx'
 import PageHeader from '../components/PageHeader.jsx'
+import SkeletonCard from '../components/Skeleton.jsx'
 import { IllustrationTile, HeartPlateGlyph } from '../components/Illustrations.jsx'
 
 const STRINGS = {
   fr: {
     title: 'Mes recettes favorites',
-    subtitle:
-      'Retrouvez ici les recettes mises de côté avec le bouton ❤️. Elles servent aussi de base pour votre planning de la semaine.',
+    subtitle: 'Retrouvez ici les recettes mises de côté avec le bouton ❤️.',
     empty: 'Aucun favori pour le moment. Ouvrez une recette et cliquez sur 🤍 pour la garder sous la main.',
     start: '📸 Commencer',
-    ctaText: '📅 Prêt·e à organiser votre semaine avec vos favoris ?',
-    ctaButton: 'Voir le planning',
   },
   en: {
     title: 'My favorite recipes',
-    subtitle: 'Recipes you saved with the ❤️ button, kept here. They also feed your weekly planning.',
+    subtitle: 'Recipes you saved with the ❤️ button, kept here.',
     empty: 'No favorites yet. Open a recipe and tap 🤍 to keep it handy.',
     start: '📸 Get started',
-    ctaText: '📅 Ready to plan your week with your favorites?',
-    ctaButton: 'See planning',
   },
 }
 
 // Page "Mes favoris" : recettes mises de côté (❤️ sur une RecipeCard),
-// persistées en localStorage. Sert de réservoir de recettes pour le planning
-// de la semaine.
+// persistées en localStorage.
 export default function FavoritesPage() {
   const { state, goTo, toggleFavorite } = useApp()
+  const { authLoading } = useAuth()
   const lang = useLanguage()
   const s = STRINGS[lang]
   const [activeRecipe, setActiveRecipe] = useState(null)
+  // Fenêtre de chargement : le temps que Firebase confirme la session avant
+  // que l'effet LOAD_USER_DATA (dans AppContext) ne peuple state.favorites.
+  // On affiche des squelettes plutôt que le message "aucun favori", qui
+  // sinon flasherait avant l'arrivée des vraies données.
+  const isLoadingUserData = authLoading
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -47,7 +49,13 @@ export default function FavoritesPage() {
         subtitle={s.subtitle}
       />
 
-      {state.favorites.length === 0 ? (
+      {isLoadingUserData ? (
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      ) : state.favorites.length === 0 ? (
         <div className="mt-8 card p-8 text-center flex flex-col items-center">
           <IllustrationTile tone="zest" size="lg" className="mb-4">
             <HeartPlateGlyph className="w-full h-full" />
@@ -58,26 +66,17 @@ export default function FavoritesPage() {
           </button>
         </div>
       ) : (
-        <>
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {state.favorites.map((recipe) => (
-              <RecipeCard
-                key={recipe.favId}
-                recipe={recipe}
-                onOpen={setActiveRecipe}
-                isFavorite
-                onToggleFavorite={toggleFavorite}
-              />
-            ))}
-          </div>
-
-          <div className="mt-8 card p-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <p className="text-sm text-neutral-600">{s.ctaText}</p>
-            <button onClick={() => goTo('planning')} className="btn-primary !py-2.5 !px-5 text-sm shrink-0">
-              {s.ctaButton}
-            </button>
-          </div>
-        </>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {state.favorites.map((recipe, index) => (
+            <div
+              key={recipe.favId}
+              className="animate-fadeIn"
+              style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
+            >
+              <RecipeCard recipe={recipe} onOpen={setActiveRecipe} isFavorite onToggleFavorite={toggleFavorite} />
+            </div>
+          ))}
+        </div>
       )}
 
       {activeRecipe && <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />}

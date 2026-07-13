@@ -1,9 +1,9 @@
 // -----------------------------------------------------------------------------
 // storage.js
-// Petit wrapper localStorage pour l'historique, les favoris, le planning de
-// la semaine et les préférences (fonctionnalités bonus). Tout est propre au
-// compte connecté (clé suffixée par son uid) : sur un même appareil, deux
-// comptes FrigoMind ne partagent jamais leur historique/favoris/stats.
+// Petit wrapper localStorage pour l'historique, les favoris et les
+// préférences (fonctionnalités bonus). Tout est propre au compte connecté
+// (clé suffixée par son uid) : sur un même appareil, deux comptes FrigoMind
+// ne partagent jamais leur historique/favoris/stats.
 // Aucune dépendance externe.
 // -----------------------------------------------------------------------------
 
@@ -11,12 +11,9 @@ const HISTORY_KEY = 'frigomind_history'
 const MAX_HISTORY = 20
 const FAVORITES_KEY = 'frigomind_favorites'
 const MAX_FAVORITES = 30
-const PLANNING_KEY = 'frigomind_planning'
 const PREFERENCES_KEY = 'frigomind_preferences'
 
 export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false }
-
-export const DAYS_OF_WEEK = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche']
 
 // Sans compte connecté (ne devrait pas arriver : ces données ne sont
 // utilisées que sur des pages qui exigent une connexion), on retombe sur un
@@ -62,7 +59,7 @@ export function clearHistory(uid) {
 // combine id + nom (qui embarque la liste d'ingrédients pour les recettes
 // génériques) pour obtenir une clé stable, et on attribue un `favId` unique
 // à chaque favori pour les usages qui ont besoin d'une clé 100% sûre
-// (affichage en liste, glisser-déposer dans le planning...).
+// (affichage en liste, etc.).
 export function getFavoriteKey(recipe) {
   return `${recipe.id}::${recipe.name}`
 }
@@ -90,28 +87,6 @@ export function saveFavorites(uid, favorites) {
 export function isFavoriteRecipe(favorites, recipe) {
   const key = getFavoriteKey(recipe)
   return favorites.some((r) => getFavoriteKey(r) === key)
-}
-
-// ---------- Planning de la semaine ----------
-export function getPlanning(uid) {
-  const empty = Object.fromEntries(DAYS_OF_WEEK.map((day) => [day, null]))
-  try {
-    const raw = localStorage.getItem(scopedKey(PLANNING_KEY, uid))
-    const parsed = raw ? JSON.parse(raw) : {}
-    return { ...empty, ...parsed }
-  } catch (e) {
-    console.warn('FrigoMind: lecture planning impossible', e)
-    return empty
-  }
-}
-
-export function savePlanning(uid, planning) {
-  try {
-    localStorage.setItem(scopedKey(PLANNING_KEY, uid), JSON.stringify(planning))
-  } catch (e) {
-    console.warn('FrigoMind: écriture planning impossible', e)
-  }
-  return planning
 }
 
 // ---------- Préférences par défaut ----------

@@ -84,6 +84,33 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
+      {/* Ligne de "scan" affichée sur l'aperçu photo pendant l'analyse IA :
+          un dégradé fin qui balaie l'image de haut en bas, en boucle, pour
+          rendre visible que l'IA "regarde" la photo (en complément du petit
+          spinner déjà présent dans le bouton). Classe scoping ce composant
+          uniquement, keyframe non présente dans tailwind.config.js. */}
+      <style>{`
+        .fm-scan-line {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 30%;
+          background: linear-gradient(
+            to bottom,
+            rgba(34, 168, 106, 0) 0%,
+            rgba(34, 168, 106, 0.35) 45%,
+            rgba(255, 122, 26, 0.35) 55%,
+            rgba(255, 122, 26, 0) 100%
+          );
+          animation: fmScanSweep 2.4s ease-in-out infinite;
+        }
+        @keyframes fmScanSweep {
+          0% { top: -30%; }
+          50% { top: 100%; }
+          100% { top: -30%; }
+        }
+      `}</style>
+
       <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
@@ -111,12 +138,19 @@ export default function UploadPage() {
 
       <div className="mt-6 card p-4">
         {localPreview ? (
-          <div className="relative">
+          <div className="relative overflow-hidden rounded-xl2">
             <img
               src={localPreview}
               alt={s.previewAlt}
               className="w-full max-h-80 object-cover rounded-xl2"
             />
+            {state.isAnalyzing && (
+              <div className="absolute inset-0 pointer-events-none" aria-hidden>
+                {/* Voile subtil pour faire ressortir le trait de scan */}
+                <div className="absolute inset-0 bg-neutral-900/10" />
+                <div className="fm-scan-line" />
+              </div>
+            )}
             <button
               onClick={() => {
                 setLocalPreview(null)
@@ -128,7 +162,16 @@ export default function UploadPage() {
             </button>
           </div>
         ) : (
-          <div className="border-2 border-dashed border-neutral-200 rounded-xl2 py-14 flex flex-col items-center justify-center text-center gap-3">
+          <div className="relative border-2 border-dashed border-neutral-200 rounded-xl2 py-14 flex flex-col items-center justify-center text-center gap-3 overflow-hidden">
+            <div
+              className="pointer-events-none absolute -top-10 -left-10 w-40 h-40 rounded-full bg-fresh-200/30 blur-3xl -z-10 animate-blob"
+              aria-hidden
+            />
+            <div
+              className="pointer-events-none absolute -bottom-12 -right-8 w-36 h-36 rounded-full bg-zest-200/30 blur-3xl -z-10 animate-blob"
+              style={{ animationDelay: '-6s' }}
+              aria-hidden
+            />
             <IllustrationTile tone="fresh" size="lg">
               <CameraGlyph className="w-full h-full" />
             </IllustrationTile>

@@ -13,7 +13,6 @@ import BlogPage from './pages/BlogPage.jsx'
 import StatsPage from './pages/StatsPage.jsx'
 import ChangelogPage from './pages/ChangelogPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
-import PlanningPage from './pages/PlanningPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
@@ -53,7 +52,6 @@ const VIEWS = {
   stats: StatsPage,
   changelog: ChangelogPage,
   favorites: FavoritesPage,
-  planning: PlanningPage,
   ingredient: IngredientPage,
   login: LoginPage,
   settings: SettingsPage,
@@ -122,7 +120,9 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <CurrentView />
+        <div key={state.view} className="animate-fadeIn">
+          <CurrentView />
+        </div>
       </main>
       <footer className="border-t border-neutral-100 bg-white/60 mt-4">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center">
@@ -150,9 +150,6 @@ export default function App() {
             </button>
             <button onClick={() => goTo('ingredient')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.ingredient}
-            </button>
-            <button onClick={() => goTo('planning')} className="text-neutral-500 hover:text-fresh-700 transition">
-              {lang === 'fr' ? 'Planning de la semaine' : 'Weekly planning'}
             </button>
             <button onClick={() => goTo('stats')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.stats}

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { localizeRecipeName } from '../data/recipesDB.js'
@@ -11,10 +12,15 @@ const LEVEL_STYLES = {
 // `onOpen` reçoit la recette entière (pas juste son id) : les recettes
 // génériques réutilisent le même id d'une session à l'autre, donc seul
 // l'objet complet permet de retrouver la bonne recette de façon fiable
-// (favoris, planning...).
+// (favoris...).
 export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite }) {
   const lang = useLanguage()
   const c = COMMON[lang].recipe
+  // Compteur incrémenté à chaque clic sur le cœur : changer la `key` force React
+  // à remonter le <span>, ce qui relance l'animation CSS à chaque clic (y compris
+  // pour retirer un favori), sans dépendre d'un setTimeout à annuler.
+  const [popTrigger, setPopTrigger] = useState(0)
+
   return (
     <div
       role="button"
@@ -38,6 +44,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
             <button
               onClick={(e) => {
                 e.stopPropagation()
+                setPopTrigger((n) => n + 1)
                 onToggleFavorite(recipe)
               }}
               aria-label={isFavorite ? c.removeFromFavorites : c.addToFavorites}
@@ -45,7 +52,12 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
                 isFavorite ? 'text-red-500' : 'text-neutral-300 hover:text-red-400'
               }`}
             >
-              {isFavorite ? '❤️' : '🤍'}
+              <span
+                key={popTrigger}
+                className={`inline-block ${popTrigger > 0 ? 'animate-heartPop' : ''}`}
+              >
+                {isFavorite ? '❤️' : '🤍'}
+              </span>
             </button>
           )}
         </div>

@@ -75,18 +75,16 @@ const STRINGS = {
       { label: 'Distribution / commerces', pct: 12, tone: 'neutral' },
     ],
     countryWaste: [
-      { country: '🇫🇷 France', kg: '~25 à 30 kg', source: 'ADEME' },
-      { country: '🇬🇧 Royaume-Uni', kg: '~70 à 88 kg', source: 'WRAP' },
-      { country: '🇺🇸 États-Unis', kg: '~71 à 73 kg', source: 'RTS / USDA' },
-      { country: '🇩🇪 Allemagne', kg: '~75 kg', source: 'UNEP 2024' },
-      { country: '🇮🇹 Italie', kg: '~100 kg', source: 'UNEP 2024' },
-      { country: '🇨🇳 Chine', kg: '~76 kg', source: 'UNEP 2024' },
-      { country: '🇳🇬 Nigeria', kg: '~106 kg', source: 'UNEP 2024' },
+      { country: '🇫🇷 France', kg: '~20 à 30 kg', source: 'ADEME' },
+      { country: '🇬🇧 Royaume-Uni', kg: '~88 kg', source: 'WRAP 2022' },
+      { country: '🇺🇸 États-Unis', kg: '~73 kg', source: 'UNEP 2024' },
+      { country: '🇩🇪 Allemagne', kg: '~75 kg', source: 'Thünen Institute' },
+      { country: '🇮🇹 Italie', kg: '~30 kg', source: 'Waste Watcher / OWW-IT' },
     ],
     countryTableTitle: 'Gaspillage alimentaire des ménages, par pays (ordres de grandeur)',
     perYearPerson: '/ an / personne',
     sources:
-      "Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux et par pays, données 2022) ; ADEME (France) ; WRAP (Royaume-Uni) ; RTS / USDA (États-Unis) ; FAO / UNEP (coût économique). Les méthodologies de mesure diffèrent selon les pays, ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.",
+      "Sources : UNEP Food Waste Index Report 2024 (chiffres mondiaux et États-Unis, données 2022) ; ADEME (France) ; WRAP, rapport 2022 (Royaume-Uni) ; Thünen Institute (Allemagne) ; Waste Watcher / OWW-IT (Italie) ; FAO / UNEP (coût économique). Les méthodologies de mesure diffèrent selon les pays (déclaratif vs. analyse des déchets), ces chiffres sont donc des ordres de grandeur plutôt qu'une comparaison stricte.",
     ctaTitle: 'Prêt à vider votre frigo intelligemment ?',
     ctaText:
       "Une photo suffit pour démarrer. Vous pourrez toujours ajuster la liste d'ingrédients avant de voir vos recettes.",
@@ -154,18 +152,16 @@ const STRINGS = {
       { label: 'Retail', pct: 12, tone: 'neutral' },
     ],
     countryWaste: [
-      { country: '🇫🇷 France', kg: '~25-30 kg', source: 'ADEME' },
-      { country: '🇬🇧 United Kingdom', kg: '~70-88 kg', source: 'WRAP' },
-      { country: '🇺🇸 United States', kg: '~71-73 kg', source: 'RTS / USDA' },
-      { country: '🇩🇪 Germany', kg: '~75 kg', source: 'UNEP 2024' },
-      { country: '🇮🇹 Italy', kg: '~100 kg', source: 'UNEP 2024' },
-      { country: '🇨🇳 China', kg: '~76 kg', source: 'UNEP 2024' },
-      { country: '🇳🇬 Nigeria', kg: '~106 kg', source: 'UNEP 2024' },
+      { country: '🇫🇷 France', kg: '~20-30 kg', source: 'ADEME' },
+      { country: '🇬🇧 United Kingdom', kg: '~88 kg', source: 'WRAP 2022' },
+      { country: '🇺🇸 United States', kg: '~73 kg', source: 'UNEP 2024' },
+      { country: '🇩🇪 Germany', kg: '~75 kg', source: 'Thünen Institute' },
+      { country: '🇮🇹 Italy', kg: '~30 kg', source: 'Waste Watcher / OWW-IT' },
     ],
     countryTableTitle: 'Household food waste by country (rough estimates)',
     perYearPerson: '/ year / person',
     sources:
-      'Sources: UNEP Food Waste Index Report 2024 (global and per-country figures, 2022 data); ADEME (France); WRAP (UK); RTS / USDA (US); FAO / UNEP (economic cost). Measurement methodologies differ by country, so these figures are rough estimates rather than a strict comparison.',
+      'Sources: UNEP Food Waste Index Report 2024 (global figures and US, 2022 data); ADEME (France); WRAP, 2022 report (UK); Thünen Institute (Germany); Waste Watcher / OWW-IT (Italy); FAO / UNEP (economic cost). Measurement methodologies differ by country (self-reported diaries vs. waste analysis), so these figures are rough estimates rather than a strict comparison.',
     ctaTitle: 'Ready to empty your fridge smartly?',
     ctaText: 'One photo is all it takes to start. You can always adjust the ingredient list before seeing your recipes.',
     ctaButton: '📸 Take a photo',
@@ -184,11 +180,12 @@ export default function HomePage() {
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16 animate-fadeIn">
       <div className="relative text-center overflow-hidden">
         <div
-          className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-fresh-200/40 blur-3xl -z-10"
+          className="pointer-events-none absolute -top-24 -left-16 w-72 h-72 rounded-full bg-fresh-200/40 blur-3xl -z-10 animate-blob"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-zest-200/40 blur-3xl -z-10"
+          className="pointer-events-none absolute -top-10 -right-10 w-64 h-64 rounded-full bg-zest-200/40 blur-3xl -z-10 animate-blob"
+          style={{ animationDelay: '-4s' }}
           aria-hidden
         />
 

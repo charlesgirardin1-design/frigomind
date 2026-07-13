@@ -49,7 +49,6 @@ export default function Header() {
   const NAV_LINKS = [
     { view: 'home', label: c.nav.home },
     { view: 'favorites', label: c.nav.favorites },
-    { view: 'planning', label: c.nav.planning },
     { view: 'history', label: c.nav.history },
     { view: 'stats', label: c.nav.stats },
     { view: 'about', label: c.nav.about },
