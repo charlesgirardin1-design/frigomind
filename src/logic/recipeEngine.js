@@ -46,100 +46,7 @@ const NON_VEGETARIAN_KEYWORDS = [
   'chorizo',
 ]
 
-// Table de correspondance ingrédient → emoji, utilisée pour adapter
-// dynamiquement les emojis des recettes générées à la volée (voir
-// buildGenericRecipes) en fonction de ce que l'utilisateur a réellement
-// pris en photo. L'ordre compte : les entrées les plus spécifiques (ex.
-// "pomme de terre") doivent être testées avant les plus génériques (ex.
-// "pomme").
-const EMOJI_KEYWORDS = [
-  ['pomme de terre', '🥔'],
-  ['pomme', '🍎'],
-  ['banane', '🍌'],
-  ['orange', '🍊'],
-  ['citron vert', '🍋'],
-  ['citron', '🍋'],
-  ['fraise', '🍓'],
-  ['raisin', '🍇'],
-  ['poire', '🍐'],
-  ['ananas', '🍍'],
-  ['mangue', '🥭'],
-  ['peche', '🍑'],
-  ['pasteque', '🍉'],
-  ['melon', '🍈'],
-  ['tomate', '🍅'],
-  ['brocoli', '🥦'],
-  ['carotte', '🥕'],
-  ['poivron', '🫑'],
-  ['champignon', '🍄'],
-  ['epinard', '🥬'],
-  ['salade', '🥬'],
-  ['courgette', '🥒'],
-  ['concombre', '🥒'],
-  ['ail', '🧄'],
-  ['oignon', '🧅'],
-  ['mais', '🌽'],
-  ['avocat', '🥑'],
-  ['lentille', '🫘'],
-  ['pois chiche', '🧆'],
-  ['petit pois', '🟢'],
-  ['poulet', '🍗'],
-  ['dinde', '🦃'],
-  ['canard', '🦆'],
-  ['boeuf', '🥩'],
-  ['veau', '🥩'],
-  ['agneau', '🥩'],
-  ['porc', '🐖'],
-  ['saucisse', '🌭'],
-  ['chorizo', '🌭'],
-  ['lardon', '🥓'],
-  ['bacon', '🥓'],
-  ['jambon', '🍖'],
-  ['viande', '🥩'],
-  ['saumon', '🐟'],
-  ['thon', '🐟'],
-  ['poisson', '🐟'],
-  ['crevette', '🍤'],
-  ['oeuf', '🥚'],
-  ['feta', '🧀'],
-  ['fromage', '🧀'],
-  ['lait', '🥛'],
-  ['yaourt', '🥣'],
-  ['beurre', '🧈'],
-  ['riz', '🍚'],
-  ['pate', '🍝'],
-  ['pain', '🍞'],
-  ['miel', '🍯'],
-  ['chocolat', '🍫'],
-  ['noix de coco', '🥥'],
-  ['noix', '🥜'],
-]
-
-function pickIngredientEmoji(ingredientName) {
-  const normalized = normalize(ingredientName)
-  for (const [keyword, emoji] of EMOJI_KEYWORDS) {
-    if (normalized.includes(keyword)) return emoji
-  }
-  return null
-}
-
-/**
- * Choisit un ou deux emojis représentatifs des ingrédients disponibles,
- * pour adapter visuellement les recettes générées dynamiquement à ce que
- * l'utilisateur a réellement pris en photo (plutôt qu'un emoji générique
- * toujours identique).
- */
-function pickIngredientEmojis(available, max = 2) {
-  const found = []
-  for (const ing of available) {
-    const emoji = pickIngredientEmoji(ing)
-    if (emoji && !found.includes(emoji)) found.push(emoji)
-    if (found.length >= max) break
-  }
-  return found
-}
-
-const ACCENTS_REGEX = /[\u0300-\u036f]/g
+const ACCENTS_REGEX = /[̀-ͯ]/g
 
 function normalize(str) {
   return str
@@ -392,6 +299,76 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     missingIngredients: r.requiredMissing,
     antiGaspi: r.antiGaspi,
   }))
+}
+
+/**
+ * Suggère des ingrédients "complémentaires" à cocher sur la page de
+ * validation (ex : pâtes + jambon détectés → suggère petits pois, carotte...).
+ * Principe : on regarde toutes les recettes de la base qui partagent au
+ * moins un ingrédient avec ce que l'utilisateur a déjà coché, puis on
+ * remonte leurs ingrédients manquants (requis en priorité, optionnels en
+ * second) — pondérés par la "proximité" de la recette (peu d'ingrédients
+ * manquants = recette presque faisable = suggestion plus pertinente).
+ * @param {string[]} checkedIngredients - ingrédients actuellement cochés
+ * @param {string[]} [knownIngredients] - tous les ingrédients déjà listés sur
+ *   la page (cochés ou non), pour ne jamais suggérer un doublon
+ * @param {number} [limit]
+ * @returns {string[]}
+ */
+export function suggestComplementaryIngredients(checkedIngredients, knownIngredients = checkedIngredients, limit = 6) {
+  const available = checkedIngredients.filter(Boolean)
+  const known = knownIngredients.filter(Boolean)
+  if (available.length === 0) return []
+
+  const tally = new Map()
+
+  for (const recipe of RECIPES) {
+    const pool = [...recipe.required, ...recipe.optional]
+    const overlap = pool.filter((ing) => includesIngredient(available, ing))
+    if (overlap.length === 0) continue
+
+    const missingRequired = recipe.required.filter((ing) => !includesIngredient(known, ing) && !isPantryStaple(ing))
+    const missingOptional = recipe.optional.filter((ing) => !includesIngredient(known, ing) && !isPantryStaple(ing))
+    if (missingRequired.length + missingOptional.length === 0) continue
+
+    // Plus la recette est proche d'être faisable avec ce qu'on a déjà, plus
+    // ses ingrédients manquants sont mis en avant.
+    const closeness = overlap.length / (overlap.length + missingRequired.length + missingOptional.length)
+
+    missingRequired.forEach((name) => {
+      const key = normalize(name)
+      const weight = (tally.get(key)?.weight || 0) + closeness * 2
+      tally.set(key, { name: tally.get(key)?.name || name, weight })
+    })
+    missingOptional.forEach((name) => {
+      const key = normalize(name)
+      const weight = (tally.get(key)?.weight || 0) + closeness
+      tally.set(key, { name: tally.get(key)?.name || name, weight })
+    })
+  }
+
+  return [...tally.values()]
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, limit)
+    .map((entry) => entry.name)
+}
+
+/**
+ * Retourne toutes les recettes de la base (brutes, non scorées) qui utilisent
+ * un ingrédient donné, requis ou optionnel. Utilisé par la page "Ingrédient"
+ * pour répondre à "quelles recettes puis-je faire avec X ?".
+ * @param {string} ingredientName
+ * @returns {object[]}
+ */
+export function findRecipesUsingIngredient(ingredientName) {
+  const target = normalize(ingredientName)
+  if (!target) return []
+  return RECIPES.filter((recipe) =>
+    [...recipe.required, ...recipe.optional].some((ing) => {
+      const normalizedIng = normalize(ing)
+      return normalizedIng.includes(target) || target.includes(normalizedIng)
+    })
+  )
 }
 
 /**
