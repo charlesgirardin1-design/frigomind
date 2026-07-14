@@ -79,7 +79,7 @@ export default function Header() {
             alt="FrigoMind"
             className="w-8 h-8 rounded-xl object-cover shadow-card ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3"
           />
-          <span>Frigo<span className="text-fresh-600">Mind</span></span>
+          <span>Frigo<span className="text-gradient-fresh">Mind</span></span>
         </button>
 
         {/* Navigation desktop : toujours sur une seule ligne — défile
