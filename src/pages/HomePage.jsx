@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import {
@@ -168,6 +169,12 @@ const STRINGS = {
   },
 }
 
+// Emoji des 4 cartes "chiffres du gaspillage", associés à un ton de couleur
+// (icon-badge) pour leur donner la même présence visuelle que les icônes du
+// reste du site plutôt que de rester des emoji nus.
+const WASTE_STAT_ICONS = ['🌍', '⚖️', '🌫️', '💰']
+const WASTE_STAT_TONES = ['bg-fresh-50', 'bg-zest-50', 'bg-neutral-100', 'bg-zest-50']
+
 // Page d'accueil : promesse claire + CTA unique pour lancer le flow en 3 clics,
 // puis contenu explicatif enrichi (étapes, valeurs, anti-gaspi) pour rassurer
 // et donner du contexte avant de se lancer.
@@ -175,6 +182,23 @@ export default function HomePage() {
   const { goTo } = useApp()
   const lang = useLanguage()
   const s = STRINGS[lang]
+
+  // Déclenche le remplissage animé des barres de répartition (ménages /
+  // restauration / distribution) après le premier rendu : elles partent de
+  // 0% et rejoignent leur largeur cible via la transition CSS, plutôt que
+  // d'apparaître déjà pleines.
+  const [barsFilled, setBarsFilled] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setBarsFilled(true), 150)
+    return () => clearTimeout(t)
+  }, [])
+
+  const wasteStats = [
+    { icon: WASTE_STAT_ICONS[0], tone: WASTE_STAT_TONES[0], value: s.wasteWorldTonnes, text: s.wasteWorldTonnesText },
+    { icon: WASTE_STAT_ICONS[1], tone: WASTE_STAT_TONES[1], value: s.wastePerPerson, text: s.wastePerPersonText },
+    { icon: WASTE_STAT_ICONS[2], tone: WASTE_STAT_TONES[2], value: s.wasteCO2, text: s.wasteCO2Text },
+    { icon: WASTE_STAT_ICONS[3], tone: WASTE_STAT_TONES[3], value: s.wasteCost, text: s.wasteCostText },
+  ]
 
   return (
     <div className="max-w-3xl mx-auto px-4 pt-10 pb-16 animate-fadeIn">
@@ -255,40 +279,31 @@ export default function HomePage() {
       </div>
 
       <div className="mt-16">
-        <h2 className="section-title">{s.wasteTitle}</h2>
-        <p className="section-subtitle">{s.wasteSubtitle}</p>
+        <h2 className="section-title animate-rise">{s.wasteTitle}</h2>
+        <p className="section-subtitle animate-rise" style={{ animationDelay: '60ms' }}>
+          {s.wasteSubtitle}
+        </p>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="card p-5 text-center">
-            <div className="text-3xl mb-1" aria-hidden>🌍</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">
-              {s.wasteWorldTonnes}
+          {wasteStats.map((stat, i) => (
+            <div
+              key={stat.value}
+              className="card p-5 text-center animate-rise"
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
+              <div className={`icon-badge ${stat.tone} mx-auto mb-2 text-2xl`} aria-hidden>
+                {stat.icon}
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{stat.value}</div>
+              <p className="text-sm text-neutral-500 mt-1">{stat.text}</p>
             </div>
-            <p className="text-sm text-neutral-500 mt-1">{s.wasteWorldTonnesText}</p>
-          </div>
-          <div className="card p-5 text-center">
-            <div className="text-3xl mb-1" aria-hidden>⚖️</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">
-              {s.wastePerPerson}
-            </div>
-            <p className="text-sm text-neutral-500 mt-1">{s.wastePerPersonText}</p>
-          </div>
-          <div className="card p-5 text-center">
-            <div className="text-3xl mb-1" aria-hidden>🌫️</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{s.wasteCO2}</div>
-            <p className="text-sm text-neutral-500 mt-1">{s.wasteCO2Text}</p>
-          </div>
-          <div className="card p-5 text-center">
-            <div className="text-3xl mb-1" aria-hidden>💰</div>
-            <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{s.wasteCost}</div>
-            <p className="text-sm text-neutral-500 mt-1">{s.wasteCostText}</p>
-          </div>
+          ))}
         </div>
 
-        <div className="mt-4 card p-5">
+        <div className="mt-4 card p-5 animate-rise" style={{ animationDelay: '360ms' }}>
           <p className="font-semibold text-neutral-900 text-sm mb-3">{s.chainTitle}</p>
           <div className="space-y-2.5">
-            {s.chain.map((c) => (
+            {s.chain.map((c, i) => (
               <div key={c.label}>
                 <div className="flex items-center justify-between text-sm mb-1">
                   <span className="text-neutral-700">{c.label}</span>
@@ -296,10 +311,14 @@ export default function HomePage() {
                 </div>
                 <div className="h-2 rounded-full bg-neutral-100 overflow-hidden">
                   <div
-                    className={`h-full rounded-full ${
+                    className={`h-full rounded-full transition-all ease-out ${
                       c.tone === 'fresh' ? 'bg-fresh-500' : c.tone === 'zest' ? 'bg-zest-500' : 'bg-neutral-400'
                     }`}
-                    style={{ width: `${c.pct}%` }}
+                    style={{
+                      width: barsFilled ? `${c.pct}%` : '0%',
+                      transitionDuration: '900ms',
+                      transitionDelay: `${i * 120}ms`,
+                    }}
                   />
                 </div>
               </div>
@@ -307,7 +326,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mt-4 card p-5">
+        <div className="mt-4 card p-5 animate-rise" style={{ animationDelay: '420ms' }}>
           <p className="font-semibold text-neutral-900 text-sm mb-3">{s.countryTableTitle}</p>
           <div className="divide-y divide-neutral-100">
             {s.countryWaste.map((c) => (
@@ -323,7 +342,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow">
+      <div className="mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow animate-rise">
         <IllustrationTile tone="zest" size="md" className="mx-auto mb-3">
           <PotGlyph className="w-full h-full" />
         </IllustrationTile>
