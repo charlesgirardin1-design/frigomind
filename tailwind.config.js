@@ -57,6 +57,17 @@ export default {
           '50%': { transform: 'scale(1.3)' },
           '100%': { transform: 'scale(1)' },
         },
+        // Révélation progressive (translation + fondu), pensée pour être enchaînée
+        // avec un délai croissant (effet stagger) sur une grille de cartes.
+        rise: {
+          from: { opacity: 0, transform: 'translateY(10px)' },
+          to: { opacity: 1, transform: 'translateY(0)' },
+        },
+        // Dégradé qui glisse en boucle, utilisé sur le texte de marque/accent.
+        gradientShift: {
+          '0%,100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -64,6 +75,8 @@ export default {
         float: 'float 4.5s ease-in-out infinite',
         blob: 'blob 12s ease-in-out infinite',
         heartPop: 'heartPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
+        rise: 'rise 0.5s ease-out both',
+        gradientShift: 'gradientShift 5s ease-in-out infinite',
       },
     },
   },
