@@ -113,4 +113,12 @@ body {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* Texte de marque/accent avec un dégradé fresh → zest qui glisse en boucle,
+     pour donner un peu de mouvement aux éléments clés (logo, titre d'accueil)
+     sans devoir animer leur position ou leur opacité. */
+  .text-gradient-fresh {
+    @apply bg-gradient-to-r from-fresh-600 via-zest-500 to-fresh-600 bg-clip-text text-transparent animate-gradientShift;
+    background-size: 200% auto;
+  }
 }
