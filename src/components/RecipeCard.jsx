@@ -32,12 +32,20 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
           onOpen(recipe)
         }
       }}
-      className="card p-4 text-left w-full cursor-pointer hover:shadow-cardHover hover:-translate-y-0.5 transition"
+      className="group card p-4 text-left w-full cursor-pointer hover:shadow-cardHover hover:-translate-y-0.5 transition"
     >
       <div className="flex items-start justify-between gap-2">
-        <span className="text-3xl" aria-hidden>
+        {/* Emoji dans une tuile colorée (comme les icon-badge de l'accueil)
+            plutôt qu'un emoji flottant seul, pour donner plus de présence
+            visuelle à chaque carte. */}
+        <div
+          className={`icon-badge transition-transform duration-200 group-hover:scale-110 ${
+            recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'
+          }`}
+          aria-hidden
+        >
           {recipe.emoji}
-        </span>
+        </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">{c.antiGaspi}</span>}
           {onToggleFavorite && (

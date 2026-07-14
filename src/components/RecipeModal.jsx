@@ -40,7 +40,7 @@ export default function RecipeModal({ recipe, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-neutral-900/40 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-50 bg-neutral-900/40 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn"
       onClick={onClose}
     >
       <div
@@ -49,10 +49,15 @@ export default function RecipeModal({ recipe, onClose }) {
       >
         <div className="sticky top-0 bg-white flex items-start justify-between p-5 border-b border-neutral-100">
           <div>
-            <span className="text-3xl" aria-hidden>
+            {/* Même tuile colorée que sur les cartes recette (RecipeCard), pour
+                garder une identité visuelle cohérente entre la grille et le détail. */}
+            <div
+              className={`icon-badge ${recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'}`}
+              aria-hidden
+            >
               {recipe.emoji}
-            </span>
-            <h2 className="text-xl font-bold text-neutral-900 mt-1">{localizeRecipeName(recipe, lang)}</h2>
+            </div>
+            <h2 className="text-xl font-bold text-neutral-900 mt-2">{localizeRecipeName(recipe, lang)}</h2>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
               <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
