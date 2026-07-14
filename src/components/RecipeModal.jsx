@@ -4,6 +4,7 @@ import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
+import { extractCountryFlag } from '../utils/flag.js'
 
 // Modale plein détail d'une recette : ingrédients, étapes numérotées.
 export default function RecipeModal({ recipe, onClose }) {
@@ -24,6 +25,11 @@ export default function RecipeModal({ recipe, onClose }) {
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
+
+  // Même extraction de drapeau que sur RecipeCard, pour une identité
+  // visuelle cohérente entre la grille et le détail.
+  const displayName = localizeRecipeName(recipe, lang)
+  const { flag, cleanName } = extractCountryFlag(displayName)
 
   function handleIngredientClick(ing) {
     onClose()
@@ -50,14 +56,25 @@ export default function RecipeModal({ recipe, onClose }) {
         <div className="sticky top-0 bg-white flex items-start justify-between p-5 border-b border-neutral-100">
           <div>
             {/* Même tuile colorée que sur les cartes recette (RecipeCard), pour
-                garder une identité visuelle cohérente entre la grille et le détail. */}
-            <div
-              className={`icon-badge ${recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'}`}
-              aria-hidden
-            >
-              {recipe.emoji}
+                garder une identité visuelle cohérente entre la grille et le détail.
+                Le drapeau pays (recettes du monde) est épinglé sur le coin. */}
+            <div className="relative inline-block">
+              <div
+                className={`icon-badge ${recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'}`}
+                aria-hidden
+              >
+                {recipe.emoji}
+              </div>
+              {flag && (
+                <span
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white ring-1 ring-black/5 shadow-card flex items-center justify-center text-[11px] leading-none"
+                  aria-hidden
+                >
+                  {flag}
+                </span>
+              )}
             </div>
-            <h2 className="text-xl font-bold text-neutral-900 mt-2">{localizeRecipeName(recipe, lang)}</h2>
+            <h2 className="text-xl font-bold text-neutral-900 mt-2">{cleanName}</h2>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
               <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>

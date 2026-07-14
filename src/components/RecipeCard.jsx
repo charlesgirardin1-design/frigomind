@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { localizeRecipeName } from '../data/recipesDB.js'
+import { extractCountryFlag } from '../utils/flag.js'
 
 const LEVEL_STYLES = {
   facile: 'badge-fresh',
@@ -21,6 +22,12 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
   // pour retirer un favori), sans dépendre d'un setTimeout à annuler.
   const [popTrigger, setPopTrigger] = useState(0)
 
+  // Les recettes "cuisine du monde" ont leur drapeau intégré en fin de nom :
+  // on l'en extrait pour l'afficher comme badge dédié sur l'icône plutôt
+  // que noyé dans le titre.
+  const displayName = localizeRecipeName(recipe, lang)
+  const { flag, cleanName } = extractCountryFlag(displayName)
+
   return (
     <div
       role="button"
@@ -37,14 +44,25 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
       <div className="flex items-start justify-between gap-2">
         {/* Emoji dans une tuile colorée (comme les icon-badge de l'accueil)
             plutôt qu'un emoji flottant seul, pour donner plus de présence
-            visuelle à chaque carte. */}
-        <div
-          className={`icon-badge transition-transform duration-200 group-hover:scale-110 ${
-            recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'
-          }`}
-          aria-hidden
-        >
-          {recipe.emoji}
+            visuelle à chaque carte. Le drapeau pays (recettes du monde),
+            s'il y en a un, est épinglé en badge sur le coin de la tuile. */}
+        <div className="relative shrink-0">
+          <div
+            className={`icon-badge transition-transform duration-200 group-hover:scale-110 ${
+              recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'
+            }`}
+            aria-hidden
+          >
+            {recipe.emoji}
+          </div>
+          {flag && (
+            <span
+              className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white ring-1 ring-black/5 shadow-card flex items-center justify-center text-[11px] leading-none"
+              aria-hidden
+            >
+              {flag}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">{c.antiGaspi}</span>}
@@ -71,7 +89,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
         </div>
       </div>
 
-      <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{localizeRecipeName(recipe, lang)}</h3>
+      <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{cleanName}</h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
         <span className="badge badge-neutral">⏱ {recipe.time} min</span>
