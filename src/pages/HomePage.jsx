@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import {
@@ -175,6 +175,32 @@ const STRINGS = {
 const WASTE_STAT_ICONS = ['🌍', '⚖️', '🌫️', '💰']
 const WASTE_STAT_TONES = ['bg-fresh-50', 'bg-zest-50', 'bg-neutral-100', 'bg-zest-50']
 
+// Petit hook générique : révèle une section (animate-rise) seulement quand
+// elle entre dans le viewport, plutôt qu'au montage de la page. Sans ça, les
+// sections sous la ligne de flottaison (steps, values, stats gaspillage, CTA)
+// avaient déjà fini leur animation avant que l'utilisateur ne scrolle
+// jusqu'à elles — invisible en pratique.
+function useInView(threshold = 0.2) {
+  const ref = useRef(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { threshold }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+  return [ref, inView]
+}
+
 // Page d'accueil : promesse claire + CTA unique pour lancer le flow en 3 clics,
 // puis contenu explicatif enrichi (étapes, valeurs, anti-gaspi) pour rassurer
 // et donner du contexte avant de se lancer.
@@ -183,15 +209,21 @@ export default function HomePage() {
   const lang = useLanguage()
   const s = STRINGS[lang]
 
+  const [stepsRef, stepsInView] = useInView()
+  const [valuesRef, valuesInView] = useInView()
+  const [wasteRef, wasteInView] = useInView()
+  const [ctaRef, ctaInView] = useInView()
+
   // Déclenche le remplissage animé des barres de répartition (ménages /
-  // restauration / distribution) après le premier rendu : elles partent de
-  // 0% et rejoignent leur largeur cible via la transition CSS, plutôt que
-  // d'apparaître déjà pleines.
+  // restauration / distribution) une fois la section gaspillage visible à
+  // l'écran : elles partent de 0% et rejoignent leur largeur cible via la
+  // transition CSS, plutôt que d'apparaître déjà pleines hors champ.
   const [barsFilled, setBarsFilled] = useState(false)
   useEffect(() => {
+    if (!wasteInView) return
     const t = setTimeout(() => setBarsFilled(true), 150)
     return () => clearTimeout(t)
-  }, [])
+  }, [wasteInView])
 
   const wasteStats = [
     { icon: WASTE_STAT_ICONS[0], tone: WASTE_STAT_TONES[0], value: s.wasteWorldTonnes, text: s.wasteWorldTonnesText },
@@ -237,11 +269,11 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div ref={stepsRef} className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {s.steps.map((step, i) => (
           <div
             key={step.title}
-            className="card p-5 text-center animate-rise"
+            className={`card p-5 text-center ${stepsInView ? 'animate-rise' : 'opacity-0'}`}
             style={{ animationDelay: `${i * 90}ms` }}
           >
             <IllustrationTile tone={step.tone} size="sm" className="mx-auto mb-3">
@@ -259,11 +291,11 @@ export default function HomePage() {
         <h2 className="section-title">{s.whyTitle}</h2>
         <p className="section-subtitle">{s.whySubtitle}</p>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div ref={valuesRef} className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
           {s.values.map((v, i) => (
             <div
               key={v.title}
-              className="card p-5 flex gap-3 animate-rise"
+              className={`card p-5 flex gap-3 ${valuesInView ? 'animate-rise' : 'opacity-0'}`}
               style={{ animationDelay: `${i * 90}ms` }}
             >
               <IllustrationTile tone={v.tone} size="sm">
@@ -278,9 +310,12 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-16">
-        <h2 className="section-title animate-rise">{s.wasteTitle}</h2>
-        <p className="section-subtitle animate-rise" style={{ animationDelay: '60ms' }}>
+      <div ref={wasteRef} className="mt-16">
+        <h2 className={`section-title ${wasteInView ? 'animate-rise' : 'opacity-0'}`}>{s.wasteTitle}</h2>
+        <p
+          className={`section-subtitle ${wasteInView ? 'animate-rise' : 'opacity-0'}`}
+          style={{ animationDelay: '60ms' }}
+        >
           {s.wasteSubtitle}
         </p>
 
@@ -288,7 +323,7 @@ export default function HomePage() {
           {wasteStats.map((stat, i) => (
             <div
               key={stat.value}
-              className="card p-5 text-center animate-rise"
+              className={`card p-5 text-center ${wasteInView ? 'animate-rise' : 'opacity-0'}`}
               style={{ animationDelay: `${i * 90}ms` }}
             >
               <div className={`icon-badge ${stat.tone} mx-auto mb-2 text-2xl`} aria-hidden>
@@ -300,7 +335,10 @@ export default function HomePage() {
           ))}
         </div>
 
-        <div className="mt-4 card p-5 animate-rise" style={{ animationDelay: '360ms' }}>
+        <div
+          className={`mt-4 card p-5 ${wasteInView ? 'animate-rise' : 'opacity-0'}`}
+          style={{ animationDelay: '360ms' }}
+        >
           <p className="font-semibold text-neutral-900 text-sm mb-3">{s.chainTitle}</p>
           <div className="space-y-2.5">
             {s.chain.map((c, i) => (
@@ -326,7 +364,10 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="mt-4 card p-5 animate-rise" style={{ animationDelay: '420ms' }}>
+        <div
+          className={`mt-4 card p-5 ${wasteInView ? 'animate-rise' : 'opacity-0'}`}
+          style={{ animationDelay: '420ms' }}
+        >
           <p className="font-semibold text-neutral-900 text-sm mb-3">{s.countryTableTitle}</p>
           <div className="divide-y divide-neutral-100">
             {s.countryWaste.map((c) => (
@@ -342,7 +383,12 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow animate-rise">
+      <div
+        ref={ctaRef}
+        className={`mt-16 card p-6 sm:p-8 text-center bg-gradient-to-br from-fresh-50 to-zest-50/60 border-fresh-100 shadow-glow ${
+          ctaInView ? 'animate-rise' : 'opacity-0'
+        }`}
+      >
         <IllustrationTile tone="zest" size="md" className="mx-auto mb-3">
           <PotGlyph className="w-full h-full" />
         </IllustrationTile>
