@@ -15,7 +15,7 @@ const STRINGS = {
   fr: {
     heading: (
       <>
-        Votre frigo, vos recettes, <span className="text-fresh-600">en 3 clics</span>.
+        Votre frigo, vos recettes, <span className="text-gradient-fresh">en 3 clics</span>.
       </>
     ),
     intro:
@@ -93,7 +93,7 @@ const STRINGS = {
   en: {
     heading: (
       <>
-        Your fridge, your recipes, <span className="text-fresh-600">in 3 clicks</span>.
+        Your fridge, your recipes, <span className="text-gradient-fresh">in 3 clicks</span>.
       </>
     ),
     intro:
@@ -193,10 +193,20 @@ export default function HomePage() {
           <FridgeGlyph className="w-full h-full" />
         </IllustrationTile>
 
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900">{s.heading}</h1>
-        <p className="mt-3 text-neutral-500 text-base sm:text-lg max-w-xl mx-auto">{s.intro}</p>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-neutral-900 animate-rise">
+          {s.heading}
+        </h1>
+        <p
+          className="mt-3 text-neutral-500 text-base sm:text-lg max-w-xl mx-auto animate-rise"
+          style={{ animationDelay: '90ms' }}
+        >
+          {s.intro}
+        </p>
 
-        <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+        <div
+          className="mt-8 flex flex-col sm:flex-row gap-3 justify-center animate-rise"
+          style={{ animationDelay: '180ms' }}
+        >
           <button onClick={() => goTo('upload')} className="btn-primary text-base px-6 py-3.5">
             {s.start}
           </button>
@@ -205,7 +215,11 @@ export default function HomePage() {
 
       <div className="mt-14 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {s.steps.map((step, i) => (
-          <div key={step.title} className="card p-5 text-center">
+          <div
+            key={step.title}
+            className="card p-5 text-center animate-rise"
+            style={{ animationDelay: `${i * 90}ms` }}
+          >
             <IllustrationTile tone={step.tone} size="sm" className="mx-auto mb-3">
               <step.Icon className="w-full h-full" />
             </IllustrationTile>
@@ -222,8 +236,12 @@ export default function HomePage() {
         <p className="section-subtitle">{s.whySubtitle}</p>
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {s.values.map((v) => (
-            <div key={v.title} className="card p-5 flex gap-3">
+          {s.values.map((v, i) => (
+            <div
+              key={v.title}
+              className="card p-5 flex gap-3 animate-rise"
+              style={{ animationDelay: `${i * 90}ms` }}
+            >
               <IllustrationTile tone={v.tone} size="sm">
                 <v.Icon className="w-full h-full" />
               </IllustrationTile>
