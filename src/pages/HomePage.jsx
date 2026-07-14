@@ -201,6 +201,62 @@ function useInView(threshold = 0.2) {
   return [ref, inView]
 }
 
+// Anime un chiffre de 0 jusqu'à sa valeur cible ("1,05 milliard", "132 kg",
+// "8 à 10 %", "~1 000 milliards $"...) en ne faisant compter que la partie
+// numérique repérable en tête de chaîne ; le reste (unité, texte) est
+// conservé tel quel. Se cale sur la locale (virgule/point, séparateur de
+// milliers) puis se "snap" sur le texte original exact à la fin de
+// l'animation pour éviter tout écart d'arrondi.
+function CountUpNumber({ value, lang, active, delay = 0, duration = 1100 }) {
+  const [display, setDisplay] = useState(value)
+  const startedRef = useRef(false)
+
+  useEffect(() => {
+    if (!active || startedRef.current) return
+    startedRef.current = true
+
+    const match = value.match(/^(~?\$?)([\d\s.,]+)(.*)$/)
+    if (!match) return
+    const [, prefix, numPart, suffixRaw] = match
+    const raw = numPart.replace(/\s/g, '')
+    const decimalChar = raw.includes(',') ? ',' : raw.includes('.') ? '.' : null
+    const decimals = decimalChar ? (raw.split(decimalChar)[1] || '').length : 0
+    const normalized = decimalChar ? raw.replace(decimalChar, '.') : raw
+    const target = parseFloat(normalized)
+    if (Number.isNaN(target)) return
+    const suffix = suffixRaw.trim()
+    const locale = lang === 'fr' ? 'fr-FR' : 'en-US'
+
+    let raf
+    const timer = setTimeout(() => {
+      const start = performance.now()
+      function tick(now) {
+        const t = Math.min((now - start) / duration, 1)
+        const eased = 1 - Math.pow(1 - t, 3)
+        const current = target * eased
+        if (t < 1) {
+          const formatted = current.toLocaleString(locale, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals,
+          })
+          setDisplay(`${prefix}${formatted}${suffix ? ' ' + suffix : ''}`)
+          raf = requestAnimationFrame(tick)
+        } else {
+          setDisplay(value)
+        }
+      }
+      raf = requestAnimationFrame(tick)
+    }, delay)
+
+    return () => {
+      clearTimeout(timer)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [active, value, lang, delay, duration])
+
+  return display
+}
+
 // Page d'accueil : promesse claire + CTA unique pour lancer le flow en 3 clics,
 // puis contenu explicatif enrichi (étapes, valeurs, anti-gaspi) pour rassurer
 // et donner du contexte avant de se lancer.
@@ -329,7 +385,9 @@ export default function HomePage() {
               <div className={`icon-badge ${stat.tone} mx-auto mb-2 text-2xl`} aria-hidden>
                 {stat.icon}
               </div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">{stat.value}</div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-fresh-700 tracking-tight">
+                <CountUpNumber value={stat.value} lang={lang} active={wasteInView} delay={i * 90 + 150} />
+              </div>
               <p className="text-sm text-neutral-500 mt-1">{stat.text}</p>
             </div>
           ))}
