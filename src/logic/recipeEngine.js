@@ -266,10 +266,15 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
 
   // Anti-blocage (étape 1) : si moins de 3 résultats, on complète avec les
   // autres recettes de la base qui respectent quand même la règle
-  // obligatoire (sans les filtres de préférences/score stricts).
+  // obligatoire — on relâche seulement la contrainte "score/ingrédients
+  // manquants" (`strong`), jamais les préférences explicites de
+  // l'utilisateur (végétarien, cuisine, temps max) : on repioche donc dans
+  // `candidates` (déjà filtré par applyPreferenceFilters), pas dans
+  // `mandatory`, pour qu'une préférence cochée reste absolue même quand on
+  // doit compléter les résultats.
   if (results.length < 3) {
     const usedIds = new Set(results.map((r) => r.recipe.id))
-    const fallback = mandatory
+    const fallback = candidates
       .filter((c) => !usedIds.has(c.recipe.id))
       .sort((a, b) => b.score - a.score || a.recipe.time - b.recipe.time)
       .slice(0, 5 - results.length)
@@ -279,16 +284,23 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
   // Anti-blocage (étape 2, garantie absolue) : si la base de recettes ne
   // contient aucune combinaison respectant la règle obligatoire (ingrédients
   // trop variés/inhabituels), on génère des recettes "maison" qui utilisent
-  // par construction tous les ingrédients validés.
+  // par construction tous les ingrédients validés. Ces recettes générées
+  // doivent, elles aussi, respecter les préférences (ex : si l'utilisateur a
+  // de la viande dans ses ingrédients validés et coche "végétarien
+  // uniquement", on ne peut pas fabriquer de recette végé sans trahir la
+  // règle obligatoire — on préfère alors proposer moins de 3 résultats
+  // plutôt qu'ignorer la préférence silencieusement.
   if (results.length < 3 && available.length > 0) {
-    const generic = buildGenericRecipes(available).map((recipe) => ({
-      recipe,
-      score: 1 + (recipe.antiGaspi ? 0.15 : 0),
-      requiredMatched: available,
-      requiredMissing: [],
-      optionalMatched: [],
-      antiGaspi: recipe.antiGaspi,
-    }))
+    const generic = buildGenericRecipes(available)
+      .filter((recipe) => applyPreferenceFilters(recipe, prefs))
+      .map((recipe) => ({
+        recipe,
+        score: 1 + (recipe.antiGaspi ? 0.15 : 0),
+        requiredMatched: available,
+        requiredMissing: [],
+        optionalMatched: [],
+        antiGaspi: recipe.antiGaspi,
+      }))
     results = [...results, ...generic].slice(0, 5)
   }
 
