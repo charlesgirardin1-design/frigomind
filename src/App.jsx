@@ -143,7 +143,7 @@ export default function App() {
           </Suspense>
         </div>
       </main>
-      <footer className="border-t border-neutral-100 bg-white/60 mt-4">
+      <footer className="border-t border-neutral-100 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 mt-4">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center">
           <button
             onClick={() => { resetSession(); goTo('home') }}
@@ -154,7 +154,7 @@ export default function App() {
               alt="FrigoMind"
               className="w-6 h-6 rounded-md object-cover"
             />
-            Frigo<span className="text-fresh-600">Mind</span>
+            Frigo<span className="text-fresh-600 dark:text-fresh-400">Mind</span>
           </button>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-sm">
