@@ -240,6 +240,18 @@ export function AppProvider({ children }) {
     dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, []) })
   }, [uid])
 
+  // Met à jour la note personnelle et/ou la note en étoiles d'un favori
+  // (voir RecipeModal). `meta` ne contient que les champs à modifier (mise à
+  // jour partielle) : on peut ainsi changer la note en étoiles sans écraser
+  // le texte de la note personnelle, et inversement.
+  const updateFavoriteMeta = useCallback(
+    (favId, meta) => {
+      const updated = state.favorites.map((r) => (r.favId === favId ? { ...r, ...meta } : r))
+      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, updated) })
+    },
+    [state.favorites, uid]
+  )
+
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
 
   const value = useMemo(
@@ -261,6 +273,7 @@ export function AppProvider({ children }) {
       wipeHistory,
       toggleFavorite,
       clearFavorites,
+      updateFavoriteMeta,
       goToIngredient,
     }),
     [
@@ -281,6 +294,7 @@ export function AppProvider({ children }) {
       wipeHistory,
       toggleFavorite,
       clearFavorites,
+      updateFavoriteMeta,
       goToIngredient,
     ]
   )
