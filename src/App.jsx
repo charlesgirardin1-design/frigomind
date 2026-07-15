@@ -34,7 +34,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
 // que "à propos" et la FAQ (contenu informatif, sans données personnelles).
 // Toutes les autres pages exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse'])
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
