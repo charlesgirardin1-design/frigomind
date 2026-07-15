@@ -46,6 +46,10 @@ export const COMMON = {
       addToFavorites: 'Ajouter aux favoris',
       removeFromFavorites: 'Retirer des favoris',
       antiGaspi: '♻️ anti-gaspi',
+      share: '📤 Partager',
+      noteLabel: '📝 Notes personnelles',
+      notePlaceholder: 'Vos impressions, ajustements…',
+      ratingLabel: '⭐ Votre note',
     },
   },
   en: {
@@ -87,6 +91,10 @@ export const COMMON = {
       addToFavorites: 'Add to favorites',
       removeFromFavorites: 'Remove from favorites',
       antiGaspi: '♻️ zero-waste',
+      share: '📤 Share',
+      noteLabel: '📝 Personal notes',
+      notePlaceholder: 'Your thoughts, tweaks…',
+      ratingLabel: '⭐ Your rating',
     },
   },
 }
