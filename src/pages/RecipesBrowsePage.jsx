@@ -4,6 +4,23 @@ import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, CalendarGlyph } from '../components/Illustrations.jsx'
 
+// Petits ingrédients qui dérivent en orbite autour de l'icône, comme si des
+// recettes étaient "en préparation" pendant que la page se construit.
+// Chacun a sa propre position, taille, vitesse et direction de dérive
+// (variables CSS --drift-x/--drift-y consommées par le keyframe `drift`,
+// voir tailwind.config.js) pour un mouvement organique plutôt qu'un simple
+// défilé synchronisé.
+const DRIFTING_INGREDIENTS = [
+  { emoji: '🍅', top: '2%', left: '6%', size: 'text-2xl', duration: '5.5s', delay: '0s', x: '10px', y: '-16px' },
+  { emoji: '🥕', top: '8%', right: '4%', size: 'text-xl', duration: '6.5s', delay: '-1.2s', x: '-12px', y: '-10px' },
+  { emoji: '🧀', top: '42%', left: '0%', size: 'text-xl', duration: '5s', delay: '-2.4s', x: '14px', y: '8px' },
+  { emoji: '🍗', top: '46%', right: '0%', size: 'text-2xl', duration: '7s', delay: '-3.1s', x: '-10px', y: '12px' },
+  { emoji: '🍋', bottom: '4%', left: '10%', size: 'text-xl', duration: '6s', delay: '-0.6s', x: '8px', y: '-10px' },
+  { emoji: '🥦', bottom: '0%', right: '12%', size: 'text-2xl', duration: '5.8s', delay: '-4s', x: '-14px', y: '-8px' },
+  { emoji: '🧄', top: '-6%', left: '38%', size: 'text-lg', duration: '6.2s', delay: '-2s', x: '10px', y: '10px' },
+  { emoji: '🍚', bottom: '-6%', right: '36%', size: 'text-lg', duration: '5.3s', delay: '-3.6s', x: '-8px', y: '10px' },
+]
+
 const STRINGS = {
   fr: {
     title: 'Toutes les recettes',
@@ -48,9 +65,29 @@ export default function RecipesBrowsePage() {
           aria-hidden
         />
 
-        <IllustrationTile tone="fresh" size="lg" className="mb-5 animate-float">
-          <CalendarGlyph className="w-full h-full" />
-        </IllustrationTile>
+        <div className="relative w-full max-w-[220px] h-32 mb-3 mx-auto" aria-hidden>
+          {DRIFTING_INGREDIENTS.map((ing, i) => (
+            <span
+              key={i}
+              className={`absolute ${ing.size} animate-drift select-none`}
+              style={{
+                top: ing.top,
+                left: ing.left,
+                right: ing.right,
+                bottom: ing.bottom,
+                animationDuration: ing.duration,
+                animationDelay: ing.delay,
+                '--drift-x': ing.x,
+                '--drift-y': ing.y,
+              }}
+            >
+              {ing.emoji}
+            </span>
+          ))}
+          <IllustrationTile tone="fresh" size="lg" className="absolute inset-0 m-auto animate-float">
+            <CalendarGlyph className="w-full h-full" />
+          </IllustrationTile>
+        </div>
 
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">{s.comingSoon}</h2>
         <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-sm mt-2">{s.body}</p>

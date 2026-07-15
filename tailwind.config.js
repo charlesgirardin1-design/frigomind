@@ -69,6 +69,15 @@ export default {
           '0%,100%': { backgroundPosition: '0% 50%' },
           '50%': { backgroundPosition: '100% 50%' },
         },
+        // Dérive organique (translation diagonale + fondu + micro-rotation),
+        // pensée pour de petits emojis "en orbite" autour d'une icône —
+        // volontairement moins régulière que `float`/`blob` pour un rendu
+        // plus vivant (voir la page "Bientôt disponible").
+        drift: {
+          '0%, 100%': { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 0.35 },
+          '35%': { transform: 'translate(var(--drift-x, 10px), calc(var(--drift-y, -14px) * -1)) rotate(-8deg) scale(1.08)', opacity: 1 },
+          '70%': { transform: 'translate(calc(var(--drift-x, 10px) * -0.6), calc(var(--drift-y, -14px) * 0.5)) rotate(6deg) scale(0.96)', opacity: 0.7 },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -78,6 +87,7 @@ export default {
         heartPop: 'heartPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1) both',
         rise: 'rise 0.5s ease-out both',
         gradientShift: 'gradientShift 5s ease-in-out infinite',
+        drift: 'drift 5s ease-in-out infinite',
       },
     },
   },
