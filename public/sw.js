@@ -1,17 +1,23 @@
 // Minimal, dependency-free service worker for basic offline support.
-// Strategy: cache-then-network (stale-while-revalidate) for the app shell.
-// Bump CACHE_VERSION whenever you want to invalidate old caches.
-const CACHE_VERSION = 'frigomind-v1'
+//
+// Strategy split in two, because this is a Vite build with content-hashed
+// asset filenames (e.g. index-abc123.js):
+// - Navigation/HTML requests (the app shell) use network-first: always try
+//   the network so a new deployment is picked up immediately, falling back
+//   to the last cached shell only when offline. Caching HTML with
+//   stale-while-revalidate previously meant visitors kept getting served an
+//   old index.html referencing old (deployed-over) JS/CSS hashes after every
+//   new deploy — this is what caused "still not requiring login" reports
+//   after the login-gate change had already shipped.
+// - Hashed static assets (script/style/image) stay cache-first
+//   (stale-while-revalidate): a given hash's content never changes, so
+//   serving it from cache is always correct and safe.
+//
+// Bump CACHE_VERSION whenever you want to force-invalidate old caches.
+const CACHE_VERSION = 'frigomind-v2'
 
-const APP_SHELL = ['/', '/index.html']
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches
-      .open(CACHE_VERSION)
-      .then((cache) => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
-  )
+self.addEventListener('install', () => {
+  self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
@@ -29,40 +35,56 @@ self.addEventListener('activate', (event) => {
   )
 })
 
-// Only handle same-origin GET requests for navigation/document/script/style/image.
-// Everything else (POST, cross-origin API/Firebase calls, etc.) is left to the network untouched.
-function shouldHandle(request) {
+function isSameOriginGet(request) {
   if (request.method !== 'GET') return false
+  return new URL(request.url).origin === self.location.origin
+}
 
-  const url = new URL(request.url)
-  if (url.origin !== self.location.origin) return false
+function isNavigation(request) {
+  return request.mode === 'navigate' || request.destination === 'document'
+}
 
-  if (request.mode === 'navigate') return true
-
-  return ['document', 'script', 'style', 'image'].includes(request.destination)
+function isHashedAsset(request) {
+  return ['script', 'style', 'image'].includes(request.destination)
 }
 
 self.addEventListener('fetch', (event) => {
   const { request } = event
+  if (!isSameOriginGet(request)) return
 
-  if (!shouldHandle(request)) return
-
-  event.respondWith(
-    caches.open(CACHE_VERSION).then((cache) =>
-      cache.match(request).then((cached) => {
-        const networkFetch = fetch(request)
-          .then((response) => {
-            if (response && response.ok) {
-              cache.put(request, response.clone())
-            }
-            return response
-          })
-          .catch(() => cached)
-
-        // Stale-while-revalidate: serve cache immediately if present,
-        // otherwise fall back to the network response.
-        return cached || networkFetch
-      })
+  if (isNavigation(request)) {
+    // Network-first: always serve the latest deployed app shell when
+    // online. Only fall back to a cached copy if the network is
+    // unavailable (offline support).
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response && response.ok) {
+            caches.open(CACHE_VERSION).then((cache) => cache.put(request, response.clone()))
+          }
+          return response
+        })
+        .catch(() => caches.open(CACHE_VERSION).then((cache) => cache.match(request)))
     )
-  )
+    return
+  }
+
+  if (isHashedAsset(request)) {
+    event.respondWith(
+      caches.open(CACHE_VERSION).then((cache) =>
+        cache.match(request).then((cached) => {
+          const networkFetch = fetch(request)
+            .then((response) => {
+              if (response && response.ok) {
+                cache.put(request, response.clone())
+              }
+              return response
+            })
+            .catch(() => cached)
+
+          return cached || networkFetch
+        })
+      )
+    )
+  }
 })
