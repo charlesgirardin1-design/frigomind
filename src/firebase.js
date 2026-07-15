@@ -31,6 +31,12 @@ export const firebaseApp = isFirebaseConfigured
     : null
 
 export const auth = firebaseApp ? getAuth(firebaseApp) : null
+// Firestore (voir firestore.js, importé uniquement à la demande par
+// cloudSync.js) est délibérément dans un fichier séparé plutôt qu'ici :
+// firebase.js est importé au démarrage de l'app (AuthContext), et
+// `firebase/firestore` est une grosse dépendance qu'on ne veut pas alourdir
+// le chargement initial pour un visiteur qui n'utilise jamais la
+// sauvegarde cloud.
 export const googleProvider = new GoogleAuthProvider()
 export const appleProvider = new OAuthProvider('apple.com')
 appleProvider.addScope('email')

@@ -8,9 +8,12 @@
 // -----------------------------------------------------------------------------
 
 const HISTORY_KEY = 'frigomind_history'
-const MAX_HISTORY = 20
+// Plafonds généreux plutôt qu'illimités : au-delà, un document Firestore
+// (voir cloudSync.js, limité à 1 Mo) grossirait inutilement pour un usage
+// réel qui ne les atteint quasiment jamais.
+const MAX_HISTORY = 200
 const FAVORITES_KEY = 'frigomind_favorites'
-const MAX_FAVORITES = 30
+const MAX_FAVORITES = 150
 const PREFERENCES_KEY = 'frigomind_preferences'
 
 export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false }
@@ -42,6 +45,19 @@ export function saveHistoryEntry(uid, entry) {
     console.warn('FrigoMind: écriture historique impossible', e)
     return getHistory(uid)
   }
+}
+
+// Remplace tout l'historique d'un coup (voir cloudSync.js : fusion
+// local + cloud, qui produit un tableau complet plutôt qu'une seule
+// nouvelle entrée comme saveHistoryEntry).
+export function saveHistoryEntries(uid, entries) {
+  const trimmed = entries.slice(0, MAX_HISTORY)
+  try {
+    localStorage.setItem(scopedKey(HISTORY_KEY, uid), JSON.stringify(trimmed))
+  } catch (e) {
+    console.warn('FrigoMind: écriture historique impossible', e)
+  }
+  return trimmed
 }
 
 export function clearHistory(uid) {

@@ -13,6 +13,7 @@ import { useLanguage } from './LanguageContext.jsx'
 import {
   getHistory,
   saveHistoryEntry,
+  saveHistoryEntries,
   clearHistory,
   getFavorites,
   saveFavorites,
@@ -135,17 +136,68 @@ export function AppProvider({ children }) {
   // pour ne jamais mélanger les données de deux comptes.
   useEffect(() => {
     if (authLoading) return
-    const history = getHistory(uid)
+    const localHistory = getHistory(uid)
+    const localFavorites = getFavorites(uid)
+    const localPreferences = getPreferences(uid)
+
+    // Affichage instantané avec la copie locale d'abord (voir storage.js) :
+    // pas d'attente réseau pour montrer l'historique/favoris déjà connus.
     dispatch({
       type: 'LOAD_USER_DATA',
-      history,
-      favorites: getFavorites(uid),
-      preferences: getPreferences(uid),
+      history: localHistory,
+      favorites: localFavorites,
+      preferences: localPreferences,
     })
     // Rappel local anti-gaspi (voir reminders.js) : ne fait rien si
     // l'utilisateur ne l'a pas activé dans les paramètres.
-    maybeShowReminder(uid, history, lang)
+    maybeShowReminder(uid, localHistory, lang)
+
+    if (!uid) return
+    let cancelled = false
+    // Fusionne ensuite avec la copie cloud (voir cloudSync.js) en arrière-
+    // plan : ne bloque jamais l'affichage initial, et si Firestore n'est pas
+    // configuré/accessible, échoue silencieusement (fetchCloudData renvoie
+    // null) — l'app continue avec les seules données locales comme avant.
+    // Import dynamique : `firebase/firestore` est une grosse dépendance,
+    // inutile de la charger pour un visiteur non connecté (voir aussi
+    // pushToCloud plus bas, même raison).
+    import('../utils/cloudSync.js').then(({ fetchCloudData, pushCloudData, mergeHistory, mergeFavorites }) => {
+      fetchCloudData(uid).then((cloud) => {
+        if (cancelled) return
+        const mergedHistory = mergeHistory(localHistory, cloud?.history)
+        const mergedFavorites = mergeFavorites(localFavorites, cloud?.favorites)
+        const mergedPreferences = cloud?.preferences || localPreferences
+
+        const savedHistory = saveHistoryEntries(uid, mergedHistory)
+        const savedFavorites = saveFavorites(uid, mergedFavorites)
+        savePreferences(uid, mergedPreferences)
+
+        dispatch({
+          type: 'LOAD_USER_DATA',
+          history: savedHistory,
+          favorites: savedFavorites,
+          preferences: mergedPreferences,
+        })
+
+        pushCloudData(uid, { history: savedHistory, favorites: savedFavorites, preferences: mergedPreferences })
+      })
+    })
+
+    return () => {
+      cancelled = true
+    }
   }, [uid, authLoading, lang])
+
+  // Pousse une mise à jour partielle vers Firestore (voir cloudSync.js),
+  // import dynamique pour ne jamais alourdir le bundle initial avec
+  // `firebase/firestore` — voir le commentaire équivalent ci-dessus.
+  const pushToCloud = useCallback(
+    (data) => {
+      if (!uid) return
+      import('../utils/cloudSync.js').then(({ pushCloudData }) => pushCloudData(uid, data))
+    },
+    [uid]
+  )
 
   const goTo = useCallback((view) => {
     if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {
@@ -190,10 +242,11 @@ export function AppProvider({ children }) {
   // par défaut pour la prochaine session (voir initialState / page paramètres).
   const setPreferences = useCallback(
     (prefs) => {
-      savePreferences(uid, { ...state.preferences, ...prefs })
+      const updated = savePreferences(uid, { ...state.preferences, ...prefs })
       dispatch({ type: 'SET_PREFERENCES', prefs })
+      pushToCloud({ preferences: updated })
     },
-    [state.preferences, uid]
+    [state.preferences, uid, pushToCloud]
   )
 
   const getValidatedNames = useCallback(
@@ -210,7 +263,8 @@ export function AppProvider({ children }) {
     }
     const updated = saveHistoryEntry(uid, entry)
     dispatch({ type: 'PUSH_HISTORY', history: updated })
-  }, [uid])
+    pushToCloud({ history: updated })
+  }, [uid, pushToCloud])
 
   // generateRecipes/surpriseRecipe (et donc la base de 750 recettes qu'ils
   // importent) sont chargés à la demande plutôt qu'au démarrage : AppContext
@@ -241,7 +295,8 @@ export function AppProvider({ children }) {
   const wipeHistory = useCallback(() => {
     clearHistory(uid)
     dispatch({ type: 'CLEAR_HISTORY' })
-  }, [uid])
+    pushToCloud({ history: [] })
+  }, [uid, pushToCloud])
 
   const toggleFavorite = useCallback(
     (recipe) => {
@@ -250,14 +305,18 @@ export function AppProvider({ children }) {
       const updated = exists
         ? state.favorites.filter((r) => r.favId !== exists.favId)
         : [{ ...recipe, favId: `fav-${Date.now()}-${Math.random().toString(36).slice(2, 7)}` }, ...state.favorites]
-      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, updated) })
+      const saved = saveFavorites(uid, updated)
+      dispatch({ type: 'SET_FAVORITES', favorites: saved })
+      pushToCloud({ favorites: saved })
     },
-    [state.favorites, uid]
+    [state.favorites, uid, pushToCloud]
   )
 
   const clearFavorites = useCallback(() => {
-    dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, []) })
-  }, [uid])
+    const saved = saveFavorites(uid, [])
+    dispatch({ type: 'SET_FAVORITES', favorites: saved })
+    pushToCloud({ favorites: saved })
+  }, [uid, pushToCloud])
 
   // Met à jour la note personnelle et/ou la note en étoiles d'un favori
   // (voir RecipePage). `meta` ne contient que les champs à modifier (mise à
@@ -266,9 +325,11 @@ export function AppProvider({ children }) {
   const updateFavoriteMeta = useCallback(
     (favId, meta) => {
       const updated = state.favorites.map((r) => (r.favId === favId ? { ...r, ...meta } : r))
-      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, updated) })
+      const saved = saveFavorites(uid, updated)
+      dispatch({ type: 'SET_FAVORITES', favorites: saved })
+      pushToCloud({ favorites: saved })
     },
-    [state.favorites, uid]
+    [state.favorites, uid, pushToCloud]
   )
 
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
