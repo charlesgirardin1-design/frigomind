@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Menu, X, User, Settings, Sun, Moon } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
@@ -6,34 +6,71 @@ import { useLanguage, useLanguageControls } from '../state/LanguageContext.jsx'
 import { useTheme } from '../state/ThemeContext.jsx'
 import { COMMON } from '../i18n/common.js'
 
+// Drapeaux dessinés en SVG plutôt qu'en emoji (🇫🇷/🇬🇧) : sur Windows, les
+// emoji "indicateur régional" ne s'affichent pas comme des drapeaux mais
+// comme du texte brut ("FR"/"GB") faute de support de la police système —
+// un SVG garantit le même rendu visuel sur toutes les plateformes.
+function FrenchFlag({ className = '' }) {
+  return (
+    <svg viewBox="0 0 3 2" className={className} aria-hidden>
+      <rect width="1" height="2" x="0" fill="#0055A4" />
+      <rect width="1" height="2" x="1" fill="#FFFFFF" />
+      <rect width="1" height="2" x="2" fill="#EF4135" />
+    </svg>
+  )
+}
+
+function UKFlag({ className = '' }) {
+  const uid = useId()
+  const clipOuter = `uk-outer-${uid}`
+  const clipDiag = `uk-diag-${uid}`
+  return (
+    <svg viewBox="0 0 60 30" className={className} aria-hidden>
+      <clipPath id={clipOuter}>
+        <path d="M0,0 v30 h60 v-30 z" />
+      </clipPath>
+      <clipPath id={clipDiag}>
+        <path d="M30,15 h30 v15 z M30,15 v15 h-30 z M30,15 h-30 v-15 z M30,15 v-15 h30 z" />
+      </clipPath>
+      <g clipPath={`url(#${clipOuter})`}>
+        <path d="M0,0 v30 h60 v-30 z" fill="#00247d" />
+        <path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" strokeWidth="6" />
+        <path d="M0,0 L60,30 M60,0 L0,30" clipPath={`url(#${clipDiag})`} stroke="#cf142b" strokeWidth="4" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#fff" strokeWidth="10" />
+        <path d="M30,0 v30 M0,15 h60" stroke="#cf142b" strokeWidth="6" />
+      </g>
+    </svg>
+  )
+}
+
 // Sélecteur de langue (drapeaux FR/EN) : la langue est détectée
 // automatiquement à la première visite, mais reste modifiable manuellement
 // ici — le choix est alors mémorisé (localStorage) pour les prochaines fois.
 function LanguageSwitcher({ className = '' }) {
   const { lang, setLang } = useLanguageControls()
   return (
-    <div className={`flex items-center gap-0.5 ${className}`}>
+    <div className={`flex items-center gap-1.5 ${className}`}>
       <button
         type="button"
         onClick={() => setLang('fr')}
         aria-label="Français"
         aria-pressed={lang === 'fr'}
-        className={`text-base leading-none rounded-full p-1 transition ${
+        className={`rounded p-0.5 transition ${
           lang === 'fr' ? 'ring-2 ring-fresh-300' : 'opacity-40 hover:opacity-80'
         }`}
       >
-        🇫🇷
+        <FrenchFlag className="w-5 h-[13px] rounded-[2px] overflow-hidden" />
       </button>
       <button
         type="button"
         onClick={() => setLang('en')}
         aria-label="English"
         aria-pressed={lang === 'en'}
-        className={`text-base leading-none rounded-full p-1 transition ${
+        className={`rounded p-0.5 transition ${
           lang === 'en' ? 'ring-2 ring-fresh-300' : 'opacity-40 hover:opacity-80'
         }`}
       >
-        🇬🇧
+        <UKFlag className="w-5 h-[13px] rounded-[2px] overflow-hidden" />
       </button>
     </div>
   )
