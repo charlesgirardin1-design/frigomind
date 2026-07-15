@@ -55,6 +55,7 @@ export const COMMON = {
       decreaseServings: 'Moins de personnes',
       increaseServings: 'Plus de personnes',
       quantitiesNote: 'Quantités estimées, à ajuster selon vos envies.',
+      substituteWith: '🔁 Remplacer par :',
     },
   },
   en: {
@@ -105,6 +106,7 @@ export const COMMON = {
       decreaseServings: 'Fewer servings',
       increaseServings: 'More servings',
       quantitiesNote: 'Estimated quantities, adjust to taste.',
+      substituteWith: '🔁 Substitute with:',
     },
   },
 }

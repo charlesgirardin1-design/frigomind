@@ -1,10 +1,8 @@
-import { useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import RecipeCard from '../components/RecipeCard.jsx'
-import RecipeModal from '../components/RecipeModal.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import SkeletonCard from '../components/Skeleton.jsx'
 import { IllustrationTile, HeartPlateGlyph } from '../components/Illustrations.jsx'
@@ -27,11 +25,10 @@ const STRINGS = {
 // Page "Mes favoris" : recettes mises de côté (❤️ sur une RecipeCard),
 // persistées en localStorage.
 export default function FavoritesPage() {
-  const { state, goTo, toggleFavorite, updateFavoriteMeta } = useApp()
+  const { state, goTo, toggleFavorite, openRecipe } = useApp()
   const { authLoading } = useAuth()
   const lang = useLanguage()
   const s = STRINGS[lang]
-  const [activeRecipe, setActiveRecipe] = useState(null)
   // Fenêtre de chargement : le temps que Firebase confirme la session avant
   // que l'effet LOAD_USER_DATA (dans AppContext) ne peuple state.favorites.
   // On affiche des squelettes plutôt que le message "aucun favori", qui
@@ -75,7 +72,7 @@ export default function FavoritesPage() {
             >
               <RecipeCard
                 recipe={recipe}
-                onOpen={setActiveRecipe}
+                onOpen={openRecipe}
                 isFavorite
                 onToggleFavorite={toggleFavorite}
                 rating={recipe.rating}
@@ -83,15 +80,6 @@ export default function FavoritesPage() {
             </div>
           ))}
         </div>
-      )}
-
-      {activeRecipe && (
-        <RecipeModal
-          recipe={activeRecipe}
-          onClose={() => setActiveRecipe(null)}
-          isFavorite
-          onUpdateFavoriteMeta={updateFavoriteMeta}
-        />
       )}
     </div>
   )

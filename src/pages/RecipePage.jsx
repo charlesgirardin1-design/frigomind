@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Star } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
@@ -7,51 +7,51 @@ import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
 import { scaleIngredientQuantity } from '../utils/servings.js'
+import { getSubstitutes } from '../data/ingredientSubstitutes.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
+import { getFavoriteKey } from '../utils/storage.js'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
 
-// Modale plein détail d'une recette : ingrédients, étapes numérotées.
-// `isFavorite` / `onUpdateFavoriteMeta` sont optionnels : seule la page
-// Favoris les fournit, pour afficher la note personnelle + la note en
-// étoiles (voir AppContext.updateFavoriteMeta). Les autres appelants
-// (résultats, page ingrédient) n'en ont pas besoin et n'affichent donc rien
-// de plus.
-export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavoriteMeta }) {
-  const { goToIngredient } = useApp()
+// Page plein écran d'une recette (ingrédients, quantités, étapes) — ouverte
+// depuis n'importe quelle liste (résultats, favoris, page ingrédient...) via
+// AppContext.openRecipe, qui mémorise la vue d'origine pour le bouton retour.
+// La note personnelle + note en étoiles ne s'affichent que si la recette est
+// dans les favoris (recherche par clé, voir getFavoriteKey), pour rester
+// disponibles même en ouvrant une recette pas encore favorisée depuis les
+// résultats plutôt que depuis la page Favoris elle-même.
+export default function RecipePage() {
+  const { state, goTo, goToIngredient, updateFavoriteMeta } = useApp()
   const lang = useLanguage()
   const c = COMMON[lang].recipe
+  const recipe = state.viewingRecipe
+
+  const favMatch = recipe ? state.favorites.find((f) => getFavoriteKey(f) === getFavoriteKey(recipe)) : null
+  const isFavorite = !!favMatch
+
   const [copied, setCopied] = useState(false)
   const [shared, setShared] = useState(false)
-  const [note, setNote] = useState(recipe?.note || '')
-  // État local séparé du prop `recipe` : le parent (FavoritesPage) garde une
-  // référence figée à la recette ouverte dans `activeRecipe` et ne la
-  // resynchronise pas après un `SET_FAVORITES`, donc relire `recipe.rating`
-  // directement afficherait une note obsolète après un clic dans la modale.
-  const [rating, setRating] = useState(recipe?.rating || 0)
+  const [note, setNote] = useState(favMatch?.note || '')
+  const [rating, setRating] = useState(favMatch?.rating || 0)
   const [servings, setServings] = useState(BASE_SERVINGS)
 
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
-
-  if (!recipe) return null
+  if (!recipe) {
+    goTo('home')
+    return null
+  }
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
 
-  // Même extraction de drapeau que sur RecipeCard, pour une identité
-  // visuelle cohérente entre la grille et le détail.
   const displayName = localizeRecipeName(recipe, lang)
   const { flag, cleanName } = extractCountryFlag(displayName)
 
+  function handleBack() {
+    goTo(state.recipeReturnView || 'home')
+  }
+
   function handleIngredientClick(ing) {
-    onClose()
     goToIngredient(ing)
   }
 
@@ -85,7 +85,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
   }
 
   function handleNoteBlur() {
-    onUpdateFavoriteMeta?.(recipe.favId, { note })
+    if (favMatch) updateFavoriteMeta(favMatch.favId, { note })
   }
 
   function handleRatingClick(value) {
@@ -93,40 +93,38 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
     // (bascule à 0), pour permettre de "dénoter" une recette facilement.
     const nextRating = rating === value ? 0 : value
     setRating(nextRating)
-    onUpdateFavoriteMeta?.(recipe.favId, { rating: nextRating })
+    if (favMatch) updateFavoriteMeta(favMatch.favId, { rating: nextRating })
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 bg-neutral-900/40 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-fadeIn"
-      onClick={onClose}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white w-full sm:max-w-lg sm:rounded-xl2 rounded-t-xl2 max-h-[90vh] overflow-y-auto animate-popIn"
-      >
-        <div className="sticky top-0 bg-white flex items-start justify-between p-5 border-b border-neutral-100">
+    <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
+      <button onClick={handleBack} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+        {COMMON[lang].back}
+      </button>
+
+      <div className="card p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
           <div>
             {/* Même tuile colorée que sur les cartes recette (RecipeCard), pour
                 garder une identité visuelle cohérente entre la grille et le détail.
                 Le drapeau pays (recettes du monde) est épinglé sur le coin. */}
             <div className="relative inline-block">
               <div
-                className={`icon-badge ${recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'}`}
+                className={`icon-badge !w-16 !h-16 !text-3xl ${recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'}`}
                 aria-hidden
               >
                 {recipe.emoji}
               </div>
               {flag && (
                 <span
-                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white ring-1 ring-black/5 shadow-card flex items-center justify-center text-[11px] leading-none"
+                  className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-white ring-1 ring-black/5 shadow-card flex items-center justify-center text-sm leading-none"
                   aria-hidden
                 >
                   {flag}
                 </span>
               )}
             </div>
-            <h2 className="text-xl font-bold text-neutral-900 mt-2">{cleanName}</h2>
+            <h1 className="text-2xl font-bold text-neutral-900 mt-3">{cleanName}</h1>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
               <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
@@ -134,22 +132,13 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
               {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
             </div>
           </div>
-          <div className="flex items-start gap-1 shrink-0">
-            <button onClick={handleShare} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
-              {shared ? c.copied : c.share}
-            </button>
-            <button
-              onClick={onClose}
-              aria-label={c.close}
-              className="text-neutral-400 hover:text-neutral-900 text-xl leading-none px-1"
-            >
-              ✕
-            </button>
-          </div>
+          <button onClick={handleShare} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap shrink-0">
+            {shared ? c.copied : c.share}
+          </button>
         </div>
 
-        <div className="p-5 space-y-5">
-          {isFavorite && onUpdateFavoriteMeta && (
+        <div className="mt-6 space-y-6">
+          {isFavorite && (
             <div className="bg-neutral-50 border border-neutral-100 rounded-xl2 p-4 space-y-3">
               <div>
                 <h3 className="font-semibold text-neutral-900 text-sm mb-1.5">{c.ratingLabel}</h3>
@@ -214,27 +203,35 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
                 </button>
               </div>
             </div>
-            <ul className="space-y-1 text-sm">
+            <ul className="space-y-2 text-sm">
               {allIngredients.map((ing) => {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const qty = scaleIngredientQuantity(ing, servings)
+                const substitutes = isMissing ? getSubstitutes(ing) : null
                 return (
-                  <li key={ing} className="flex items-center gap-2">
-                    <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
-                    {qty && (
-                      <span className="text-neutral-400 tabular-nums text-xs shrink-0 w-16">{qty}</span>
+                  <li key={ing}>
+                    <div className="flex items-center gap-2">
+                      <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
+                      {qty && (
+                        <span className="text-neutral-400 tabular-nums text-xs shrink-0 w-16">{qty}</span>
+                      )}
+                      <button
+                        onClick={() => handleIngredientClick(ing)}
+                        className={`text-left underline decoration-dotted underline-offset-2 hover:text-fresh-700 ${
+                          isMissing ? 'text-neutral-500' : 'text-neutral-800'
+                        }`}
+                      >
+                        {ing}
+                      </button>
+                      {isMissing && <em className="text-xs text-zest-600">({c.toBuyParens})</em>}
+                      {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> ({c.optional})</em>}
+                    </div>
+                    {substitutes && (
+                      <p className="text-xs text-neutral-400 mt-0.5 ml-6">
+                        {c.substituteWith} {substitutes.join(', ')}
+                      </p>
                     )}
-                    <button
-                      onClick={() => handleIngredientClick(ing)}
-                      className={`text-left underline decoration-dotted underline-offset-2 hover:text-fresh-700 ${
-                        isMissing ? 'text-neutral-500' : 'text-neutral-800'
-                      }`}
-                    >
-                      {ing}
-                    </button>
-                    {isMissing && <em className="text-xs text-zest-600">({c.toBuyParens})</em>}
-                    {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> ({c.optional})</em>}
                   </li>
                 )
               })}
@@ -255,14 +252,14 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-2">{c.steps}</h3>
-            <ol className="space-y-3">
+            <h3 className="font-semibold text-neutral-900 mb-3">{c.steps}</h3>
+            <ol className="space-y-4">
               {localizeRecipeSteps(recipe, lang).map((step, i) => (
                 <li key={i} className="flex gap-3 text-sm text-neutral-700">
-                  <span className="shrink-0 w-6 h-6 rounded-full bg-fresh-100 text-fresh-700 font-semibold text-xs flex items-center justify-center">
+                  <span className="shrink-0 w-7 h-7 rounded-full bg-fresh-100 text-fresh-700 font-semibold text-xs flex items-center justify-center">
                     {i + 1}
                   </span>
-                  <span className="pt-0.5">{step}</span>
+                  <span className="pt-1">{step}</span>
                 </li>
               ))}
             </ol>

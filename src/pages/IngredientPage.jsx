@@ -6,7 +6,6 @@ import { findRecipesUsingIngredient } from '../logic/recipeEngine.js'
 import { isPerishable, isPantryStaple } from '../data/expiryData.js'
 import { isFavoriteRecipe } from '../utils/storage.js'
 import RecipeCard from '../components/RecipeCard.jsx'
-import RecipeModal from '../components/RecipeModal.jsx'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, SearchGlyph } from '../components/Illustrations.jsx'
 
@@ -45,11 +44,10 @@ const STRINGS = {
 // recette ou vos statistiques) pour voir toutes les recettes de la base qui
 // l'utilisent, plus une astuce de conservation anti-gaspi.
 export default function IngredientPage() {
-  const { state, goTo, goToIngredient, toggleFavorite } = useApp()
+  const { state, goTo, goToIngredient, toggleFavorite, openRecipe } = useApp()
   const lang = useLanguage()
   const s = STRINGS[lang]
   const [query, setQuery] = useState(state.activeIngredient || '')
-  const [activeRecipe, setActiveRecipe] = useState(null)
 
   const name = state.activeIngredient?.trim()
   const matches = name ? findRecipesUsingIngredient(name) : []
@@ -104,7 +102,7 @@ export default function IngredientPage() {
                 <RecipeCard
                   key={recipe.id}
                   recipe={recipe}
-                  onOpen={setActiveRecipe}
+                  onOpen={openRecipe}
                   isFavorite={isFavoriteRecipe(state.favorites, recipe)}
                   onToggleFavorite={toggleFavorite}
                 />
@@ -123,8 +121,6 @@ export default function IngredientPage() {
           )}
         </>
       )}
-
-      {activeRecipe && <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------------
 // ingredientQuantities.js
 // Quantité de référence par ingrédient, calibrée pour 4 personnes (la base de
-// calcul du sélecteur de portions dans RecipeModal.jsx). Les recettes elles-
+// calcul du sélecteur de portions dans RecipePage.jsx). Les recettes elles-
 // mêmes ne stockent pas de quantités (juste des noms d'ingrédients, voir
 // recipesDB.js) — cette table comble ce manque avec une estimation générique
 // par ingrédient plutôt que par recette, ce qui reste approximatif (ex: la

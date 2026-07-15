@@ -27,6 +27,7 @@ const ChangelogPage = lazy(() => import('./pages/ChangelogPage.jsx'))
 const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
 const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
 const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
+const RecipePage = lazy(() => import('./pages/RecipePage.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
@@ -74,6 +75,7 @@ const VIEWS = {
   favorites: FavoritesPage,
   ingredient: IngredientPage,
   recipesBrowse: RecipesBrowsePage,
+  recipe: RecipePage,
   login: LoginPage,
   settings: SettingsPage,
   admin: AdminPage,

@@ -1,5 +1,4 @@
 import RecipeCard from '../components/RecipeCard.jsx'
-import RecipeModal from '../components/RecipeModal.jsx'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { isFavoriteRecipe } from '../utils/storage.js'
@@ -30,12 +29,11 @@ const STRINGS = {
 
 // Page résultats : grille de 3 à 5 recettes (ou 1 seule en mode "surprise").
 export default function ResultsPage() {
-  const { state, setActiveRecipe, goTo, resetSession, surpriseMe, toggleFavorite } = useApp()
+  const { state, goTo, resetSession, surpriseMe, toggleFavorite, openRecipe } = useApp()
   const lang = useLanguage()
   const s = STRINGS[lang]
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
-  const activeRecipe = state.recipes.find((r) => r.id === state.activeRecipeId) || null
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
@@ -69,7 +67,7 @@ export default function ResultsPage() {
             <div key={recipe.id} className="animate-fadeIn" style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}>
               <RecipeCard
                 recipe={recipe}
-                onOpen={(r) => setActiveRecipe(r.id)}
+                onOpen={openRecipe}
                 isFavorite={isFavoriteRecipe(state.favorites, recipe)}
                 onToggleFavorite={toggleFavorite}
               />
@@ -97,8 +95,6 @@ export default function ResultsPage() {
           {s.seeHistory}
         </button>
       </div>
-
-      {activeRecipe && <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />}
     </div>
   )
 }

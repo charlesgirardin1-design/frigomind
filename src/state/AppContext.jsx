@@ -42,6 +42,8 @@ const initialState = {
   favorites: [],
   activeIngredient: '',
   redirectTo: null,
+  viewingRecipe: null,
+  recipeReturnView: 'home',
 }
 
 function reducer(state, action) {
@@ -89,6 +91,10 @@ function reducer(state, action) {
       return { ...state, recipes: action.recipes, view: 'results', isSurprise: !!action.isSurprise }
     case 'SET_ACTIVE_RECIPE':
       return { ...state, activeRecipeId: action.id }
+    case 'OPEN_RECIPE':
+      return { ...state, viewingRecipe: action.recipe, recipeReturnView: state.view, view: 'recipe' }
+    case 'CLOSE_RECIPE':
+      return { ...state, viewingRecipe: null, view: state.recipeReturnView }
     case 'PUSH_HISTORY':
       return { ...state, history: action.history }
     case 'CLEAR_HISTORY':
@@ -247,7 +253,7 @@ export function AppProvider({ children }) {
   }, [uid])
 
   // Met à jour la note personnelle et/ou la note en étoiles d'un favori
-  // (voir RecipeModal). `meta` ne contient que les champs à modifier (mise à
+  // (voir RecipePage). `meta` ne contient que les champs à modifier (mise à
   // jour partielle) : on peut ainsi changer la note en étoiles sans écraser
   // le texte de la note personnelle, et inversement.
   const updateFavoriteMeta = useCallback(
@@ -259,6 +265,12 @@ export function AppProvider({ children }) {
   )
 
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
+
+  // Ouvre une recette en pleine page (voir RecipePage.jsx) depuis n'importe
+  // quelle liste (résultats, favoris, page ingrédient...) : on mémorise la
+  // vue d'origine pour que le bouton retour y ramène.
+  const openRecipe = useCallback((recipe) => dispatch({ type: 'OPEN_RECIPE', recipe }), [])
+  const closeRecipe = useCallback(() => dispatch({ type: 'CLOSE_RECIPE' }), [])
 
   const value = useMemo(
     () => ({
@@ -281,6 +293,8 @@ export function AppProvider({ children }) {
       clearFavorites,
       updateFavoriteMeta,
       goToIngredient,
+      openRecipe,
+      closeRecipe,
     }),
     [
       state,
@@ -301,6 +315,8 @@ export function AppProvider({ children }) {
       toggleFavorite,
       clearFavorites,
       updateFavoriteMeta,
+      openRecipe,
+      closeRecipe,
       goToIngredient,
     ]
   )
