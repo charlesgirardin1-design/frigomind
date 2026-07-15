@@ -31,10 +31,12 @@ const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
-// les mentions légales (obligatoires même sans compte), la page 404, ainsi
-// que "à propos" et la FAQ (contenu informatif, sans données personnelles).
-// Toutes les autres pages exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
+// les mentions légales (obligatoires même sans compte), la page 404, "à
+// propos" et la FAQ (contenu informatif, sans données personnelles), ainsi
+// que "Toutes les recettes" (message "Bientôt disponible", aucune donnée à
+// protéger tant que le catalogue n'est pas prêt). Toutes les autres pages
+// exigent une connexion Google / Apple / email.
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
