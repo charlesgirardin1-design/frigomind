@@ -46,6 +46,51 @@ function FlippingCalendarIcon() {
   )
 }
 
+// Petites phrases affichées façon machine à écrire sous la barre de
+// progression, pour donner l'impression que le travail avance concrètement.
+function TypewriterStatus({ phrases }) {
+  const [phraseIndex, setPhraseIndex] = useState(0)
+  const [charCount, setCharCount] = useState(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  useEffect(() => {
+    const current = phrases[phraseIndex]
+    let delay
+
+    if (!isDeleting && charCount < current.length) {
+      delay = 45 // vitesse de frappe
+    } else if (!isDeleting && charCount === current.length) {
+      delay = 1500 // pause phrase complète avant d'effacer
+    } else if (isDeleting && charCount > 0) {
+      delay = 25 // vitesse d'effacement (plus rapide que la frappe)
+    } else {
+      delay = 200 // pause brève avant la phrase suivante
+    }
+
+    const id = setTimeout(() => {
+      if (!isDeleting && charCount < current.length) {
+        setCharCount((c) => c + 1)
+      } else if (!isDeleting && charCount === current.length) {
+        setIsDeleting(true)
+      } else if (isDeleting && charCount > 0) {
+        setCharCount((c) => c - 1)
+      } else {
+        setIsDeleting(false)
+        setPhraseIndex((i) => (i + 1) % phrases.length)
+      }
+    }, delay)
+
+    return () => clearTimeout(id)
+  }, [charCount, isDeleting, phraseIndex, phrases])
+
+  return (
+    <p className="text-xs text-neutral-400 dark:text-neutral-500 h-4">
+      {phrases[phraseIndex].slice(0, charCount)}
+      <span className="inline-block w-[1px] h-3 bg-neutral-400 dark:bg-neutral-500 ml-0.5 align-middle animate-blink" />
+    </p>
+  )
+}
+
 // Petits ingrédients qui dérivent en orbite autour de l'icône, comme si des
 // recettes étaient "en préparation" pendant que la page se construit.
 // Chacun a sa propre position, taille, vitesse et direction de dérive
@@ -69,6 +114,12 @@ const STRINGS = {
     comingSoon: 'Bientôt disponible',
     body: "On prépare une page pour parcourir et chercher librement dans toute la base de recettes, sans passer par une photo. Reviens bientôt !",
     inProgress: 'En préparation',
+    statusPhrases: [
+      'Ajout des filtres…',
+      'Recherche par cuisine du monde…',
+      'Indexation des 750 recettes…',
+      'Presque prêt…',
+    ],
     cta: '📸 Générer des recettes maintenant',
   },
   en: {
@@ -76,6 +127,12 @@ const STRINGS = {
     comingSoon: 'Coming soon',
     body: "We're building a page to freely browse and search the whole recipe database, no photo needed. Check back soon!",
     inProgress: 'In the works',
+    statusPhrases: [
+      'Adding filters…',
+      'Building world-cuisine search…',
+      'Indexing 750 recipes…',
+      'Almost ready…',
+    ],
     cta: '📸 Generate recipes now',
   },
 }
@@ -143,6 +200,7 @@ export default function RecipesBrowsePage() {
           <div className="w-40 h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
             <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-fresh-400 via-zest-400 to-fresh-400 animate-indeterminate" />
           </div>
+          <TypewriterStatus phrases={s.statusPhrases} />
         </div>
 
         <button onClick={() => goTo('upload')} className="btn-primary mt-6">

@@ -93,6 +93,12 @@ export default {
           '55%': { transform: 'rotateX(-90deg)', opacity: 0.2 },
           '100%': { transform: 'rotateX(0deg)', opacity: 1 },
         },
+        // Curseur clignotant façon machine à écrire (voir la page
+        // "Bientôt disponible").
+        blink: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0 },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -105,6 +111,7 @@ export default {
         drift: 'drift 5s ease-in-out infinite',
         indeterminate: 'indeterminate 1.7s ease-in-out infinite',
         calendarFlip: 'calendarFlip 0.6s ease-in-out both',
+        blink: 'blink 1s step-end infinite',
       },
     },
   },
