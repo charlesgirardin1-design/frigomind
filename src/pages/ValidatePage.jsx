@@ -136,6 +136,7 @@ export default function ValidatePage() {
                 <span className={`font-medium capitalize ${ing.checked ? 'text-neutral-900' : 'text-neutral-400 line-through'}`}>
                   {ing.name}
                 </span>
+                {ing.count > 1 && <span className="badge badge-neutral">×{ing.count}</span>}
                 <ConfidenceBadge confidence={ing.confidence} s={s} />
               </div>
 

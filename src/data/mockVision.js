@@ -51,18 +51,39 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
     const data = await response.json()
     const rawItems = Array.isArray(data.items) ? data.items : []
 
-    const items = rawItems
-      .filter((item) => item && typeof item.name === 'string' && item.name.trim())
-      .map((item) => {
-        const confidence = typeof item.confidence === 'number' ? item.confidence : 0.6
-        return {
-          id: nextId(),
-          name: item.name.trim().toLowerCase(),
-          confidence,
-          alternatives: Array.isArray(item.alternatives) ? item.alternatives.filter(Boolean) : [],
-          checked: confidence >= 0.5,
+    // Gemini décrit ce qu'il voit item par item : une photo avec deux
+    // courgettes renvoie souvent deux entrées "courgette" distinctes plutôt
+    // qu'une seule avec une quantité. On regroupe donc ici par nom (même
+    // ingrédient détecté plusieurs fois → une seule ligne + un compteur),
+    // en gardant la confiance la plus haute et en fusionnant les
+    // suggestions alternatives.
+    const merged = new Map()
+    for (const item of rawItems) {
+      if (!item || typeof item.name !== 'string' || !item.name.trim()) continue
+      const name = item.name.trim().toLowerCase()
+      const confidence = typeof item.confidence === 'number' ? item.confidence : 0.6
+      const alternatives = Array.isArray(item.alternatives) ? item.alternatives.filter(Boolean) : []
+
+      const existing = merged.get(name)
+      if (existing) {
+        existing.count += 1
+        existing.confidence = Math.max(existing.confidence, confidence)
+        for (const alt of alternatives) {
+          if (!existing.alternatives.includes(alt)) existing.alternatives.push(alt)
         }
-      })
+      } else {
+        merged.set(name, { name, confidence, alternatives, count: 1 })
+      }
+    }
+
+    const items = [...merged.values()].map((item) => ({
+      id: nextId(),
+      name: item.name,
+      confidence: item.confidence,
+      alternatives: item.alternatives,
+      checked: item.confidence >= 0.5,
+      count: item.count,
+    }))
 
     return { items }
   } catch (e) {
