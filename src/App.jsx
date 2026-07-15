@@ -21,6 +21,7 @@ import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 import { useLanguage } from './state/LanguageContext.jsx'
 import { COMMON } from './i18n/common.js'
+import { applyPageMeta } from './i18n/pageTitles.js'
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
@@ -73,6 +74,14 @@ export default function App() {
     window.location.hash = `#${id}`
   }
   const isProtectedView = !PUBLIC_VIEWS.has(state.view)
+
+  // Met à jour l'onglet du navigateur (titre + meta description) à chaque
+  // changement de vue ou de langue — la SPA n'a pas de routeur/URL distincte
+  // par page, donc c'est le seul signal de contexte pour l'utilisateur (et
+  // pour un éventuel partage/indexation).
+  useEffect(() => {
+    applyPageMeta(state.view, lang)
+  }, [state.view, lang])
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
   // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
