@@ -293,11 +293,11 @@ function UsersSection({ s, user, lang }) {
     setState((prev) => ({ ...prev, loading: true, error: null }))
     try {
       const res = await authedFetch('/api/admin/users')
-      if (!res.ok) throw new Error(String(res.status))
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data.error || String(res.status))
       setState({ loading: false, error: null, total: data.total, users: data.users })
-    } catch {
-      setState({ loading: false, error: 'error', total: 0, users: [] })
+    } catch (err) {
+      setState({ loading: false, error: err.message || 'error', total: 0, users: [] })
     }
   }
 
@@ -343,7 +343,9 @@ function UsersSection({ s, user, lang }) {
       {state.loading && <p className="text-sm text-neutral-400 mt-3">{s.usersLoading}</p>}
 
       {!state.loading && state.error && (
-        <p className="text-sm text-zest-600 dark:text-zest-400 mt-3">{s.usersNotConfigured}</p>
+        <p className="text-sm text-zest-600 dark:text-zest-400 mt-3">
+          {state.error === 'error' ? s.usersNotConfigured : state.error}
+        </p>
       )}
 
       {!state.loading && !state.error && (

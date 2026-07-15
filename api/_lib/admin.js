@@ -59,7 +59,15 @@ export async function requireAdmin(req) {
     throw err
   }
 
-  const app = getAdminApp()
+  let app
+  try {
+    app = getAdminApp()
+  } catch (e) {
+    const err = new Error(`Configuration Firebase Admin invalide : ${e.message}`)
+    err.statusCode = 500
+    throw err
+  }
+
   let decoded
   try {
     decoded = await getAuth(app).verifyIdToken(idToken)
