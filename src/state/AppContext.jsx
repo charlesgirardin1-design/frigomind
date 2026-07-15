@@ -9,6 +9,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
 import { analyzeImage } from '../data/mockVision.js'
 import { useAuth } from './AuthContext.jsx'
+import { useLanguage } from './LanguageContext.jsx'
 import {
   getHistory,
   saveHistoryEntry,
@@ -20,6 +21,7 @@ import {
   savePreferences,
   DEFAULT_PREFERENCES,
 } from '../utils/storage.js'
+import { maybeShowReminder } from '../utils/reminders.js'
 
 const AppStateContext = createContext(null)
 
@@ -126,19 +128,24 @@ export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { user, authLoading } = useAuth()
   const uid = user?.uid || null
+  const lang = useLanguage()
 
   // Recharge historique/favoris/préférences dès que le compte connecté change
   // (connexion, déconnexion, ou changement de compte sur le même appareil)
   // pour ne jamais mélanger les données de deux comptes.
   useEffect(() => {
     if (authLoading) return
+    const history = getHistory(uid)
     dispatch({
       type: 'LOAD_USER_DATA',
-      history: getHistory(uid),
+      history,
       favorites: getFavorites(uid),
       preferences: getPreferences(uid),
     })
-  }, [uid, authLoading])
+    // Rappel local anti-gaspi (voir reminders.js) : ne fait rien si
+    // l'utilisateur ne l'a pas activé dans les paramètres.
+    maybeShowReminder(uid, history, lang)
+  }, [uid, authLoading, lang])
 
   const goTo = useCallback((view) => {
     if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {

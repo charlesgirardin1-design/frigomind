@@ -7,6 +7,7 @@ import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { GearGlyph } from '../components/Illustrations.jsx'
 import { resizeImageFile } from '../utils/image.js'
+import { isNotificationSupported, getReminderPreference, setReminderPreference } from '../utils/reminders.js'
 
 const DELETE_CONFIRM_WORD = { fr: 'SUPPRIMER', en: 'DELETE' }
 
@@ -55,6 +56,12 @@ const STRINGS = {
       { value: 'healthy', label: '🥗 Healthy' },
       { value: 'gourmand', label: '🧀 Gourmand' },
     ],
+    remindersTitle: '🔔 Rappels anti-gaspi',
+    remindersSubtitle:
+      "Une notification vous invite à revenir si vous n'avez pas généré de recette depuis quelques jours. Fonctionne uniquement quand FrigoMind est ouvert dans votre navigateur (pas en arrière-plan, pas d'envoi à un serveur).",
+    remindersToggle: 'Activer les rappels',
+    remindersDenied:
+      'Notifications bloquées par votre navigateur — autorisez-les dans les réglages du site pour activer les rappels.',
     dataTitle: 'Données locales',
     dataSubtitle: "Stockées uniquement sur cet appareil (rien n'est envoyé à un serveur).",
     historyCount: (n) => `Historique — ${n} session${n > 1 ? 's' : ''}`,
@@ -117,6 +124,11 @@ const STRINGS = {
       { value: 'healthy', label: '🥗 Healthy' },
       { value: 'gourmand', label: '🧀 Indulgent' },
     ],
+    remindersTitle: '🔔 Zero-waste reminders',
+    remindersSubtitle:
+      "A notification invites you back if you haven't generated a recipe in a few days. Only works while FrigoMind is open in your browser (not in the background, nothing sent to a server).",
+    remindersToggle: 'Enable reminders',
+    remindersDenied: 'Notifications blocked by your browser — allow them in the site settings to enable reminders.',
     dataTitle: 'Local data',
     dataSubtitle: "Stored only on this device (nothing is sent to a server).",
     historyCount: (n) => `History — ${n} session${n > 1 ? 's' : ''}`,
@@ -171,6 +183,9 @@ export default function SettingsPage() {
   const [deletePassword, setDeletePassword] = useState('')
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleteStatus, setDeleteStatus] = useState({ error: '', loading: false })
+
+  const [remindersEnabled, setRemindersEnabled] = useState(() => getReminderPreference(user?.uid))
+  const [remindersDenied, setRemindersDenied] = useState(false)
 
   const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase()
   const avatarUrl = localAvatar || user?.photoURL
@@ -232,6 +247,25 @@ export default function SettingsPage() {
       setVerificationStatus({ error: '', success: s.verificationResent, loading: false })
     } catch (err) {
       setVerificationStatus({ error: err.message, success: '', loading: false })
+    }
+  }
+
+  async function handleToggleReminders(e) {
+    const wantEnabled = e.target.checked
+    if (!wantEnabled) {
+      setReminderPreference(user?.uid, false)
+      setRemindersEnabled(false)
+      setRemindersDenied(false)
+      return
+    }
+    const permission = await Notification.requestPermission()
+    if (permission === 'granted') {
+      setReminderPreference(user?.uid, true)
+      setRemindersEnabled(true)
+      setRemindersDenied(false)
+    } else {
+      setRemindersEnabled(false)
+      setRemindersDenied(true)
     }
   }
 
@@ -449,6 +483,23 @@ export default function SettingsPage() {
           </label>
         </div>
       </div>
+
+      {isNotificationSupported() && (
+        <div className="mt-6 card p-6">
+          <h3 className="font-semibold text-neutral-900 mb-1">{s.remindersTitle}</h3>
+          <p className="text-sm text-neutral-500 mb-4">{s.remindersSubtitle}</p>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={remindersEnabled}
+              onChange={handleToggleReminders}
+              className="checkbox-fresh"
+            />
+            <span className="text-sm text-neutral-700">{s.remindersToggle}</span>
+          </label>
+          {remindersDenied && <p className="text-xs text-zest-700 mt-2">{s.remindersDenied}</p>}
+        </div>
+      )}
 
       <div className="mt-6 card p-6">
         <h3 className="font-semibold text-neutral-900 mb-1">{s.dataTitle}</h3>

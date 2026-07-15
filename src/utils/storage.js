@@ -18,7 +18,7 @@ export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', 
 // Sans compte connecté (ne devrait pas arriver : ces données ne sont
 // utilisées que sur des pages qui exigent une connexion), on retombe sur un
 // compartiment "invité" plutôt que de planter.
-function scopedKey(base, uid) {
+export function scopedKey(base, uid) {
   return `${base}_${uid || 'guest'}`
 }
 
