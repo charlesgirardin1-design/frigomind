@@ -8,6 +8,7 @@ import { useToast } from '../state/ToastContext.jsx'
 import { isFirebaseConfigured } from '../firebase.js'
 import { localizeRecipeName, RECIPES } from '../data/recipesDB.js'
 import { DEFAULT_PREFERENCES, clearAvatar } from '../utils/storage.js'
+import { extractCountryFlag } from '../utils/flag.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { ShieldGlyph } from '../components/Illustrations.jsx'
 
@@ -695,16 +696,19 @@ export default function AdminPage() {
               {s.recipesResults(recipeResults.length, RECIPES.length)}
             </p>
             <div className="max-h-72 overflow-y-auto mt-1">
-              {recipeResults.map((r) => (
+              {recipeResults.map((r) => {
+                const { flag, cleanName } = extractCountryFlag(localizeRecipeName(r, lang))
+                return (
                 <div key={r.id} className="py-2 border-b border-neutral-100 dark:border-neutral-800 last:border-b-0 text-sm">
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">
-                    {r.emoji} {localizeRecipeName(r, lang)}
+                    {r.emoji} {cleanName} {flag && <span aria-hidden>{flag}</span>}
                   </p>
                   <p className="text-xs text-neutral-400 mt-0.5">
                     {r.id} · {r.time} min · {r.level} · {r.cuisine} · {(r.required || []).length + (r.optional || []).length} ingrédients
                   </p>
                 </div>
-              ))}
+                )
+              })}
             </div>
           </>
         )}
