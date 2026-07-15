@@ -14,6 +14,7 @@ export const COMMON = {
     footerTagline: 'FrigoMind — MVP · analyse IA via Google Gemini (gratuit)',
     nav: {
       home: 'Accueil',
+      recipes: 'Toutes les recettes',
       favorites: 'Favoris',
       history: 'Historique',
       stats: 'Statistiques',
@@ -45,6 +46,10 @@ export const COMMON = {
       addToFavorites: 'Ajouter aux favoris',
       removeFromFavorites: 'Retirer des favoris',
       antiGaspi: '♻️ anti-gaspi',
+      share: '📤 Partager',
+      noteLabel: '📝 Notes personnelles',
+      notePlaceholder: 'Vos impressions, ajustements…',
+      ratingLabel: '⭐ Votre note',
     },
   },
   en: {
@@ -54,6 +59,7 @@ export const COMMON = {
     footerTagline: 'FrigoMind — MVP · AI analysis via Google Gemini (free)',
     nav: {
       home: 'Home',
+      recipes: 'All recipes',
       favorites: 'Favorites',
       history: 'History',
       stats: 'Stats',
@@ -85,6 +91,10 @@ export const COMMON = {
       addToFavorites: 'Add to favorites',
       removeFromFavorites: 'Remove from favorites',
       antiGaspi: '♻️ zero-waste',
+      share: '📤 Share',
+      noteLabel: '📝 Personal notes',
+      notePlaceholder: 'Your thoughts, tweaks…',
+      ratingLabel: '⭐ Your rating',
     },
   },
 }

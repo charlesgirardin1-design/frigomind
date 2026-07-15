@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Star } from 'lucide-react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
@@ -7,11 +8,23 @@ import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
 
 // Modale plein détail d'une recette : ingrédients, étapes numérotées.
-export default function RecipeModal({ recipe, onClose }) {
+// `isFavorite` / `onUpdateFavoriteMeta` sont optionnels : seule la page
+// Favoris les fournit, pour afficher la note personnelle + la note en
+// étoiles (voir AppContext.updateFavoriteMeta). Les autres appelants
+// (résultats, page ingrédient) n'en ont pas besoin et n'affichent donc rien
+// de plus.
+export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavoriteMeta }) {
   const { goToIngredient } = useApp()
   const lang = useLanguage()
   const c = COMMON[lang].recipe
   const [copied, setCopied] = useState(false)
+  const [shared, setShared] = useState(false)
+  const [note, setNote] = useState(recipe?.note || '')
+  // État local séparé du prop `recipe` : le parent (FavoritesPage) garde une
+  // référence figée à la recette ouverte dans `activeRecipe` et ne la
+  // resynchronise pas après un `SET_FAVORITES`, donc relire `recipe.rating`
+  // directement afficherait une note obsolète après un clic dans la modale.
+  const [rating, setRating] = useState(recipe?.rating || 0)
 
   useEffect(() => {
     function handleKey(e) {
@@ -42,6 +55,39 @@ export default function RecipeModal({ recipe, onClose }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     }
+  }
+
+  async function handleShare() {
+    const name = localizeRecipeName(recipe, lang)
+    const shareText = `${name} ${recipe.emoji} — ${recipe.time} min`
+    const url = window.location.origin
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: name, text: shareText, url })
+      } catch {
+        // Partage annulé par l'utilisateur ou échec silencieux : rien à faire,
+        // on ne bascule pas sur le presse-papiers dans ce cas (ce serait
+        // surprenant après une annulation volontaire).
+      }
+      return
+    }
+    const ok = await copyTextToClipboard(`${shareText}\n${url}`)
+    if (ok) {
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    }
+  }
+
+  function handleNoteBlur() {
+    onUpdateFavoriteMeta?.(recipe.favId, { note })
+  }
+
+  function handleRatingClick(value) {
+    // Cliquer sur l'étoile déjà sélectionnée en dernier retire la note
+    // (bascule à 0), pour permettre de "dénoter" une recette facilement.
+    const nextRating = rating === value ? 0 : value
+    setRating(nextRating)
+    onUpdateFavoriteMeta?.(recipe.favId, { rating: nextRating })
   }
 
   return (
@@ -82,16 +128,59 @@ export default function RecipeModal({ recipe, onClose }) {
               {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            aria-label={c.close}
-            className="text-neutral-400 hover:text-neutral-900 text-xl leading-none px-1"
-          >
-            ✕
-          </button>
+          <div className="flex items-start gap-1 shrink-0">
+            <button onClick={handleShare} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
+              {shared ? c.copied : c.share}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label={c.close}
+              className="text-neutral-400 hover:text-neutral-900 text-xl leading-none px-1"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="p-5 space-y-5">
+          {isFavorite && onUpdateFavoriteMeta && (
+            <div className="bg-neutral-50 border border-neutral-100 rounded-xl2 p-4 space-y-3">
+              <div>
+                <h3 className="font-semibold text-neutral-900 text-sm mb-1.5">{c.ratingLabel}</h3>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((value) => {
+                    const filled = value <= rating
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => handleRatingClick(value)}
+                        aria-label={`${value} / 5`}
+                        className="p-0.5"
+                      >
+                        <Star
+                          size={20}
+                          className={filled ? 'fill-zest-400 text-zest-400' : 'text-neutral-300'}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+              <div>
+                <h3 className="font-semibold text-neutral-900 text-sm mb-1.5">{c.noteLabel}</h3>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  onBlur={handleNoteBlur}
+                  placeholder={c.notePlaceholder}
+                  rows={3}
+                  className="w-full text-sm rounded-lg border border-neutral-200 p-2.5 focus:outline-none focus:ring-2 focus:ring-fresh-300 resize-none"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <h3 className="font-semibold text-neutral-900 mb-2">{c.ingredients}</h3>
             <ul className="space-y-1 text-sm">

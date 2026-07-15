@@ -27,7 +27,7 @@ const STRINGS = {
 // Page "Mes favoris" : recettes mises de côté (❤️ sur une RecipeCard),
 // persistées en localStorage.
 export default function FavoritesPage() {
-  const { state, goTo, toggleFavorite } = useApp()
+  const { state, goTo, toggleFavorite, updateFavoriteMeta } = useApp()
   const { authLoading } = useAuth()
   const lang = useLanguage()
   const s = STRINGS[lang]
@@ -73,13 +73,26 @@ export default function FavoritesPage() {
               className="animate-fadeIn"
               style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
             >
-              <RecipeCard recipe={recipe} onOpen={setActiveRecipe} isFavorite onToggleFavorite={toggleFavorite} />
+              <RecipeCard
+                recipe={recipe}
+                onOpen={setActiveRecipe}
+                isFavorite
+                onToggleFavorite={toggleFavorite}
+                rating={recipe.rating}
+              />
             </div>
           ))}
         </div>
       )}
 
-      {activeRecipe && <RecipeModal recipe={activeRecipe} onClose={() => setActiveRecipe(null)} />}
+      {activeRecipe && (
+        <RecipeModal
+          recipe={activeRecipe}
+          onClose={() => setActiveRecipe(null)}
+          isFavorite
+          onUpdateFavoriteMeta={updateFavoriteMeta}
+        />
+      )}
     </div>
   )
 }

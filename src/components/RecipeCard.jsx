@@ -14,7 +14,7 @@ const LEVEL_STYLES = {
 // génériques réutilisent le même id d'une session à l'autre, donc seul
 // l'objet complet permet de retrouver la bonne recette de façon fiable
 // (favoris...).
-export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite }) {
+export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorite, rating }) {
   const lang = useLanguage()
   const c = COMMON[lang].recipe
   // Compteur incrémenté à chaque clic sur le cœur : changer la `key` force React
@@ -97,6 +97,10 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
           {c.level[recipe.level] || recipe.level}
         </span>
         <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>
+        {/* Note perso en étoiles (favoris uniquement) : n'apparaît que si
+            l'appelant fournit une note (voir FavoritesPage), sinon rien ne
+            change pour les autres usages de RecipeCard. */}
+        {rating > 0 && <span className="badge badge-zest whitespace-nowrap">⭐ {rating}/5</span>}
       </div>
 
       {recipe.missingIngredients?.length > 0 && (

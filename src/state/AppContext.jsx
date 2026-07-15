@@ -8,7 +8,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from 'react'
 import { analyzeImage } from '../data/mockVision.js'
-import { generateRecipes, surpriseRecipe } from '../logic/recipeEngine.js'
 import { useAuth } from './AuthContext.jsx'
 import {
   getHistory,
@@ -200,15 +199,22 @@ export function AppProvider({ children }) {
     dispatch({ type: 'PUSH_HISTORY', history: updated })
   }, [uid])
 
-  const generateFromValidated = useCallback(() => {
+  // generateRecipes/surpriseRecipe (et donc la base de 750 recettes qu'ils
+  // importent) sont chargés à la demande plutôt qu'au démarrage : AppContext
+  // enveloppe toute l'application dès main.jsx, donc un import statique ici
+  // aurait forcé toute la recipesDB dans le bundle initial même pour un
+  // visiteur qui ne va jamais jusqu'à la génération de recettes.
+  const generateFromValidated = useCallback(async () => {
     const validatedNames = getValidatedNames(state.ingredients)
+    const { generateRecipes } = await import('../logic/recipeEngine.js')
     const recipes = generateRecipes(validatedNames, state.preferences)
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: false })
     commitToHistory(validatedNames, recipes)
   }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
 
-  const surpriseMe = useCallback(() => {
+  const surpriseMe = useCallback(async () => {
     const validatedNames = getValidatedNames(state.ingredients)
+    const { surpriseRecipe } = await import('../logic/recipeEngine.js')
     const recipe = surpriseRecipe(validatedNames)
     const recipes = recipe ? [recipe] : []
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: true })
@@ -240,6 +246,18 @@ export function AppProvider({ children }) {
     dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, []) })
   }, [uid])
 
+  // Met à jour la note personnelle et/ou la note en étoiles d'un favori
+  // (voir RecipeModal). `meta` ne contient que les champs à modifier (mise à
+  // jour partielle) : on peut ainsi changer la note en étoiles sans écraser
+  // le texte de la note personnelle, et inversement.
+  const updateFavoriteMeta = useCallback(
+    (favId, meta) => {
+      const updated = state.favorites.map((r) => (r.favId === favId ? { ...r, ...meta } : r))
+      dispatch({ type: 'SET_FAVORITES', favorites: saveFavorites(uid, updated) })
+    },
+    [state.favorites, uid]
+  )
+
   const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
 
   const value = useMemo(
@@ -261,6 +279,7 @@ export function AppProvider({ children }) {
       wipeHistory,
       toggleFavorite,
       clearFavorites,
+      updateFavoriteMeta,
       goToIngredient,
     }),
     [
@@ -281,6 +300,7 @@ export function AppProvider({ children }) {
       wipeHistory,
       toggleFavorite,
       clearFavorites,
+      updateFavoriteMeta,
       goToIngredient,
     ]
   )

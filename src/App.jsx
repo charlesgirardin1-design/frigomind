@@ -1,32 +1,40 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import Header from './components/Header.jsx'
 import HomePage from './pages/HomePage.jsx'
-import UploadPage from './pages/UploadPage.jsx'
-import ValidatePage from './pages/ValidatePage.jsx'
-import ResultsPage from './pages/ResultsPage.jsx'
-import HistoryPage from './pages/HistoryPage.jsx'
-import AboutPage from './pages/AboutPage.jsx'
-import FaqPage from './pages/FaqPage.jsx'
-import LegalPage from './pages/LegalPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
-import BlogPage from './pages/BlogPage.jsx'
-import StatsPage from './pages/StatsPage.jsx'
-import ChangelogPage from './pages/ChangelogPage.jsx'
-import FavoritesPage from './pages/FavoritesPage.jsx'
-import IngredientPage from './pages/IngredientPage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import SettingsPage from './pages/SettingsPage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 import { useLanguage } from './state/LanguageContext.jsx'
 import { COMMON } from './i18n/common.js'
+import { applyPageMeta } from './i18n/pageTitles.js'
+
+// La page d'accueil reste importée statiquement (c'est la première chose
+// affichée, quasi toujours) ; toutes les autres pages sont chargées à la
+// demande (React.lazy) pour garder le bundle initial léger — la base de
+// recettes à elle seule (750 recettes) pèse une part importante du poids
+// total, autant ne la charger que lorsqu'une page qui en a besoin s'affiche.
+const UploadPage = lazy(() => import('./pages/UploadPage.jsx'))
+const ValidatePage = lazy(() => import('./pages/ValidatePage.jsx'))
+const ResultsPage = lazy(() => import('./pages/ResultsPage.jsx'))
+const HistoryPage = lazy(() => import('./pages/HistoryPage.jsx'))
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
+const FaqPage = lazy(() => import('./pages/FaqPage.jsx'))
+const LegalPage = lazy(() => import('./pages/LegalPage.jsx'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
+const BlogPage = lazy(() => import('./pages/BlogPage.jsx'))
+const StatsPage = lazy(() => import('./pages/StatsPage.jsx'))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage.jsx'))
+const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
+const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
+const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
 // que "à propos" et la FAQ (contenu informatif, sans données personnelles).
 // Toutes les autres pages exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
@@ -53,6 +61,7 @@ const VIEWS = {
   changelog: ChangelogPage,
   favorites: FavoritesPage,
   ingredient: IngredientPage,
+  recipesBrowse: RecipesBrowsePage,
   login: LoginPage,
   settings: SettingsPage,
 }
@@ -73,6 +82,14 @@ export default function App() {
     window.location.hash = `#${id}`
   }
   const isProtectedView = !PUBLIC_VIEWS.has(state.view)
+
+  // Met à jour l'onglet du navigateur (titre + meta description) à chaque
+  // changement de vue ou de langue — la SPA n'a pas de routeur/URL distincte
+  // par page, donc c'est le seul signal de contexte pour l'utilisateur (et
+  // pour un éventuel partage/indexation).
+  useEffect(() => {
+    applyPageMeta(state.view, lang)
+  }, [state.view, lang])
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
   // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
@@ -121,10 +138,12 @@ export default function App() {
       <Header />
       <main className="flex-1">
         <div key={state.view} className="animate-fadeIn">
-          <CurrentView />
+          <Suspense fallback={<AuthGateLoading />}>
+            <CurrentView />
+          </Suspense>
         </div>
       </main>
-      <footer className="border-t border-neutral-100 bg-white/60 mt-4">
+      <footer className="border-t border-neutral-100 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 mt-4">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center">
           <button
             onClick={() => { resetSession(); goTo('home') }}
@@ -135,7 +154,7 @@ export default function App() {
               alt="FrigoMind"
               className="w-6 h-6 rounded-md object-cover"
             />
-            Frigo<span className="text-fresh-600">Mind</span>
+            Frigo<span className="text-fresh-600 dark:text-fresh-400">Mind</span>
           </button>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-sm">
