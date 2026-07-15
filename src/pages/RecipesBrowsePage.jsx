@@ -26,12 +26,14 @@ const STRINGS = {
     title: 'Toutes les recettes',
     comingSoon: 'Bientôt disponible',
     body: "On prépare une page pour parcourir et chercher librement dans toute la base de recettes, sans passer par une photo. Reviens bientôt !",
+    inProgress: 'En préparation',
     cta: '📸 Générer des recettes maintenant',
   },
   en: {
     title: 'All recipes',
     comingSoon: 'Coming soon',
     body: "We're building a page to freely browse and search the whole recipe database, no photo needed. Check back soon!",
+    inProgress: 'In the works',
     cta: '📸 Generate recipes now',
   },
 }
@@ -91,6 +93,15 @@ export default function RecipesBrowsePage() {
 
         <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50">{s.comingSoon}</h2>
         <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-sm mt-2">{s.body}</p>
+
+        <div className="mt-5 flex flex-col items-center gap-2" aria-hidden>
+          <span className="text-[11px] font-semibold text-fresh-600 dark:text-fresh-400 tracking-wide uppercase">
+            {s.inProgress}
+          </span>
+          <div className="w-40 h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
+            <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-fresh-400 via-zest-400 to-fresh-400 animate-indeterminate" />
+          </div>
+        </div>
 
         <button onClick={() => goTo('upload')} className="btn-primary mt-6">
           {s.cta}

@@ -78,6 +78,12 @@ export default {
           '35%': { transform: 'translate(var(--drift-x, 10px), calc(var(--drift-y, -14px) * -1)) rotate(-8deg) scale(1.08)', opacity: 1 },
           '70%': { transform: 'translate(calc(var(--drift-x, 10px) * -0.6), calc(var(--drift-y, -14px) * 0.5)) rotate(6deg) scale(0.96)', opacity: 0.7 },
         },
+        // Bandeau lumineux qui balaie une barre de progression indéterminée,
+        // pour un rendu "en construction" (voir la page "Bientôt disponible").
+        indeterminate: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(350%)' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -88,6 +94,7 @@ export default {
         rise: 'rise 0.5s ease-out both',
         gradientShift: 'gradientShift 5s ease-in-out infinite',
         drift: 'drift 5s ease-in-out infinite',
+        indeterminate: 'indeterminate 1.7s ease-in-out infinite',
       },
     },
   },
