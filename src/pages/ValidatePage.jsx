@@ -65,9 +65,10 @@ export default function ValidatePage() {
   const lang = useLanguage()
   const s = STRINGS[lang]
   const [newIngredient, setNewIngredient] = useState('')
-  // generateFromValidated/surpriseMe sont synchrones et basculent state.view
-  // en un seul tick : sans ce délai artificiel, l'écran passe instantanément
-  // à ResultsPage, ce qui ressemble à un bug plutôt qu'à "l'IA réfléchit".
+  // generateFromValidated/surpriseMe basculent state.view dès que la base de
+  // recettes (chargée à la demande) répond : sans ce délai artificiel,
+  // l'écran passe quasi instantanément à ResultsPage, ce qui ressemble à un
+  // bug plutôt qu'à "l'IA réfléchit".
   const [isGenerating, setIsGenerating] = useState(false)
   const [pendingAction, setPendingAction] = useState(null) // 'recipes' | 'surprise' | null
 

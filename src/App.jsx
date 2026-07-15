@@ -1,28 +1,34 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import Header from './components/Header.jsx'
 import HomePage from './pages/HomePage.jsx'
-import UploadPage from './pages/UploadPage.jsx'
-import ValidatePage from './pages/ValidatePage.jsx'
-import ResultsPage from './pages/ResultsPage.jsx'
-import HistoryPage from './pages/HistoryPage.jsx'
-import AboutPage from './pages/AboutPage.jsx'
-import FaqPage from './pages/FaqPage.jsx'
-import LegalPage from './pages/LegalPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
-import BlogPage from './pages/BlogPage.jsx'
-import StatsPage from './pages/StatsPage.jsx'
-import ChangelogPage from './pages/ChangelogPage.jsx'
-import FavoritesPage from './pages/FavoritesPage.jsx'
-import IngredientPage from './pages/IngredientPage.jsx'
-import RecipesBrowsePage from './pages/RecipesBrowsePage.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import SettingsPage from './pages/SettingsPage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 import { useLanguage } from './state/LanguageContext.jsx'
 import { COMMON } from './i18n/common.js'
 import { applyPageMeta } from './i18n/pageTitles.js'
+
+// La page d'accueil reste importée statiquement (c'est la première chose
+// affichée, quasi toujours) ; toutes les autres pages sont chargées à la
+// demande (React.lazy) pour garder le bundle initial léger — la base de
+// recettes à elle seule (750 recettes) pèse une part importante du poids
+// total, autant ne la charger que lorsqu'une page qui en a besoin s'affiche.
+const UploadPage = lazy(() => import('./pages/UploadPage.jsx'))
+const ValidatePage = lazy(() => import('./pages/ValidatePage.jsx'))
+const ResultsPage = lazy(() => import('./pages/ResultsPage.jsx'))
+const HistoryPage = lazy(() => import('./pages/HistoryPage.jsx'))
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
+const FaqPage = lazy(() => import('./pages/FaqPage.jsx'))
+const LegalPage = lazy(() => import('./pages/LegalPage.jsx'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
+const BlogPage = lazy(() => import('./pages/BlogPage.jsx'))
+const StatsPage = lazy(() => import('./pages/StatsPage.jsx'))
+const ChangelogPage = lazy(() => import('./pages/ChangelogPage.jsx'))
+const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
+const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
+const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
@@ -132,7 +138,9 @@ export default function App() {
       <Header />
       <main className="flex-1">
         <div key={state.view} className="animate-fadeIn">
-          <CurrentView />
+          <Suspense fallback={<AuthGateLoading />}>
+            <CurrentView />
+          </Suspense>
         </div>
       </main>
       <footer className="border-t border-neutral-100 bg-white/60 mt-4">
