@@ -29,6 +29,16 @@ const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
 const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
+const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
+
+// Email du seul compte autorisé à voir la page admin cachée (voir
+// .env.example) — si non renseignée, la page reste inaccessible à tout le
+// monde plutôt que de planter ou de s'ouvrir par défaut.
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').trim().toLowerCase()
+
+// Chemin secret (non lié depuis le menu) qui ouvre la page admin au premier
+// chargement — voir l'effet plus bas qui compare window.location.pathname.
+const ADMIN_PATH = '/admin'
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, "à
@@ -66,6 +76,7 @@ const VIEWS = {
   recipesBrowse: RecipesBrowsePage,
   login: LoginPage,
   settings: SettingsPage,
+  admin: AdminPage,
 }
 
 export default function App() {
@@ -95,10 +106,14 @@ export default function App() {
 
   // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
   // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
-  // au lieu de silencieusement retomber sur l'accueil.
+  // au lieu de silencieusement retomber sur l'accueil — sauf pour le chemin
+  // secret de la page admin, qui doit rester utilisable en accès direct
+  // (bookmark) tout en restant invisible du reste du site.
   useEffect(() => {
     const path = window.location.pathname
-    if (path && path !== '/' && path !== '/index.html') {
+    if (path === ADMIN_PATH) {
+      goTo('admin')
+    } else if (path && path !== '/' && path !== '/index.html') {
       goTo('notfound')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -112,6 +127,19 @@ export default function App() {
     if (authLoading) return
     if (isProtectedView && !user) {
       requireLogin(state.view)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.view, user, authLoading])
+
+  // Garde supplémentaire pour la page admin cachée : même connecté, seul le
+  // compte dont l'email correspond exactement à ADMIN_EMAIL peut la voir.
+  // Redirection silencieuse vers l'accueil (pas de message d'erreur) pour ne
+  // pas confirmer l'existence de la page à qui tomberait sur son URL.
+  useEffect(() => {
+    if (authLoading || state.view !== 'admin') return
+    const email = user?.email?.trim().toLowerCase()
+    if (!ADMIN_EMAIL || email !== ADMIN_EMAIL) {
+      goTo('home')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.view, user, authLoading])
