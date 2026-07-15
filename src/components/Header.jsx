@@ -48,6 +48,7 @@ export default function Header() {
   const c = COMMON[lang]
   const NAV_LINKS = [
     { view: 'home', label: c.nav.home },
+    { view: 'recipesBrowse', label: c.nav.recipes },
     { view: 'favorites', label: c.nav.favorites },
     { view: 'history', label: c.nav.history },
     { view: 'stats', label: c.nav.stats },

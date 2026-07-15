@@ -14,6 +14,7 @@ export const COMMON = {
     footerTagline: 'FrigoMind — MVP · analyse IA via Google Gemini (gratuit)',
     nav: {
       home: 'Accueil',
+      recipes: 'Toutes les recettes',
       favorites: 'Favoris',
       history: 'Historique',
       stats: 'Statistiques',
@@ -54,6 +55,7 @@ export const COMMON = {
     footerTagline: 'FrigoMind — MVP · AI analysis via Google Gemini (free)',
     nav: {
       home: 'Home',
+      recipes: 'All recipes',
       favorites: 'Favorites',
       history: 'History',
       stats: 'Stats',

@@ -14,6 +14,7 @@ import StatsPage from './pages/StatsPage.jsx'
 import ChangelogPage from './pages/ChangelogPage.jsx'
 import FavoritesPage from './pages/FavoritesPage.jsx'
 import IngredientPage from './pages/IngredientPage.jsx'
+import RecipesBrowsePage from './pages/RecipesBrowsePage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
@@ -27,7 +28,7 @@ import { applyPageMeta } from './i18n/pageTitles.js'
 // les mentions légales (obligatoires même sans compte), la page 404, ainsi
 // que "à propos" et la FAQ (contenu informatif, sans données personnelles).
 // Toutes les autres pages exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq'])
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
@@ -54,6 +55,7 @@ const VIEWS = {
   changelog: ChangelogPage,
   favorites: FavoritesPage,
   ingredient: IngredientPage,
+  recipesBrowse: RecipesBrowsePage,
   login: LoginPage,
   settings: SettingsPage,
 }
