@@ -1,8 +1,50 @@
+import { useEffect, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, CalendarGlyph } from '../components/Illustrations.jsx'
+
+// Chiffres feuilletés par la mini icône calendrier (voir FlippingCalendarIcon
+// ci-dessous) — une suite arbitraire qui monte pour évoquer "les jours
+// défilent jusqu'à la sortie", sans lien avec une vraie date.
+const CALENDAR_DAYS = [12, 13, 14, 15, 16, 17, 18]
+
+// Petit calendrier "à feuillets" : deux anneaux de reliure en haut, un
+// chiffre du jour qui bascule (rotation 3D) et se remplace toutes les
+// ~1.7s. Remonté à chaque changement via `key` pour rejouer l'animation
+// (même trick que le cœur des favoris dans RecipeCard.jsx).
+function FlippingCalendarIcon() {
+  const [dayIndex, setDayIndex] = useState(0)
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setDayIndex((i) => (i + 1) % CALENDAR_DAYS.length)
+    }, 1700)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="w-full h-full flex flex-col rounded-lg overflow-hidden ring-1 ring-fresh-900/10 dark:ring-fresh-50/10 shadow-sm">
+      <div className="h-[26%] bg-fresh-600 flex items-center justify-center gap-1.5 shrink-0">
+        <span className="w-1 h-2 rounded-full bg-white/70" />
+        <span className="w-1 h-2 rounded-full bg-white/70" />
+      </div>
+      <div
+        className="flex-1 bg-white dark:bg-neutral-900 flex items-center justify-center"
+        style={{ perspective: '200px' }}
+      >
+        <span
+          key={dayIndex}
+          className="font-extrabold text-fresh-700 dark:text-fresh-400 leading-none animate-calendarFlip"
+          style={{ fontSize: '1.6rem' }}
+        >
+          {CALENDAR_DAYS[dayIndex]}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 // Petits ingrédients qui dérivent en orbite autour de l'icône, comme si des
 // recettes étaient "en préparation" pendant que la page se construit.
@@ -87,7 +129,7 @@ export default function RecipesBrowsePage() {
             </span>
           ))}
           <IllustrationTile tone="fresh" size="lg" className="absolute inset-0 m-auto animate-float">
-            <CalendarGlyph className="w-full h-full" />
+            <FlippingCalendarIcon />
           </IllustrationTile>
         </div>
 

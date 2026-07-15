@@ -84,6 +84,15 @@ export default {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(350%)' },
         },
+        // Feuillet de calendrier qui bascule (rotation 3D sur l'axe X),
+        // rejoué à chaque changement de chiffre via un remount par `key`
+        // (même trick que heartPop) — voir la page "Bientôt disponible".
+        calendarFlip: {
+          '0%': { transform: 'rotateX(0deg)', opacity: 1 },
+          '45%': { transform: 'rotateX(90deg)', opacity: 0.2 },
+          '55%': { transform: 'rotateX(-90deg)', opacity: 0.2 },
+          '100%': { transform: 'rotateX(0deg)', opacity: 1 },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -95,6 +104,7 @@ export default {
         gradientShift: 'gradientShift 5s ease-in-out infinite',
         drift: 'drift 5s ease-in-out infinite',
         indeterminate: 'indeterminate 1.7s ease-in-out infinite',
+        calendarFlip: 'calendarFlip 0.6s ease-in-out both',
       },
     },
   },
