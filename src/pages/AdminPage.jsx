@@ -91,6 +91,23 @@ const STRINGS = {
     unbanDone: 'Compte réactivé.',
     disabledBadge: 'Banni',
     self: 'vous',
+    statNewWeek: 'Nouveaux (7 derniers jours)',
+    statActiveWeek: 'Connectés (7 derniers jours)',
+    statBanned: 'Comptes bannis',
+    statProviders: 'Connexion via',
+    providerGoogle: 'Google',
+    providerApple: 'Apple',
+    providerPassword: 'Email',
+    providerOther: 'Autre',
+    searchPlaceholder: 'Rechercher par email…',
+    filterAll: 'Tous',
+    filterActive: 'Actifs',
+    filterBanned: 'Bannis',
+    noUsersMatch: 'Aucun compte ne correspond.',
+    activityTitle: 'Activité récente',
+    activitySignup: 'Nouveau compte',
+    activitySignin: 'Dernière connexion',
+    activityEmpty: 'Aucune activité récente.',
   },
   en: {
     title: 'Admin',
@@ -156,7 +173,72 @@ const STRINGS = {
     unbanDone: 'Account reactivated.',
     disabledBadge: 'Banned',
     self: 'you',
+    statNewWeek: 'New (last 7 days)',
+    statActiveWeek: 'Signed in (last 7 days)',
+    statBanned: 'Banned accounts',
+    statProviders: 'Signed in via',
+    providerGoogle: 'Google',
+    providerApple: 'Apple',
+    providerPassword: 'Email',
+    providerOther: 'Other',
+    searchPlaceholder: 'Search by email…',
+    filterAll: 'All',
+    filterActive: 'Active',
+    filterBanned: 'Banned',
+    noUsersMatch: 'No account matches.',
+    activityTitle: 'Recent activity',
+    activitySignup: 'New account',
+    activitySignin: 'Last sign-in',
+    activityEmpty: 'No recent activity.',
   },
+}
+
+const WEEK_MS = 7 * 24 * 3600 * 1000
+const ACTIVE_SIGNIN_GAP_MS = 60_000 // au-delà, on considère la connexion comme un événement distinct de l'inscription
+const MAX_ACTIVITY_EVENTS = 15
+
+const PROVIDER_LABEL_KEYS = {
+  'google.com': 'providerGoogle',
+  'apple.com': 'providerApple',
+  password: 'providerPassword',
+}
+
+function providerLabel(provider, s) {
+  return s[PROVIDER_LABEL_KEYS[provider]] || s.providerOther
+}
+
+// Statistiques dérivées uniquement des comptes déjà chargés (voir
+// UsersSection) : aucun appel réseau supplémentaire.
+function computeUserStats(users) {
+  const now = Date.now()
+  const stats = { newWeek: 0, activeWeek: 0, banned: 0, providers: {} }
+  for (const u of users) {
+    if (u.creationTime && now - new Date(u.creationTime).getTime() <= WEEK_MS) stats.newWeek += 1
+    if (u.lastSignInTime && now - new Date(u.lastSignInTime).getTime() <= WEEK_MS) stats.activeWeek += 1
+    if (u.disabled) stats.banned += 1
+    const key = u.provider || 'other'
+    stats.providers[key] = (stats.providers[key] || 0) + 1
+  }
+  return stats
+}
+
+// Journal d'activité synthétisé à partir des dates déjà connues par compte
+// (pas de vrai stockage d'événements côté serveur) : une entrée "nouveau
+// compte" par inscription, plus une entrée "dernière connexion" seulement si
+// elle est nettement postérieure à l'inscription (sinon ce serait juste la
+// même connexion comptée deux fois).
+function buildActivityLog(users) {
+  const events = []
+  for (const u of users) {
+    if (u.creationTime) events.push({ type: 'signup', date: u.creationTime, email: u.email || u.uid, key: `${u.uid}-signup` })
+    if (
+      u.lastSignInTime &&
+      (!u.creationTime || new Date(u.lastSignInTime).getTime() - new Date(u.creationTime).getTime() > ACTIVE_SIGNIN_GAP_MS)
+    ) {
+      events.push({ type: 'signin', date: u.lastSignInTime, email: u.email || u.uid, key: `${u.uid}-signin` })
+    }
+  }
+  return events.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, MAX_ACTIVITY_EVENTS)
 }
 
 function Row({ label, value, action }) {
@@ -175,10 +257,25 @@ function Row({ label, value, action }) {
 // permet de bannir/réactiver un compte via /api/admin/ban. Nécessite le
 // backend Firebase Admin SDK (voir api/_lib/admin.js et .env.example) — si
 // non configuré côté serveur, affiche un message clair plutôt que de planter.
-function UsersSection({ s, user }) {
+function UsersSection({ s, user, lang }) {
   const [state, setState] = useState({ loading: true, error: null, total: 0, users: [] })
   const [pendingUid, setPendingUid] = useState(null)
+  const [query, setQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'active' | 'banned'
   const { showToast } = useToast()
+
+  const stats = useMemo(() => computeUserStats(state.users), [state.users])
+  const activityLog = useMemo(() => buildActivityLog(state.users), [state.users])
+
+  const filteredUsers = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return state.users.filter((u) => {
+      if (statusFilter === 'active' && u.disabled) return false
+      if (statusFilter === 'banned' && !u.disabled) return false
+      if (q && !(u.email || u.uid).toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [state.users, query, statusFilter])
 
   async function authedFetch(url, options = {}) {
     const idToken = await user.getIdToken()
@@ -250,9 +347,53 @@ function UsersSection({ s, user }) {
 
       {!state.loading && !state.error && (
         <>
-          <p className="text-xs text-neutral-400 mt-1 mb-2">{s.usersTotal(state.total)}</p>
+          <p className="text-xs text-neutral-400 mt-1 mb-3">{s.usersTotal(state.total)}</p>
+
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
+              <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.newWeek}</div>
+              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statNewWeek}</div>
+            </div>
+            <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
+              <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.activeWeek}</div>
+              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statActiveWeek}</div>
+            </div>
+            <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
+              <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.banned}</div>
+              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statBanned}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap mb-4 text-xs">
+            <span className="text-neutral-400">{s.statProviders}</span>
+            {Object.entries(stats.providers).map(([provider, count]) => (
+              <span key={provider} className="badge badge-neutral">
+                {providerLabel(provider, s)} · {count}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 mb-3">
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={s.searchPlaceholder}
+              className="flex-1 text-sm border border-neutral-200 dark:border-neutral-700 rounded-full px-3.5 py-1.5 outline-none focus:border-fresh-400 focus:ring-2 focus:ring-fresh-100 bg-transparent"
+            />
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="text-xs border border-neutral-200 dark:border-neutral-700 rounded-full px-2.5 py-1.5 bg-transparent"
+            >
+              <option value="all">{s.filterAll}</option>
+              <option value="active">{s.filterActive}</option>
+              <option value="banned">{s.filterBanned}</option>
+            </select>
+          </div>
+
           <div className="max-h-80 overflow-y-auto">
-            {state.users.map((u) => (
+            {filteredUsers.length === 0 && <p className="text-sm text-neutral-400 py-2">{s.noUsersMatch}</p>}
+            {filteredUsers.map((u) => (
               <div
                 key={u.uid}
                 className="flex items-center justify-between gap-3 py-2.5 border-b border-neutral-100 dark:border-neutral-800 last:border-b-0"
@@ -278,6 +419,32 @@ function UsersSection({ s, user }) {
               </div>
             ))}
           </div>
+
+          <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mt-5 mb-2">{s.activityTitle}</h4>
+          {activityLog.length === 0 ? (
+            <p className="text-sm text-neutral-400">{s.activityEmpty}</p>
+          ) : (
+            <div className="max-h-64 overflow-y-auto space-y-2">
+              {activityLog.map((event) => (
+                <div key={event.key} className="flex items-center justify-between gap-3 text-xs">
+                  <span className="text-neutral-700 dark:text-neutral-300 truncate">
+                    <span className={event.type === 'signup' ? 'text-fresh-600 dark:text-fresh-400' : 'text-neutral-400'}>
+                      {event.type === 'signup' ? s.activitySignup : s.activitySignin}
+                    </span>{' '}
+                    — {event.email}
+                  </span>
+                  <span className="text-neutral-400 shrink-0 tabular-nums">
+                    {new Date(event.date).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
@@ -561,7 +728,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <UsersSection s={s} user={user} />
+      <UsersSection s={s} user={user} lang={lang} />
     </div>
   )
 }
