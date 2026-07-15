@@ -282,11 +282,11 @@ export function AppProvider({ children }) {
   const surpriseMe = useCallback(async () => {
     const validatedNames = getValidatedNames(state.ingredients)
     const { surpriseRecipe } = await import('../logic/recipeEngine.js')
-    const recipe = surpriseRecipe(validatedNames)
+    const recipe = surpriseRecipe(validatedNames, state.preferences)
     const recipes = recipe ? [recipe] : []
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: true })
     if (recipe) commitToHistory(validatedNames, recipes)
-  }, [state.ingredients, getValidatedNames, commitToHistory])
+  }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
 
   const setActiveRecipe = useCallback((id) => dispatch({ type: 'SET_ACTIVE_RECIPE', id }), [])
 

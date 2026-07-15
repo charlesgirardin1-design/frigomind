@@ -385,10 +385,14 @@ export function findRecipesUsingIngredient(ingredientName) {
 
 /**
  * Bouton "J'ai faim → surprends-moi" : choisit une recette pondérée par son
- * score parmi les ingrédients disponibles, en ignorant les préférences.
+ * score parmi les ingrédients disponibles, en ignorant le temps max et le
+ * type de cuisine (c'est le principe d'une surprise) — mais pas le régime
+ * végétarien, qui est une contrainte alimentaire et non un simple goût :
+ * l'ignorer pourrait proposer de la viande/poisson à quelqu'un qui a coché
+ * "végétarien uniquement".
  */
-export function surpriseRecipe(validatedIngredients) {
-  const all = generateRecipes(validatedIngredients, {})
+export function surpriseRecipe(validatedIngredients, prefs = {}) {
+  const all = generateRecipes(validatedIngredients, { vegetarien: prefs.vegetarien })
   if (all.length === 0) return null
   // Tirage pondéré : plus le score est haut, plus la recette a de chances
   const weights = all.map((r) => Math.max(r.matchScore, 5))
