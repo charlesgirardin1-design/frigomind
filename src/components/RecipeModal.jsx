@@ -6,6 +6,11 @@ import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
+import { scaleIngredientQuantity } from '../utils/servings.js'
+import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
+
+const MIN_SERVINGS = 1
+const MAX_SERVINGS = 12
 
 // Modale plein détail d'une recette : ingrédients, étapes numérotées.
 // `isFavorite` / `onUpdateFavoriteMeta` sont optionnels : seule la page
@@ -25,6 +30,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
   // resynchronise pas après un `SET_FAVORITES`, donc relire `recipe.rating`
   // directement afficherait une note obsolète après un clic dans la modale.
   const [rating, setRating] = useState(recipe?.rating || 0)
+  const [servings, setServings] = useState(BASE_SERVINGS)
 
   useEffect(() => {
     function handleKey(e) {
@@ -182,14 +188,43 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-2">{c.ingredients}</h3>
+            <div className="flex items-center justify-between gap-3 mb-2">
+              <h3 className="font-semibold text-neutral-900">{c.ingredients}</h3>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setServings((s) => Math.max(MIN_SERVINGS, s - 1))}
+                  disabled={servings <= MIN_SERVINGS}
+                  aria-label={c.decreaseServings}
+                  className="w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
+                >
+                  −
+                </button>
+                <span className="text-sm text-neutral-700 tabular-nums min-w-[6rem] text-center">
+                  {servings} {c.servingsUnit(servings)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setServings((s) => Math.min(MAX_SERVINGS, s + 1))}
+                  disabled={servings >= MAX_SERVINGS}
+                  aria-label={c.increaseServings}
+                  className="w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
+                >
+                  +
+                </button>
+              </div>
+            </div>
             <ul className="space-y-1 text-sm">
               {allIngredients.map((ing) => {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
+                const qty = scaleIngredientQuantity(ing, servings)
                 return (
                   <li key={ing} className="flex items-center gap-2">
                     <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
+                    {qty && (
+                      <span className="text-neutral-400 tabular-nums text-xs shrink-0 w-16">{qty}</span>
+                    )}
                     <button
                       onClick={() => handleIngredientClick(ing)}
                       className={`text-left underline decoration-dotted underline-offset-2 hover:text-fresh-700 ${
@@ -204,6 +239,7 @@ export default function RecipeModal({ recipe, onClose, isFavorite, onUpdateFavor
                 )
               })}
             </ul>
+            <p className="text-xs text-neutral-400 mt-2">{c.quantitiesNote}</p>
           </div>
 
           {missing.length > 0 && (

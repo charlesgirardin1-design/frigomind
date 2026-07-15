@@ -193,7 +193,7 @@ export function AppProvider({ children }) {
       id: `hist-${Date.now()}`,
       date: new Date().toISOString(),
       ingredients: validatedNames,
-      recipes: recipes.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji, time: r.time })),
+      recipes: recipes.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji, time: r.time, antiGaspi: !!r.antiGaspi })),
     }
     const updated = saveHistoryEntry(uid, entry)
     dispatch({ type: 'PUSH_HISTORY', history: updated })

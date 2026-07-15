@@ -5,6 +5,7 @@ import { COMMON } from '../i18n/common.js'
 import { localizeRecipeName } from '../data/recipesDB.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { IllustrationTile, ChartGlyph } from '../components/Illustrations.jsx'
+import { computeBadgeStats, computeBadges } from '../data/badges.js'
 
 const STRINGS = {
   fr: {
@@ -16,6 +17,16 @@ const STRINGS = {
     totalRecipes: (n) => `recette${n > 1 ? 's' : ''} reçue${n > 1 ? 's' : ''} au total`,
     topIngredients: 'Vos ingrédients les plus fréquents',
     topRecipes: 'Vos recettes les plus recommandées',
+    badgesTitle: '🏅 Vos badges',
+    badgesProgress: (current, threshold) => `${current} / ${threshold}`,
+    badges: {
+      first: { label: 'Premier tri', desc: 'Générez votre première session de recettes' },
+      regular: { label: 'Habitué·e', desc: '5 sessions de recettes générées' },
+      chef: { label: 'Grand chef', desc: '15 sessions de recettes générées' },
+      antiGaspi: { label: 'Anti-gaspi confirmé', desc: '5 recettes anti-gaspi reçues' },
+      favorites: { label: 'Collectionneur', desc: '5 recettes en favoris' },
+      critic: { label: 'Critique gastronomique', desc: '3 recettes notées' },
+    },
     footer: (n) =>
       `Calculé sur vos ${n} dernière${n > 1 ? 's' : ''} session${n > 1 ? 's' : ''} enregistrée${
         n > 1 ? 's' : ''
@@ -30,6 +41,16 @@ const STRINGS = {
     totalRecipes: (n) => `recipe${n > 1 ? 's' : ''} received in total`,
     topIngredients: 'Your most frequent ingredients',
     topRecipes: 'Your most recommended recipes',
+    badgesTitle: '🏅 Your badges',
+    badgesProgress: (current, threshold) => `${current} / ${threshold}`,
+    badges: {
+      first: { label: 'First sort', desc: 'Generate your first recipe session' },
+      regular: { label: 'Regular', desc: '5 recipe sessions generated' },
+      chef: { label: 'Master chef', desc: '15 recipe sessions generated' },
+      antiGaspi: { label: 'Zero-waste hero', desc: '5 zero-waste recipes received' },
+      favorites: { label: 'Collector', desc: '5 recipes in favorites' },
+      critic: { label: 'Food critic', desc: '3 recipes rated' },
+    },
     footer: (n) =>
       `Calculated from your ${n} most recent session${n > 1 ? 's' : ''} saved on this device (local history keeps at most the last 20). Nothing is sent to a server.`,
   },
@@ -75,6 +96,10 @@ export default function StatsPage() {
   const lang = useLanguage()
   const s = STRINGS[lang]
   const stats = useMemo(() => computeStats(state.history), [state.history])
+  const badges = useMemo(
+    () => computeBadges(computeBadgeStats(state.history, state.favorites)),
+    [state.history, state.favorites]
+  )
   const hasData = stats.sessions > 0
 
   return (
@@ -139,6 +164,34 @@ export default function StatsPage() {
               </div>
             </div>
           )}
+
+          <div className="mt-6">
+            <h3 className="font-semibold text-neutral-900 mb-2">{s.badgesTitle}</h3>
+            <div className="grid grid-cols-3 gap-3">
+              {badges.map((badge) => {
+                const label = s.badges[badge.id]
+                return (
+                  <div
+                    key={badge.id}
+                    className={`card p-3 text-center flex flex-col items-center gap-1 ${
+                      badge.earned ? '' : 'opacity-40 grayscale'
+                    }`}
+                    title={label.desc}
+                  >
+                    <span className="text-2xl" aria-hidden>
+                      {badge.emoji}
+                    </span>
+                    <span className="text-xs font-semibold text-neutral-800 leading-tight">{label.label}</span>
+                    {!badge.earned && (
+                      <span className="text-[11px] text-neutral-400 tabular-nums">
+                        {s.badgesProgress(badge.current, badge.threshold)}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
 
           <p className="mt-8 text-xs text-neutral-400 text-center">{s.footer(stats.sessions)}</p>
         </>

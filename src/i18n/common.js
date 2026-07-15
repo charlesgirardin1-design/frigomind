@@ -50,6 +50,11 @@ export const COMMON = {
       noteLabel: '📝 Notes personnelles',
       notePlaceholder: 'Vos impressions, ajustements…',
       ratingLabel: '⭐ Votre note',
+      servingsLabel: 'Pour combien de personnes ?',
+      servingsUnit: (n) => (n <= 1 ? 'personne' : 'personnes'),
+      decreaseServings: 'Moins de personnes',
+      increaseServings: 'Plus de personnes',
+      quantitiesNote: 'Quantités estimées, à ajuster selon vos envies.',
     },
   },
   en: {
@@ -95,6 +100,11 @@ export const COMMON = {
       noteLabel: '📝 Personal notes',
       notePlaceholder: 'Your thoughts, tweaks…',
       ratingLabel: '⭐ Your rating',
+      servingsLabel: 'How many servings?',
+      servingsUnit: (n) => (n <= 1 ? 'serving' : 'servings'),
+      decreaseServings: 'Fewer servings',
+      increaseServings: 'More servings',
+      quantitiesNote: 'Estimated quantities, adjust to taste.',
     },
   },
 }
