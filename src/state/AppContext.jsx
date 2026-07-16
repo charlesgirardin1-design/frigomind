@@ -23,6 +23,7 @@ import {
   DEFAULT_PREFERENCES,
 } from '../utils/storage.js'
 import { maybeShowReminder } from '../utils/reminders.js'
+import { VIEW_PATHS, viewFromPath } from '../routes.js'
 
 const AppStateContext = createContext(null)
 
@@ -125,6 +126,21 @@ function reducer(state, action) {
   }
 }
 
+// Met à jour l'URL affichée dans la barre d'adresse pour qu'elle corresponde
+// à la vue donnée, sans dispatcher de changement d'état. Utilisé par goTo
+// mais aussi par toutes les autres actions qui changent state.view via le
+// reducer (connexion requise, génération de recettes, ouverture d'une
+// recette, fin de session...) pour que l'URL ne diverge jamais de la vue
+// réellement affichée.
+function syncUrlToView(view) {
+  if (typeof window === 'undefined' || !window.history?.pushState) return
+  const path = VIEW_PATHS[view] || '/'
+  const current = window.location.pathname + window.location.hash
+  if (current !== path) {
+    window.history.pushState(null, '', path)
+  }
+}
+
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
   const { user, authLoading } = useAuth()
@@ -199,11 +215,28 @@ export function AppProvider({ children }) {
     [uid]
   )
 
+  // Change de vue ET met à jour l'URL (voir routes.js) : chaque page a ainsi
+  // sa propre adresse partageable/ajoutable en favori, sans dépendance de
+  // routing externe — juste l'API History native.
   const goTo = useCallback((view) => {
-    if (typeof window !== 'undefined' && window.location.hash && window.history?.replaceState) {
-      window.history.replaceState(null, '', window.location.pathname + window.location.search)
-    }
+    syncUrlToView(view)
     dispatch({ type: 'GO_TO', view })
+  }, [])
+
+  // Change la vue sans toucher à l'historique du navigateur : utilisé quand
+  // l'URL a déjà la bonne valeur (chargement initial d'un lien direct, ou
+  // clic sur précédent/suivant — voir l'effet popstate ci-dessous), pour ne
+  // pas empiler une entrée d'historique redondante.
+  const setViewSilently = useCallback((view) => dispatch({ type: 'GO_TO', view }), [])
+
+  // Boutons précédent/suivant du navigateur : resynchronise la vue affichée
+  // avec l'URL réellement affichée dans la barre d'adresse.
+  useEffect(() => {
+    function handlePopState() {
+      dispatch({ type: 'GO_TO', view: viewFromPath(window.location.pathname) })
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
     // On mémorise aussi la page visée dans sessionStorage : si la connexion
@@ -218,6 +251,7 @@ export function AppProvider({ children }) {
       // Stockage indisponible (navigation privée stricte, etc.) : tant pis,
       // l'utilisateur retombera simplement sur l'accueil après connexion.
     }
+    syncUrlToView('login')
     dispatch({ type: 'REQUIRE_LOGIN', from })
   }, [])
 
@@ -227,9 +261,11 @@ export function AppProvider({ children }) {
     dispatch({ type: 'START_ANALYSIS' })
     try {
       const result = await analyzeImage(photoDataUrl, mode)
+      syncUrlToView('validate')
       dispatch({ type: 'ANALYSIS_DONE', items: result.items })
     } catch (e) {
       console.warn('FrigoMind: analyse impossible, liste vide proposée', e)
+      syncUrlToView('validate')
       dispatch({ type: 'ANALYSIS_DONE', items: [] })
     }
   }, [])
@@ -275,6 +311,7 @@ export function AppProvider({ children }) {
     const validatedNames = getValidatedNames(state.ingredients)
     const { generateRecipes } = await import('../logic/recipeEngine.js')
     const recipes = generateRecipes(validatedNames, state.preferences)
+    syncUrlToView('results')
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: false })
     commitToHistory(validatedNames, recipes)
   }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
@@ -284,13 +321,17 @@ export function AppProvider({ children }) {
     const { surpriseRecipe } = await import('../logic/recipeEngine.js')
     const recipe = surpriseRecipe(validatedNames, state.preferences)
     const recipes = recipe ? [recipe] : []
+    syncUrlToView('results')
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: true })
     if (recipe) commitToHistory(validatedNames, recipes)
   }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
 
   const setActiveRecipe = useCallback((id) => dispatch({ type: 'SET_ACTIVE_RECIPE', id }), [])
 
-  const resetSession = useCallback(() => dispatch({ type: 'RESET_SESSION' }), [])
+  const resetSession = useCallback(() => {
+    syncUrlToView('home')
+    dispatch({ type: 'RESET_SESSION' })
+  }, [])
 
   const wipeHistory = useCallback(() => {
     clearHistory(uid)
@@ -332,18 +373,28 @@ export function AppProvider({ children }) {
     [state.favorites, uid, pushToCloud]
   )
 
-  const goToIngredient = useCallback((name) => dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' }), [])
+  const goToIngredient = useCallback((name) => {
+    syncUrlToView('ingredient')
+    dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' })
+  }, [])
 
   // Ouvre une recette en pleine page (voir RecipePage.jsx) depuis n'importe
   // quelle liste (résultats, favoris, page ingrédient...) : on mémorise la
   // vue d'origine pour que le bouton retour y ramène.
-  const openRecipe = useCallback((recipe) => dispatch({ type: 'OPEN_RECIPE', recipe }), [])
-  const closeRecipe = useCallback(() => dispatch({ type: 'CLOSE_RECIPE' }), [])
+  const openRecipe = useCallback((recipe) => {
+    syncUrlToView('recipe')
+    dispatch({ type: 'OPEN_RECIPE', recipe })
+  }, [])
+  const closeRecipe = useCallback(() => {
+    syncUrlToView(state.recipeReturnView)
+    dispatch({ type: 'CLOSE_RECIPE' })
+  }, [state.recipeReturnView])
 
   const value = useMemo(
     () => ({
       state,
       goTo,
+      setViewSilently,
       requireLogin,
       setPhoto,
       analyzePhoto,
@@ -367,6 +418,7 @@ export function AppProvider({ children }) {
     [
       state,
       goTo,
+      setViewSilently,
       requireLogin,
       setPhoto,
       analyzePhoto,

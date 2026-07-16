@@ -7,6 +7,7 @@ import { useAuth } from './state/AuthContext.jsx'
 import { useLanguage } from './state/LanguageContext.jsx'
 import { COMMON } from './i18n/common.js'
 import { applyPageMeta } from './i18n/pageTitles.js'
+import { viewFromPath } from './routes.js'
 
 // La page d'accueil reste importée statiquement (c'est la première chose
 // affichée, quasi toujours) ; toutes les autres pages sont chargées à la
@@ -37,10 +38,6 @@ const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
 // .env.example) — si non renseignée, la page reste inaccessible à tout le
 // monde plutôt que de planter ou de s'ouvrir par défaut.
 const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').trim().toLowerCase()
-
-// Chemin secret (non lié depuis le menu) qui ouvre la page admin au premier
-// chargement — voir l'effet plus bas qui compare window.location.pathname.
-const ADMIN_PATH = '/admin'
 
 // Pages accessibles sans être connecté : l'accueil, la connexion elle-même,
 // les mentions légales (obligatoires même sans compte), la page 404, "à
@@ -84,7 +81,7 @@ const VIEWS = {
 }
 
 export default function App() {
-  const { state, goTo, resetSession, requireLogin } = useApp()
+  const { state, goTo, setViewSilently, resetSession, requireLogin } = useApp()
   const { user, authLoading } = useAuth()
   const lang = useLanguage()
   const c = COMMON[lang]
@@ -108,17 +105,16 @@ export default function App() {
     applyPageMeta(state.view, lang)
   }, [state.view, lang])
 
-  // Au premier chargement, si l'URL visitée n'est pas la racine (lien direct
-  // vers une adresse inconnue, faute de frappe, etc.), on affiche la page 404
-  // au lieu de silencieusement retomber sur l'accueil — sauf pour le chemin
-  // secret de la page admin, qui doit rester utilisable en accès direct
-  // (bookmark) tout en restant invisible du reste du site.
+  // Au premier chargement, on affiche directement la vue correspondant à
+  // l'URL visitée (lien direct, favori, partage — voir routes.js), y compris
+  // le chemin secret de la page admin, qui doit rester utilisable en accès
+  // direct tout en restant invisible du reste du site. setViewSilently (et
+  // non goTo) car l'URL est déjà correcte : pas besoin d'empiler une entrée
+  // d'historique redondante.
   useEffect(() => {
-    const path = window.location.pathname
-    if (path === ADMIN_PATH) {
-      goTo('admin')
-    } else if (path && path !== '/' && path !== '/index.html') {
-      goTo('notfound')
+    const view = viewFromPath(window.location.pathname)
+    if (view !== 'home') {
+      setViewSilently(view)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
