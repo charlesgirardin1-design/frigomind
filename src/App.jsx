@@ -28,6 +28,7 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
 const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
 const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
 const RecipePage = lazy(() => import('./pages/RecipePage.jsx'))
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
@@ -47,7 +48,7 @@ const ADMIN_PATH = '/admin'
 // que "Toutes les recettes" (message "Bientôt disponible", aucune donnée à
 // protéger tant que le catalogue n'est pas prêt). Toutes les autres pages
 // exigent une connexion Google / Apple / email.
-const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse'])
+const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'faq', 'recipesBrowse', 'contact'])
 
 // Petit état d'attente affiché le temps de savoir si une session Firebase
 // existe déjà, pour une page protégée — évite un flash de contenu protégé
@@ -76,6 +77,7 @@ const VIEWS = {
   ingredient: IngredientPage,
   recipesBrowse: RecipesBrowsePage,
   recipe: RecipePage,
+  contact: ContactPage,
   login: LoginPage,
   settings: SettingsPage,
   admin: AdminPage,
@@ -207,6 +209,9 @@ export default function App() {
             </button>
             <button onClick={() => goTo('changelog')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.changelog}
+            </button>
+            <button onClick={() => goTo('contact')} className="text-neutral-500 hover:text-fresh-700 transition">
+              {c.nav.contact}
             </button>
             <button onClick={() => goTo('legal')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.legal}
