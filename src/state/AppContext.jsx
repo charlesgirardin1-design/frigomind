@@ -317,7 +317,7 @@ export function AppProvider({ children }) {
     pushToCloud({ history: updated })
   }, [uid, pushToCloud])
 
-  // generateRecipes/surpriseRecipe (et donc la base de 750 recettes qu'ils
+  // generateRecipes/surpriseRecipe (et donc la base de 1045 recettes qu'ils
   // importent) sont chargés à la demande plutôt qu'au démarrage : AppContext
   // enveloppe toute l'application dès main.jsx, donc un import statique ici
   // aurait forcé toute la recipesDB dans le bundle initial même pour un

@@ -13,7 +13,7 @@ import { viewFromPath } from './routes.js'
 // La page d'accueil reste importée statiquement (c'est la première chose
 // affichée, quasi toujours) ; toutes les autres pages sont chargées à la
 // demande (React.lazy) pour garder le bundle initial léger — la base de
-// recettes à elle seule (750 recettes) pèse une part importante du poids
+// recettes à elle seule (1045 recettes) pèse une part importante du poids
 // total, autant ne la charger que lorsqu'une page qui en a besoin s'affiche.
 const UploadPage = lazy(() => import('./pages/UploadPage.jsx'))
 const ValidatePage = lazy(() => import('./pages/ValidatePage.jsx'))
