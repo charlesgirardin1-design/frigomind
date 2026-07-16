@@ -23,7 +23,7 @@ import {
   DEFAULT_PREFERENCES,
 } from '../utils/storage.js'
 import { maybeShowReminder } from '../utils/reminders.js'
-import { VIEW_PATHS, viewFromPath } from '../routes.js'
+import { pathForView, viewFromPath } from '../routes.js'
 
 const AppStateContext = createContext(null)
 
@@ -127,17 +127,22 @@ function reducer(state, action) {
 }
 
 // Met à jour l'URL affichée dans la barre d'adresse pour qu'elle corresponde
-// à la vue donnée, sans dispatcher de changement d'état. Utilisé par goTo
-// mais aussi par toutes les autres actions qui changent state.view via le
-// reducer (connexion requise, génération de recettes, ouverture d'une
+// à la vue donnée, dans la langue donnée (voir routes.js — chaque vue a un
+// chemin FR et un chemin EN), sans dispatcher de changement d'état. Utilisé
+// par goTo mais aussi par toutes les autres actions qui changent state.view
+// via le reducer (connexion requise, génération de recettes, ouverture d'une
 // recette, fin de session...) pour que l'URL ne diverge jamais de la vue
 // réellement affichée.
-function syncUrlToView(view) {
+function syncUrlToView(view, lang, { replace = false } = {}) {
   if (typeof window === 'undefined' || !window.history?.pushState) return
-  const path = VIEW_PATHS[view] || '/'
+  const path = pathForView(view, lang)
   const current = window.location.pathname + window.location.hash
   if (current !== path) {
-    window.history.pushState(null, '', path)
+    if (replace) {
+      window.history.replaceState(null, '', path)
+    } else {
+      window.history.pushState(null, '', path)
+    }
   }
 }
 
@@ -219,9 +224,9 @@ export function AppProvider({ children }) {
   // sa propre adresse partageable/ajoutable en favori, sans dépendance de
   // routing externe — juste l'API History native.
   const goTo = useCallback((view) => {
-    syncUrlToView(view)
+    syncUrlToView(view, lang)
     dispatch({ type: 'GO_TO', view })
-  }, [])
+  }, [lang])
 
   // Change la vue sans toucher à l'historique du navigateur : utilisé quand
   // l'URL a déjà la bonne valeur (chargement initial d'un lien direct, ou
@@ -239,6 +244,16 @@ export function AppProvider({ children }) {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
 
+  // Garde l'adresse affichée dans la langue courante : se déclenche quand la
+  // vue ou la langue change, y compris au montage (ex: lien FR ouvert alors
+  // que l'interface est en EN, ou changement de langue via le sélecteur dans
+  // le header). On remplace l'entrée d'historique (replaceState) plutôt que
+  // d'en empiler une nouvelle, puisque c'est toujours la même page, juste
+  // traduite.
+  useEffect(() => {
+    syncUrlToView(state.view, lang, { replace: true })
+  }, [state.view, lang])
+
     // On mémorise aussi la page visée dans sessionStorage : si la connexion
     // Google/Apple bascule sur une redirection complète (popup bloquée par le
   // navigateur), l'état React est réinitialisé au rechargement de la page,
@@ -251,9 +266,9 @@ export function AppProvider({ children }) {
       // Stockage indisponible (navigation privée stricte, etc.) : tant pis,
       // l'utilisateur retombera simplement sur l'accueil après connexion.
     }
-    syncUrlToView('login')
+    syncUrlToView('login', lang)
     dispatch({ type: 'REQUIRE_LOGIN', from })
-  }, [])
+  }, [lang])
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
 
@@ -261,14 +276,14 @@ export function AppProvider({ children }) {
     dispatch({ type: 'START_ANALYSIS' })
     try {
       const result = await analyzeImage(photoDataUrl, mode)
-      syncUrlToView('validate')
+      syncUrlToView('validate', lang)
       dispatch({ type: 'ANALYSIS_DONE', items: result.items })
     } catch (e) {
       console.warn('FrigoMind: analyse impossible, liste vide proposée', e)
-      syncUrlToView('validate')
+      syncUrlToView('validate', lang)
       dispatch({ type: 'ANALYSIS_DONE', items: [] })
     }
-  }, [])
+  }, [lang])
 
   const toggleIngredient = useCallback((id) => dispatch({ type: 'TOGGLE_INGREDIENT', id }), [])
   const renameIngredient = useCallback((id, name) => dispatch({ type: 'RENAME_INGREDIENT', id, name }), [])
@@ -311,27 +326,27 @@ export function AppProvider({ children }) {
     const validatedNames = getValidatedNames(state.ingredients)
     const { generateRecipes } = await import('../logic/recipeEngine.js')
     const recipes = generateRecipes(validatedNames, state.preferences)
-    syncUrlToView('results')
+    syncUrlToView('results', lang)
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: false })
     commitToHistory(validatedNames, recipes)
-  }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
+  }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory, lang])
 
   const surpriseMe = useCallback(async () => {
     const validatedNames = getValidatedNames(state.ingredients)
     const { surpriseRecipe } = await import('../logic/recipeEngine.js')
     const recipe = surpriseRecipe(validatedNames, state.preferences)
     const recipes = recipe ? [recipe] : []
-    syncUrlToView('results')
+    syncUrlToView('results', lang)
     dispatch({ type: 'SET_RECIPES', recipes, isSurprise: true })
     if (recipe) commitToHistory(validatedNames, recipes)
-  }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory])
+  }, [state.ingredients, state.preferences, getValidatedNames, commitToHistory, lang])
 
   const setActiveRecipe = useCallback((id) => dispatch({ type: 'SET_ACTIVE_RECIPE', id }), [])
 
   const resetSession = useCallback(() => {
-    syncUrlToView('home')
+    syncUrlToView('home', lang)
     dispatch({ type: 'RESET_SESSION' })
-  }, [])
+  }, [lang])
 
   const wipeHistory = useCallback(() => {
     clearHistory(uid)
@@ -374,21 +389,21 @@ export function AppProvider({ children }) {
   )
 
   const goToIngredient = useCallback((name) => {
-    syncUrlToView('ingredient')
+    syncUrlToView('ingredient', lang)
     dispatch({ type: 'SET_ACTIVE_INGREDIENT', name: name || '' })
-  }, [])
+  }, [lang])
 
   // Ouvre une recette en pleine page (voir RecipePage.jsx) depuis n'importe
   // quelle liste (résultats, favoris, page ingrédient...) : on mémorise la
   // vue d'origine pour que le bouton retour y ramène.
   const openRecipe = useCallback((recipe) => {
-    syncUrlToView('recipe')
+    syncUrlToView('recipe', lang)
     dispatch({ type: 'OPEN_RECIPE', recipe })
-  }, [])
+  }, [lang])
   const closeRecipe = useCallback(() => {
-    syncUrlToView(state.recipeReturnView)
+    syncUrlToView(state.recipeReturnView, lang)
     dispatch({ type: 'CLOSE_RECIPE' })
-  }, [state.recipeReturnView])
+  }, [state.recipeReturnView, lang])
 
   const value = useMemo(
     () => ({
