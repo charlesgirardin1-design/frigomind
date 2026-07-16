@@ -9,12 +9,14 @@
 // pour les comptes connectés (voir SuggestionPage.jsx pour le formulaire).
 // -----------------------------------------------------------------------------
 
+const SUBMIT_TIMEOUT_MS = 10_000
+
 export async function submitSuggestion({ text, category, uid, email, lang }) {
   const { collection, addDoc, serverTimestamp } = await import('firebase/firestore')
   const { db } = await import('../firestore.js')
   if (!db) throw new Error('Firestore non configuré')
 
-  await addDoc(collection(db, 'suggestions'), {
+  const write = addDoc(collection(db, 'suggestions'), {
     text: text.trim(),
     category,
     uid: uid || null,
@@ -22,4 +24,18 @@ export async function submitSuggestion({ text, category, uid, email, lang }) {
     lang,
     createdAt: serverTimestamp(),
   })
+
+  // Sans réseau (ou Firestore qui se croit hors-ligne), addDoc() peut rester
+  // en attente indéfiniment au lieu d'échouer — le bouton "Envoyer" restait
+  // bloqué sur "Envoi…" sans jamais afficher d'erreur. On force un échec
+  // propre après un délai raisonnable plutôt que d'attendre indéfiniment.
+  const timeout = new Promise((_, reject) => {
+    setTimeout(() => {
+      const err = new Error('Délai dépassé — vérifiez votre connexion')
+      err.code = 'timeout'
+      reject(err)
+    }, SUBMIT_TIMEOUT_MS)
+  })
+
+  await Promise.race([write, timeout])
 }
