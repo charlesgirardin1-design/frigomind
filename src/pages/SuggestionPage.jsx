@@ -82,8 +82,10 @@ export default function SuggestionPage() {
       setText('')
       setCategory('idee')
       setStatus({ error: '', loading: false })
-    } catch {
-      setStatus({ error: s.error, loading: false })
+    } catch (err) {
+      console.error('FrigoMind: envoi suggestion impossible', err)
+      const detail = err?.code || err?.message
+      setStatus({ error: detail ? `${s.error} (${detail})` : s.error, loading: false })
     }
   }
 
