@@ -110,10 +110,33 @@ export function AuthProvider({ children }) {
   const [localAvatar, setLocalAvatarState] = useState(null)
   const lang = useLanguage()
 
-  // Photo de profil : gardée en local (voir storage.js), propre à cet
-  // appareil et à ce compte (aucun Firebase Storage configuré pour ce MVP).
+  // Photo de profil : gardée en local (voir storage.js — pas de Firebase
+  // Storage configuré pour ce MVP), mais aussi poussée/récupérée via
+  // Firestore (voir cloudSync.js, champ "avatar" du même document
+  // users/{uid} que l'historique/favoris/préférences) pour rester cohérente
+  // d'un appareil à l'autre. Si cet appareil n'a pas encore de photo locale
+  // mais que le cloud en a une (définie ailleurs), on l'adopte ; sinon la
+  // version locale de cet appareil est prioritaire (évite d'écraser une
+  // photo qu'on vient de choisir par une copie cloud plus ancienne).
   useEffect(() => {
-    setLocalAvatarState(user ? getAvatar(user.uid) : null)
+    if (!user) {
+      setLocalAvatarState(null)
+      return
+    }
+    const local = getAvatar(user.uid)
+    setLocalAvatarState(local)
+    if (local) return
+    let cancelled = false
+    import('../utils/cloudSync.js').then(({ fetchCloudData }) => {
+      fetchCloudData(user.uid).then((cloud) => {
+        if (cancelled || !cloud?.avatar) return
+        saveAvatar(user.uid, cloud.avatar)
+        setLocalAvatarState(cloud.avatar)
+      })
+    })
+    return () => {
+      cancelled = true
+    }
   }, [user?.uid])
 
   const setLocalAvatar = useCallback(
@@ -125,6 +148,7 @@ export function AuthProvider({ children }) {
         clearAvatar(user.uid)
       }
       setLocalAvatarState(dataUrl)
+      import('../utils/cloudSync.js').then(({ pushCloudData }) => pushCloudData(user.uid, { avatar: dataUrl || null }))
     },
     [user]
   )
@@ -141,6 +165,19 @@ export function AuthProvider({ children }) {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u)
       setAuthLoading(false)
+      // Le profil (nom, photo) mis en cache par Firebase sur cet appareil
+      // peut être périmé si on l'a changé depuis un autre appareil —
+      // updateProfile() ne pousse pas la mise à jour en direct vers les
+      // sessions déjà connectées ailleurs. On rafraîchit donc en arrière-plan
+      // (sans bloquer l'affichage initial, voir setAuthLoading ci-dessus) et
+      // on ne remet à jour l'état que si ça change réellement.
+      if (u) {
+        u.reload()
+          .then(() => {
+            if (auth.currentUser) setUser({ ...auth.currentUser })
+          })
+          .catch(() => {})
+      }
     })
     return unsubscribe
   }, [])
