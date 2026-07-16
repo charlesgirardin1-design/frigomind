@@ -28,7 +28,6 @@ const FavoritesPage = lazy(() => import('./pages/FavoritesPage.jsx'))
 const IngredientPage = lazy(() => import('./pages/IngredientPage.jsx'))
 const RecipesBrowsePage = lazy(() => import('./pages/RecipesBrowsePage.jsx'))
 const RecipePage = lazy(() => import('./pages/RecipePage.jsx'))
-const SuggestionPage = lazy(() => import('./pages/SuggestionPage.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
 const SettingsPage = lazy(() => import('./pages/SettingsPage.jsx'))
 const AdminPage = lazy(() => import('./pages/AdminPage.jsx'))
@@ -77,7 +76,6 @@ const VIEWS = {
   ingredient: IngredientPage,
   recipesBrowse: RecipesBrowsePage,
   recipe: RecipePage,
-  suggestion: SuggestionPage,
   login: LoginPage,
   settings: SettingsPage,
   admin: AdminPage,
@@ -209,9 +207,6 @@ export default function App() {
             </button>
             <button onClick={() => goTo('changelog')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.changelog}
-            </button>
-            <button onClick={() => goTo('suggestion')} className="text-neutral-500 hover:text-fresh-700 transition">
-              {c.nav.suggestion}
             </button>
             <button onClick={() => goTo('legal')} className="text-neutral-500 hover:text-fresh-700 transition">
               {c.nav.legal}

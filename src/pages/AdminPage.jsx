@@ -109,13 +109,6 @@ const STRINGS = {
     activitySignup: 'Nouveau compte',
     activitySignin: 'Dernière connexion',
     activityEmpty: 'Aucune activité récente.',
-    suggestionsTitle: '💡 Boîte à idées',
-    suggestionsLoading: 'Chargement des suggestions…',
-    suggestionsEmpty: 'Aucune suggestion pour le moment.',
-    suggestionsError: 'Impossible de charger les suggestions (Firestore non configuré ?).',
-    suggestionsRefresh: 'Rafraîchir',
-    suggestionCategory: { idee: '💡 Idée', bug: '🐛 Bug', autre: '💬 Autre' },
-    suggestionAnonymous: 'Anonyme',
   },
   en: {
     title: 'Admin',
@@ -198,13 +191,6 @@ const STRINGS = {
     activitySignup: 'New account',
     activitySignin: 'Last sign-in',
     activityEmpty: 'No recent activity.',
-    suggestionsTitle: '💡 Suggestion box',
-    suggestionsLoading: 'Loading suggestions…',
-    suggestionsEmpty: 'No suggestions yet.',
-    suggestionsError: 'Could not load suggestions (Firestore not configured?).',
-    suggestionsRefresh: 'Refresh',
-    suggestionCategory: { idee: '💡 Idea', bug: '🐛 Bug', autre: '💬 Other' },
-    suggestionAnonymous: 'Anonymous',
   },
 }
 
@@ -463,78 +449,6 @@ function UsersSection({ s, user, lang }) {
             </div>
           )}
         </>
-      )}
-    </div>
-  )
-}
-
-// Onglet "Boîte à idées" : lit directement la collection Firestore
-// `suggestions` (voir utils/suggestions.js et SuggestionPage.jsx) — pas de
-// backend dédié, juste une règle Firestore qui n'autorise la lecture qu'au
-// compte admin. Import dynamique de firebase/firestore pour ne pas alourdir
-// le bundle initial (même raison que cloudSync.js/firestore.js).
-function SuggestionsSection({ s, lang }) {
-  const [state, setState] = useState({ loading: true, error: false, items: [] })
-
-  async function loadSuggestions() {
-    setState((prev) => ({ ...prev, loading: true, error: false }))
-    try {
-      const { collection, getDocs, query, orderBy, limit } = await import('firebase/firestore')
-      const { db } = await import('../firestore.js')
-      if (!db) throw new Error('Firestore non configuré')
-      const q = query(collection(db, 'suggestions'), orderBy('createdAt', 'desc'), limit(50))
-      const snap = await getDocs(q)
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
-      setState({ loading: false, error: false, items })
-    } catch (e) {
-      console.warn('FrigoMind admin: lecture suggestions impossible', e)
-      setState({ loading: false, error: true, items: [] })
-    }
-  }
-
-  useEffect(() => {
-    loadSuggestions()
-  }, [])
-
-  return (
-    <div className="mt-6 card p-6">
-      <div className="flex items-center justify-between gap-3 mb-1">
-        <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">{s.suggestionsTitle}</h3>
-        <button onClick={loadSuggestions} className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
-          {s.suggestionsRefresh}
-        </button>
-      </div>
-
-      {state.loading && <p className="text-sm text-neutral-400 mt-3">{s.suggestionsLoading}</p>}
-      {!state.loading && state.error && (
-        <p className="text-sm text-zest-600 dark:text-zest-400 mt-3">{s.suggestionsError}</p>
-      )}
-      {!state.loading && !state.error && state.items.length === 0 && (
-        <p className="text-sm text-neutral-400 mt-3">{s.suggestionsEmpty}</p>
-      )}
-      {!state.loading && !state.error && state.items.length > 0 && (
-        <div className="mt-3 max-h-96 overflow-y-auto space-y-3">
-          {state.items.map((item) => (
-            <div key={item.id} className="border-b border-neutral-100 dark:border-neutral-800 pb-3 last:border-b-0">
-              <div className="flex items-center justify-between gap-3 text-xs text-neutral-400">
-                <span>{s.suggestionCategory[item.category] || item.category}</span>
-                <span>
-                  {item.createdAt?.toDate
-                    ? item.createdAt.toDate().toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })
-                    : ''}
-                </span>
-              </div>
-              <p className="text-sm text-neutral-800 dark:text-neutral-200 mt-1 whitespace-pre-wrap">{item.text}</p>
-              <p className="text-xs text-neutral-400 mt-1">{item.email || s.suggestionAnonymous}</p>
-            </div>
-          ))}
-        </div>
       )}
     </div>
   )
@@ -819,8 +733,6 @@ export default function AdminPage() {
           ))}
         </div>
       </div>
-
-      <SuggestionsSection s={s} lang={lang} />
 
       <UsersSection s={s} user={user} lang={lang} />
     </div>

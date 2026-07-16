@@ -113,7 +113,6 @@ export default function Header() {
     { view: 'favorites', label: c.nav.favorites },
     { view: 'history', label: c.nav.history },
     { view: 'stats', label: c.nav.stats },
-    { view: 'suggestion', label: c.nav.suggestion },
     { view: 'about', label: c.nav.about },
     { view: 'faq', label: c.nav.faq },
   ]
