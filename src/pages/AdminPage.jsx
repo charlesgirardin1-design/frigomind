@@ -109,6 +109,9 @@ const STRINGS = {
     activitySignup: 'Nouveau compte',
     activitySignin: 'Dernière connexion',
     activityEmpty: 'Aucune activité récente.',
+    debugFirestoreTitle: 'Diagnostic sauvegarde cloud (Firestore)',
+    debugFirestoreHint: "Teste une écriture/lecture réelle dans Firestore avec les mêmes réglages que l'app, et affiche l'erreur exacte le cas échéant.",
+    debugFirestoreRun: 'Lancer le diagnostic',
   },
   en: {
     title: 'Admin',
@@ -191,6 +194,9 @@ const STRINGS = {
     activitySignup: 'New account',
     activitySignin: 'Last sign-in',
     activityEmpty: 'No recent activity.',
+    debugFirestoreTitle: 'Cloud sync diagnostic (Firestore)',
+    debugFirestoreHint: 'Runs a real write/read against Firestore with the same settings as the app, and shows the exact error if any.',
+    debugFirestoreRun: 'Run diagnostic',
   },
 }
 
@@ -458,6 +464,52 @@ function UsersSection({ s, user, lang }) {
 // l'email correspond à VITE_ADMIN_EMAIL (voir firebase.js/.env.example) :
 // tableau de bord technique + gestion des données locales, sans lien depuis
 // le menu ni la navigation.
+// Petit outil de diagnostic : tente une écriture + lecture Firestore via le
+// SDK Admin (mêmes réglages par défaut que le SDK client utilisé par
+// cloudSync.js — base "(default)") et affiche le résultat brut. Sert à
+// comprendre pourquoi la sauvegarde cloud peut sembler ne rien enregistrer
+// (base "(default)" absente si un autre nom a été choisi à la création,
+// écriture qui échoue silencieusement côté client, etc.) sans devoir
+// naviguer dans la console Firebase.
+function DebugFirestoreSection({ s, user }) {
+  const [state, setState] = useState({ loading: false, result: null })
+
+  async function runDiagnostic() {
+    setState({ loading: true, result: null })
+    try {
+      const idToken = await user.getIdToken()
+      const res = await fetch('/api/admin/debug-firestore', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      setState({ loading: false, result: { status: res.status, ...data } })
+    } catch (err) {
+      setState({ loading: false, result: { error: err.message } })
+    }
+  }
+
+  return (
+    <div className="mt-6 card p-6">
+      <div className="flex items-center justify-between gap-3 mb-1">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">{s.debugFirestoreTitle}</h3>
+        <button
+          onClick={runDiagnostic}
+          disabled={state.loading}
+          className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition disabled:opacity-50"
+        >
+          {state.loading ? s.usersLoading : s.debugFirestoreRun}
+        </button>
+      </div>
+      <p className="text-xs text-neutral-400 mt-1">{s.debugFirestoreHint}</p>
+      {state.result && (
+        <pre className="mt-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs overflow-x-auto whitespace-pre-wrap break-words">
+          {JSON.stringify(state.result, null, 2)}
+        </pre>
+      )}
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const { state, wipeHistory, clearFavorites, setPreferences, goTo } = useApp()
   const { user, localAvatar, setLocalAvatar } = useAuth()
@@ -735,6 +787,7 @@ export default function AdminPage() {
       </div>
 
       <UsersSection s={s} user={user} lang={lang} />
+      <DebugFirestoreSection s={s} user={user} />
     </div>
   )
 }
