@@ -14,7 +14,7 @@
 //   serving it from cache is always correct and safe.
 //
 // Bump CACHE_VERSION whenever you want to force-invalidate old caches.
-const CACHE_VERSION = 'frigomind-v2'
+const CACHE_VERSION = 'frigomind-v3'
 
 self.addEventListener('install', () => {
   self.skipWaiting()
@@ -59,8 +59,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
+          // .clone() doit être appelé tout de suite, avant que le navigateur
+          // ne commence à consommer le corps de la réponse renvoyée par
+          // respondWith() — sinon, selon le timing, cache.put() peut arriver
+          // trop tard et planter avec "Response body is already used".
           if (response && response.ok) {
-            caches.open(CACHE_VERSION).then((cache) => cache.put(request, response.clone()))
+            const responseToCache = response.clone()
+            caches.open(CACHE_VERSION).then((cache) => cache.put(request, responseToCache))
           }
           return response
         })
@@ -76,6 +81,7 @@ self.addEventListener('fetch', (event) => {
           const networkFetch = fetch(request)
             .then((response) => {
               if (response && response.ok) {
+                // Même raison qu'au-dessus : cloner avant de renvoyer la réponse.
                 cache.put(request, response.clone())
               }
               return response
