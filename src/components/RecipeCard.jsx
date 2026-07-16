@@ -9,6 +9,34 @@ const LEVEL_STYLES = {
   moyen: 'badge-neutral',
 }
 
+// Angles (degrés) des particules de la petite explosion au moment où on
+// ajoute une recette aux favoris — voir HeartBurst ci-dessous.
+const BURST_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
+const BURST_RADIUS = 16
+
+// Petite explosion de particules autour du cœur, uniquement au moment où on
+// AJOUTE un favori (pas au retrait, qui reste juste le "pop" existant) —
+// chaque particule fixe sa distance/direction via --dx/--dy, une seule
+// keyframe CSS (sparkBurst, voir tailwind.config.js) les anime toutes.
+function HeartBurst() {
+  return (
+    <span className="pointer-events-none absolute inset-0" aria-hidden>
+      {BURST_ANGLES.map((angle) => {
+        const rad = (angle * Math.PI) / 180
+        const dx = Math.round(Math.cos(rad) * BURST_RADIUS)
+        const dy = Math.round(Math.sin(rad) * BURST_RADIUS)
+        return (
+          <span
+            key={angle}
+            className="absolute left-1/2 top-1/2 w-1 h-1 rounded-full bg-red-400 animate-sparkBurst"
+            style={{ '--dx': `${dx}px`, '--dy': `${dy}px` }}
+          />
+        )
+      })}
+    </span>
+  )
+}
+
 // Carte compacte pour une recette, cliquable pour voir le détail complet.
 // `onOpen` reçoit la recette entière (pas juste son id) : les recettes
 // génériques réutilisent le même id d'une session à l'autre, donc seul
@@ -21,6 +49,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
   // à remonter le <span>, ce qui relance l'animation CSS à chaque clic (y compris
   // pour retirer un favori), sans dépendre d'un setTimeout à annuler.
   const [popTrigger, setPopTrigger] = useState(0)
+  const [burstTrigger, setBurstTrigger] = useState(0)
 
   // Les recettes "cuisine du monde" ont leur drapeau intégré en fin de nom :
   // on l'en extrait pour l'afficher comme badge dédié sur l'icône plutôt
@@ -71,13 +100,15 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
               onClick={(e) => {
                 e.stopPropagation()
                 setPopTrigger((n) => n + 1)
+                if (!isFavorite) setBurstTrigger((n) => n + 1)
                 onToggleFavorite(recipe)
               }}
               aria-label={isFavorite ? c.removeFromFavorites : c.addToFavorites}
-              className={`text-lg leading-none transition ${
+              className={`relative text-lg leading-none transition ${
                 isFavorite ? 'text-red-500' : 'text-neutral-300 hover:text-red-400'
               }`}
             >
+              {burstTrigger > 0 && <HeartBurst key={burstTrigger} />}
               <span
                 key={popTrigger}
                 className={`inline-block ${popTrigger > 0 ? 'animate-heartPop' : ''}`}

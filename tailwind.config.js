@@ -44,7 +44,10 @@ export default {
         xl2: '1.25rem',
       },
       keyframes: {
-        fadeIn: { from: { opacity: 0, transform: 'translateY(6px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
+        fadeIn: {
+          from: { opacity: 0, transform: 'translateY(10px) scale(0.99)' },
+          to: { opacity: 1, transform: 'translateY(0) scale(1)' },
+        },
         popIn: { from: { opacity: 0, transform: 'scale(0.96)' }, to: { opacity: 1, transform: 'scale(1)' } },
         float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
         blob: {
@@ -99,6 +102,14 @@ export default {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0 },
         },
+        // Particule qui part du cœur et se disperse (voir RecipeCard.jsx) :
+        // chaque particule fixe sa propre distance/direction via les
+        // variables CSS --dx/--dy (même trick que `drift` ci-dessus), une
+        // seule keyframe suffit donc pour les faire toutes rayonner.
+        sparkBurst: {
+          '0%': { opacity: 1, transform: 'scale(0.6) translate(0, 0)' },
+          '100%': { opacity: 0, transform: 'scale(1) translate(var(--dx, 0), var(--dy, 0))' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
@@ -112,6 +123,7 @@ export default {
         indeterminate: 'indeterminate 1.7s ease-in-out infinite',
         calendarFlip: 'calendarFlip 0.6s ease-in-out both',
         blink: 'blink 1s step-end infinite',
+        sparkBurst: 'sparkBurst 550ms ease-out forwards',
       },
     },
   },
