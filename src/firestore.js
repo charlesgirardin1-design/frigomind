@@ -11,4 +11,12 @@
 import { getFirestore } from 'firebase/firestore'
 import { firebaseApp } from './firebase.js'
 
-export const db = firebaseApp ? getFirestore(firebaseApp) : null
+// La base Firestore de ce projet a été créée sous l'identifiant "frigomind"
+// plutôt que "(default)" (visible dans la console Firebase, à côté du titre
+// "Base de données") — getFirestore() sans second argument cible toujours
+// "(default)", qui n'existe pas ici, d'où des lectures/écritures qui
+// échouaient silencieusement (voir cloudSync.js) sans jamais rien
+// enregistrer. Il faut donc préciser l'identifiant explicitement.
+const FIRESTORE_DATABASE_ID = 'frigomind'
+
+export const db = firebaseApp ? getFirestore(firebaseApp, FIRESTORE_DATABASE_ID) : null

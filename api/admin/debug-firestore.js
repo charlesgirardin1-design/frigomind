@@ -27,7 +27,9 @@ export default async function handler(req, res) {
   const result = { projectId: app.options.credential?.projectId || null }
 
   try {
-    const db = getFirestore(app)
+    // Voir firestore.js (client) : la base de ce projet s'appelle "frigomind",
+    // pas "(default)".
+    const db = getFirestore(app, 'frigomind')
     const testRef = db.collection('_diagnostic').doc('probe')
 
     await testRef.set({ checkedAt: new Date().toISOString() })
