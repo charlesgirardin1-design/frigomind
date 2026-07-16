@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useAuth } from '../state/AuthContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
@@ -7,7 +7,7 @@ import { COMMON } from '../i18n/common.js'
 import PageHeader from '../components/PageHeader.jsx'
 import { GearGlyph } from '../components/Illustrations.jsx'
 import { resizeImageFile } from '../utils/image.js'
-import { isNotificationSupported, getReminderPreference, setReminderPreference } from '../utils/reminders.js'
+import { isNotificationSupported } from '../utils/reminders.js'
 
 const DELETE_CONFIRM_WORD = { fr: 'SUPPRIMER', en: 'DELETE' }
 
@@ -184,8 +184,15 @@ export default function SettingsPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleteStatus, setDeleteStatus] = useState({ error: '', loading: false })
 
-  const [remindersEnabled, setRemindersEnabled] = useState(() => getReminderPreference(user?.uid))
+  const [remindersEnabled, setRemindersEnabled] = useState(() => !!state.preferences.remindersEnabled)
   const [remindersDenied, setRemindersDenied] = useState(false)
+
+  // Préférence synchronisée dans le cloud comme le reste du compte (voir
+  // preferences dans AppContext.jsx) : si elle change ailleurs (autre
+  // appareil, fusion cloud au chargement), on répercute ici aussi.
+  useEffect(() => {
+    setRemindersEnabled(!!state.preferences.remindersEnabled)
+  }, [state.preferences.remindersEnabled])
 
   const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase()
   const avatarUrl = localAvatar || user?.photoURL
@@ -253,14 +260,14 @@ export default function SettingsPage() {
   async function handleToggleReminders(e) {
     const wantEnabled = e.target.checked
     if (!wantEnabled) {
-      setReminderPreference(user?.uid, false)
+      setPreferences({ remindersEnabled: false })
       setRemindersEnabled(false)
       setRemindersDenied(false)
       return
     }
     const permission = await Notification.requestPermission()
     if (permission === 'granted') {
-      setReminderPreference(user?.uid, true)
+      setPreferences({ remindersEnabled: true })
       setRemindersEnabled(true)
       setRemindersDenied(false)
     } else {

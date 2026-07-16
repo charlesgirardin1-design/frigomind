@@ -16,7 +16,7 @@ const FAVORITES_KEY = 'frigomind_favorites'
 const MAX_FAVORITES = 150
 const PREFERENCES_KEY = 'frigomind_preferences'
 
-export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false }
+export const DEFAULT_PREFERENCES = { maxTime: 'peu importe', cuisine: 'toutes', vegetarien: false, remindersEnabled: false }
 
 // Sans compte connecté (ne devrait pas arriver : ces données ne sont
 // utilisées que sur des pages qui exigent une connexion), on retombe sur un

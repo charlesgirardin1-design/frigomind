@@ -171,7 +171,7 @@ export function AppProvider({ children }) {
     })
     // Rappel local anti-gaspi (voir reminders.js) : ne fait rien si
     // l'utilisateur ne l'a pas activé dans les paramètres.
-    maybeShowReminder(uid, localHistory, lang)
+    maybeShowReminder(uid, localHistory, lang, localPreferences.remindersEnabled)
 
     if (!uid) return
     let cancelled = false

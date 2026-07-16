@@ -7,35 +7,23 @@
 // rappels, a accordé la permission de notification, et n'a pas généré de
 // recettes depuis quelques jours, on affiche une notification locale
 // suggérant de revenir cuisiner — au maximum une fois par jour.
+//
+// La préférence elle-même (activé/désactivé) vit dans preferences.remindersEnabled
+// (voir storage.js) — synchronisée dans le cloud comme le reste du compte —
+// plutôt que dans sa propre clé localStorage séparée. Seul l'horodatage
+// "dernière notification affichée" reste local à l'appareil : la permission
+// navigateur elle-même n'est de toute façon jamais synchronisable (accordée
+// par appareil), donc rien ne serait gagné à synchroniser aussi ce détail.
 // -----------------------------------------------------------------------------
 
 import { scopedKey } from './storage.js'
 
-const PREF_KEY = 'frigomind_reminders_enabled'
 const LAST_SHOWN_KEY = 'frigomind_reminders_lastShown'
 const STALE_AFTER_DAYS = 2
 const MIN_GAP_HOURS = 20
 
 export function isNotificationSupported() {
   return typeof window !== 'undefined' && 'Notification' in window
-}
-
-export function getReminderPreference(uid) {
-  if (!isNotificationSupported()) return false
-  try {
-    return localStorage.getItem(scopedKey(PREF_KEY, uid)) === '1'
-  } catch {
-    return false
-  }
-}
-
-export function setReminderPreference(uid, enabled) {
-  try {
-    localStorage.setItem(scopedKey(PREF_KEY, uid), enabled ? '1' : '0')
-  } catch {
-    // localStorage indisponible (navigation privée stricte...) : préférence
-    // simplement pas persistée, pas bloquant pour le reste de l'app.
-  }
 }
 
 function hoursSince(isoDate) {
@@ -54,11 +42,11 @@ const MESSAGES = {
 }
 
 // Appelé une fois au chargement de l'app (voir AppContext) une fois
-// l'historique connu.
-export function maybeShowReminder(uid, history, lang) {
+// l'historique et les préférences connus.
+export function maybeShowReminder(uid, history, lang, remindersEnabled) {
   const messages = MESSAGES[lang] || MESSAGES.fr
   if (!isNotificationSupported() || Notification.permission !== 'granted') return
-  if (!getReminderPreference(uid)) return
+  if (!remindersEnabled) return
 
   const lastSession = history[0]?.date
   const isStale = !lastSession || hoursSince(lastSession) >= STALE_AFTER_DAYS * 24
