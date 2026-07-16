@@ -114,10 +114,12 @@ export function AuthProvider({ children }) {
   // Storage configuré pour ce MVP), mais aussi poussée/récupérée via
   // Firestore (voir cloudSync.js, champ "avatar" du même document
   // users/{uid} que l'historique/favoris/préférences) pour rester cohérente
-  // d'un appareil à l'autre. Si cet appareil n'a pas encore de photo locale
-  // mais que le cloud en a une (définie ailleurs), on l'adopte ; sinon la
-  // version locale de cet appareil est prioritaire (évite d'écraser une
-  // photo qu'on vient de choisir par une copie cloud plus ancienne).
+  // d'un appareil à l'autre. Le cloud fait foi dès qu'il contient une photo
+  // (une photo choisie sur un appareil doit remplacer celle d'un autre) ; si
+  // le cloud est encore vide mais qu'une photo locale existe déjà sur cet
+  // appareil (typiquement une photo choisie avant l'ajout de cette
+  // synchronisation), on la fait remonter pour qu'elle devienne la
+  // référence commune au lieu de rester coincée sur ce seul appareil.
   useEffect(() => {
     if (!user) {
       setLocalAvatarState(null)
@@ -125,13 +127,18 @@ export function AuthProvider({ children }) {
     }
     const local = getAvatar(user.uid)
     setLocalAvatarState(local)
-    if (local) return
     let cancelled = false
-    import('../utils/cloudSync.js').then(({ fetchCloudData }) => {
+    import('../utils/cloudSync.js').then(({ fetchCloudData, pushCloudData }) => {
       fetchCloudData(user.uid).then((cloud) => {
-        if (cancelled || !cloud?.avatar) return
-        saveAvatar(user.uid, cloud.avatar)
-        setLocalAvatarState(cloud.avatar)
+        if (cancelled) return
+        if (cloud?.avatar) {
+          if (cloud.avatar !== local) {
+            saveAvatar(user.uid, cloud.avatar)
+            setLocalAvatarState(cloud.avatar)
+          }
+        } else if (local) {
+          pushCloudData(user.uid, { avatar: local })
+        }
       })
     })
     return () => {
