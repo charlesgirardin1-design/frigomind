@@ -24,16 +24,33 @@
 import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getAuth } from 'firebase-admin/auth'
 
+// Tolère les erreurs de copier-coller les plus courantes en collant la clé
+// depuis le JSON du compte de service : guillemets englobants copiés par
+// erreur (ex : "-----BEGIN...-----\n" avec les guillemets du JSON inclus),
+// espaces/retours à la ligne parasites en début/fin.
+function normalizePrivateKey(raw) {
+  let key = raw.trim()
+  if (key.startsWith('"') && key.endsWith('"')) {
+    key = key.slice(1, -1)
+  }
+  return key.replace(/\\n/g, '\n').trim()
+}
+
 function getAdminApp() {
   const apps = getApps()
   if (apps.length) return apps[0]
 
-  const projectId = process.env.FIREBASE_PROJECT_ID
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n')
+  const projectId = (process.env.FIREBASE_PROJECT_ID || '').trim()
+  const clientEmail = (process.env.FIREBASE_CLIENT_EMAIL || '').trim()
+  const privateKey = normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY || '')
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error('FIREBASE_PROJECT_ID / FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY manquantes')
+  }
+  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+    throw new Error(
+      'FIREBASE_PRIVATE_KEY ne ressemble pas à une clé PEM valide (doit contenir "-----BEGIN PRIVATE KEY-----") — relisez la valeur collée dans Vercel.'
+    )
   }
 
   return initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) })
