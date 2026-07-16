@@ -39,7 +39,7 @@ const FAQ_ITEMS = {
     {
       cat: 'Technique',
       q: "Mon historique de recettes est-il synchronisé entre mes appareils ?",
-      a: "Non, il est stocké uniquement dans le navigateur utilisé (localStorage). Si vous changez d'appareil ou videz le cache de votre navigateur, l'historique repart de zéro.",
+      a: "Oui : historique, favoris et préférences sont sauvegardés à la fois sur cet appareil (pour un affichage instantané) et dans le cloud tant que vous êtes connecté au même compte, pour les retrouver sur un autre appareil.",
     },
     {
       cat: 'Technique',
@@ -91,7 +91,7 @@ const FAQ_ITEMS = {
     {
       cat: 'Technical',
       q: 'Is my recipe history synced across my devices?',
-      a: "No, it's stored only in the browser used (localStorage). If you switch devices or clear your browser cache, the history starts fresh.",
+      a: "Yes: history, favorites, and preferences are saved both on this device (for instant display) and in the cloud as long as you're signed in to the same account, so you can find them on another device.",
     },
     {
       cat: 'Technical',
