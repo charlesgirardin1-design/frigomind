@@ -115,6 +115,7 @@ const STRINGS = {
     testPushTitle: 'Test notification push',
     testPushHint: "Envoie une vraie notification push à ce compte (nécessite d'avoir activé les rappels dans Paramètres sur cet appareil).",
     testPushRun: 'Envoyer un test',
+    testPushPlaceholder: 'Texte personnalisé (optionnel)',
   },
   en: {
     title: 'Admin',
@@ -203,6 +204,7 @@ const STRINGS = {
     testPushTitle: 'Test push notification',
     testPushHint: 'Sends a real push notification to this account (requires reminders to be enabled in Settings on this device).',
     testPushRun: 'Send a test',
+    testPushPlaceholder: 'Custom text (optional)',
   },
 }
 
@@ -521,12 +523,14 @@ function DebugFirestoreSection({ s, user }) {
 // identifiants Admin SDK) sans attendre le cron quotidien.
 function TestPushSection({ s, user }) {
   const [state, setState] = useState({ loading: false, result: null })
+  const [text, setText] = useState('')
 
   async function runTest() {
     setState({ loading: true, result: null })
     try {
       const idToken = await user.getIdToken()
-      const res = await fetch('/api/admin/test-push', {
+      const url = text.trim() ? `/api/admin/test-push?text=${encodeURIComponent(text.trim())}` : '/api/admin/test-push'
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${idToken}` },
       })
       const data = await res.json().catch(() => ({}))
@@ -540,15 +544,23 @@ function TestPushSection({ s, user }) {
     <div className="mt-6 card p-6">
       <div className="flex items-center justify-between gap-3 mb-1">
         <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">{s.testPushTitle}</h3>
+      </div>
+      <p className="text-xs text-neutral-500 mt-1">{s.testPushHint}</p>
+      <div className="mt-3 flex items-center gap-2">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={s.testPushPlaceholder}
+          className="flex-1 text-sm border border-neutral-200 dark:border-neutral-700 dark:bg-neutral-800 rounded-full px-4 py-2 outline-none focus:border-fresh-400 focus:ring-2 focus:ring-fresh-100"
+        />
         <button
           onClick={runTest}
           disabled={state.loading}
-          className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition disabled:opacity-50"
+          className="btn-secondary !py-2 !px-4 text-xs whitespace-nowrap disabled:opacity-50"
         >
           {state.loading ? s.usersLoading : s.testPushRun}
         </button>
       </div>
-      <p className="text-xs text-neutral-500 mt-1">{s.testPushHint}</p>
       {state.result && (
         <pre className="mt-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs overflow-x-auto whitespace-pre-wrap break-words">
           {JSON.stringify(state.result, null, 2)}

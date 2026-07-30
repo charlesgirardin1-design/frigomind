@@ -41,11 +41,13 @@ export default async function handler(req, res) {
       return
     }
 
+    const customText = typeof req.query.text === 'string' ? req.query.text.trim().slice(0, 200) : ''
+
     await getMessaging(app).send({
       token,
       notification: {
         title: '🥕 Notification de test',
-        body: 'Si tu vois ceci, les rappels push fonctionnent correctement !',
+        body: customText || 'Si tu vois ceci, les rappels push fonctionnent correctement !',
       },
     })
 
