@@ -10,6 +10,7 @@ import { scaleIngredientQuantity } from '../utils/servings.js'
 import { getSubstitutes } from '../data/ingredientSubstitutes.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getFavoriteKey } from '../utils/storage.js'
+import { estimateRecipeCalories } from '../utils/calories.js'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
@@ -43,6 +44,8 @@ export default function RecipePage() {
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
+  const totalCalories = estimateRecipeCalories(allIngredients, servings)
+  const caloriesPerServing = totalCalories ? Math.round(totalCalories / servings / 10) * 10 : null
 
   const displayName = localizeRecipeName(recipe, lang)
   const { flag, cleanName } = extractCountryFlag(displayName)
@@ -129,6 +132,9 @@ export default function RecipePage() {
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
               <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
               <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>
+              {caloriesPerServing && (
+                <span className="badge badge-neutral">🔥 {c.caloriesPerServing(caloriesPerServing)}</span>
+              )}
               {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
             </div>
           </div>

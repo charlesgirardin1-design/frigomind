@@ -58,6 +58,7 @@ export const COMMON = {
       increaseServings: 'Plus de personnes',
       quantitiesNote: 'Quantités estimées, à ajuster selon vos envies.',
       substituteWith: '🔁 Remplacer par :',
+      caloriesPerServing: (n) => `~${n} kcal / portion`,
     },
   },
   en: {
@@ -111,6 +112,7 @@ export const COMMON = {
       increaseServings: 'More servings',
       quantitiesNote: 'Estimated quantities, adjust to taste.',
       substituteWith: '🔁 Substitute with:',
+      caloriesPerServing: (n) => `~${n} kcal / serving`,
     },
   },
 }

@@ -5,6 +5,7 @@ import { COMMON } from '../i18n/common.js'
 import PreferencesPanel from '../components/PreferencesPanel.jsx'
 import AntiGaspiBanner from '../components/AntiGaspiBanner.jsx'
 import IngredientSuggestions from '../components/IngredientSuggestions.jsx'
+import BarcodeScanner from '../components/BarcodeScanner.jsx'
 import { suggestComplementaryIngredients } from '../logic/recipeEngine.js'
 
 const STRINGS = {
@@ -18,6 +19,7 @@ const STRINGS = {
     removeAria: (name) => `Supprimer ${name}`,
     addPlaceholder: 'Ajouter un ingrédient (ex : oignon)',
     add: '+ Ajouter',
+    scanBarcode: '📷 Scanner un code-barres',
     seeRecipes: '🍽️ Voir mes recettes',
     preparingRecipes: 'Préparation de vos recettes…',
     surpriseMe: "🎲 J'ai faim, surprends-moi",
@@ -36,6 +38,7 @@ const STRINGS = {
     removeAria: (name) => `Remove ${name}`,
     addPlaceholder: 'Add an ingredient (e.g. onion)',
     add: '+ Add',
+    scanBarcode: '📷 Scan a barcode',
     seeRecipes: '🍽️ See my recipes',
     preparingRecipes: 'Getting your recipes ready…',
     surpriseMe: "🎲 I'm hungry, surprise me",
@@ -65,6 +68,7 @@ export default function ValidatePage() {
   const lang = useLanguage()
   const s = STRINGS[lang]
   const [newIngredient, setNewIngredient] = useState('')
+  const [showScanner, setShowScanner] = useState(false)
   // generateFromValidated/surpriseMe basculent state.view dès que la base de
   // recettes (chargée à la demande) répond : sans ce délai artificiel,
   // l'écran passe quasi instantanément à ResultsPage, ce qui ressemble à un
@@ -178,7 +182,26 @@ export default function ValidatePage() {
             {s.add}
           </button>
         </div>
+        <div className="p-3.5">
+          <button
+            type="button"
+            onClick={() => setShowScanner(true)}
+            className="w-full text-sm text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition"
+          >
+            {s.scanBarcode}
+          </button>
+        </div>
       </div>
+
+      {showScanner && (
+        <BarcodeScanner
+          onDetected={(name) => {
+            addIngredient(name)
+            setShowScanner(false)
+          }}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
 
       {hasAtLeastOne && suggestions.length > 0 && (
         <IngredientSuggestions suggestions={suggestions} onSelect={addIngredient} />
