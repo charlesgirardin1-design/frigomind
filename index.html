@@ -11,13 +11,30 @@
     <meta name="theme-color" content="#22a86a" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Chargement non bloquant : la police système sert de repli le temps que
+         Inter arrive, au lieu de retarder le premier affichage (voir aussi
+         body { font-display: swap } côté Google Fonts, déjà demandé via
+         &display=swap ci-dessous). -->
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
-    <link rel="icon" type="image/png" href="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png" />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <link rel="icon" type="image/png" href="/logo-32.png" />
     <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png" />
+    <link rel="apple-touch-icon" href="/logo-180.png" />
   </head>
   <body class="bg-neutral-50">
     <div id="root"></div>

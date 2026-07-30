@@ -175,7 +175,7 @@ export default function FaqPage() {
         ))}
       </div>
 
-      <p className="mt-8 text-center text-sm text-neutral-400">
+      <p className="mt-8 text-center text-sm text-neutral-500">
         {s.otherQuestion}{' '}
         <button onClick={() => goTo('about')} className="text-fresh-700 underline underline-offset-2">
           {s.seeAbout}

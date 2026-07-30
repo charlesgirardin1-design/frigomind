@@ -184,7 +184,7 @@ export default function ContactPage() {
               rows={6}
               className="w-full text-sm rounded-xl border border-neutral-200 p-3 focus:outline-none focus:ring-2 focus:ring-fresh-300 resize-none"
             />
-            <p className="text-xs text-neutral-400 mt-1 text-right">{s.charsLeft(MAX_LENGTH - message.length)}</p>
+            <p className="text-xs text-neutral-500 mt-1 text-right">{s.charsLeft(MAX_LENGTH - message.length)}</p>
           </div>
 
           {status.phase === 'error' && <p className="text-sm text-red-600">{status.error}</p>}

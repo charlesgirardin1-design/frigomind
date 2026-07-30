@@ -111,7 +111,7 @@ export default function UploadPage() {
         }
       `}</style>
 
-      <button onClick={() => goTo('home')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+      <button onClick={() => goTo('home')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
 
@@ -132,7 +132,7 @@ export default function UploadPage() {
           {s.pantry}
         </button>
       </div>
-      <p className="text-xs text-neutral-400 mt-1.5">
+      <p className="text-xs text-neutral-500 mt-1.5">
         {scanMode === 'placard' ? s.pantryHint : s.fridgeHint}
       </p>
 
@@ -175,7 +175,7 @@ export default function UploadPage() {
             <IllustrationTile tone="fresh" size="lg">
               <CameraGlyph className="w-full h-full" />
             </IllustrationTile>
-            <p className="text-neutral-400 text-sm px-6">{s.emptyState}</p>
+            <p className="text-neutral-500 text-sm px-6">{s.emptyState}</p>
           </div>
         )}
       </div>

@@ -37,7 +37,7 @@ export default function ResultsPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={() => goTo('validate')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+      <button onClick={() => goTo('validate')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {s.backEdit}
       </button>
 

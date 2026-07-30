@@ -84,7 +84,7 @@ function TypewriterStatus({ phrases }) {
   }, [charCount, isDeleting, phraseIndex, phrases])
 
   return (
-    <p className="text-xs text-neutral-400 dark:text-neutral-500 h-4">
+    <p className="text-xs text-neutral-500 dark:text-neutral-500 h-4">
       {phrases[phraseIndex].slice(0, charCount)}
       <span className="inline-block w-[1px] h-3 bg-neutral-400 dark:bg-neutral-500 ml-0.5 align-middle animate-blink" />
     </p>
@@ -196,7 +196,7 @@ export default function RecipesBrowsePage() {
         <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-sm mt-2">{s.body}</p>
 
         <div className="mt-5 flex flex-col items-center gap-2" aria-hidden>
-          <span className="text-[11px] font-semibold text-fresh-600 dark:text-fresh-400 tracking-wide uppercase">
+          <span className="text-[11px] font-semibold text-fresh-700 dark:text-fresh-400 tracking-wide uppercase">
             {s.inProgress}
           </span>
           <div className="w-40 h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">

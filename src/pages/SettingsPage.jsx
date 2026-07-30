@@ -340,7 +340,7 @@ export default function SettingsPage() {
               <button
                 type="button"
                 onClick={() => setLocalAvatar(null)}
-                className="text-xs text-neutral-400 hover:text-red-600 px-1"
+                className="text-xs text-neutral-500 hover:text-red-600 px-1"
               >
                 {s.removePhoto}
               </button>
@@ -357,7 +357,7 @@ export default function SettingsPage() {
           </div>
         </div>
         {avatarStatus.error && <p className="text-sm text-red-600 mt-2">{avatarStatus.error}</p>}
-        <p className="text-xs text-neutral-400 mt-2">{s.photoLocal}</p>
+        <p className="text-xs text-neutral-500 mt-2">{s.photoLocal}</p>
 
         <form onSubmit={handleNameSubmit} className="space-y-3 mt-4 pt-4 border-t border-neutral-100">
           <input
@@ -521,7 +521,7 @@ export default function SettingsPage() {
                   wipeHistory()
                   showToast(s.historyCleared)
                 }}
-                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+                className="text-sm text-neutral-500 hover:text-red-600 shrink-0"
               >
                 {s.clear}
               </button>
@@ -535,7 +535,7 @@ export default function SettingsPage() {
                   clearFavorites()
                   showToast(s.favoritesCleared)
                 }}
-                className="text-sm text-neutral-400 hover:text-red-600 shrink-0"
+                className="text-sm text-neutral-500 hover:text-red-600 shrink-0"
               >
                 {s.clear}
               </button>

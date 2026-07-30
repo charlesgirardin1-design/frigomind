@@ -8,12 +8,12 @@
   "theme_color": "#22a86a",
   "icons": [
     {
-      "src": "https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png",
+      "src": "/logo-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png",
+      "src": "/logo-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

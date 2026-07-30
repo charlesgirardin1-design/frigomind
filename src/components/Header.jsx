@@ -138,7 +138,7 @@ export default function Header() {
           onClick={() => navigate('home')}
         >
           <img
-            src="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png"
+            src="/logo-32.png"
             alt="FrigoMind"
             className="w-8 h-8 rounded-xl object-cover shadow-card ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-105 group-hover:rotate-3"
           />
@@ -235,7 +235,7 @@ export default function Header() {
               </button>
             ))}
             <div className="border-t border-neutral-100 dark:border-neutral-800 mt-2 pt-2 flex items-center justify-between gap-3">
-              <span className="text-xs text-neutral-400 dark:text-neutral-500 px-2">{lang === 'fr' ? 'Thème & langue' : 'Theme & language'}</span>
+              <span className="text-xs text-neutral-500 dark:text-neutral-500 px-2">{lang === 'fr' ? 'Thème & langue' : 'Theme & language'}</span>
               <div className="flex items-center gap-1.5">
                 <ThemeToggle />
                 <LanguageSwitcher />

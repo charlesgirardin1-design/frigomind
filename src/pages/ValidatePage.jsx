@@ -103,7 +103,7 @@ export default function ValidatePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-28 animate-fadeIn">
-      <button onClick={() => goTo('upload')} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+      <button onClick={() => goTo('upload')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
 
@@ -116,7 +116,7 @@ export default function ValidatePage() {
 
       <div className="mt-5 card divide-y divide-neutral-100">
         {state.ingredients.length === 0 && (
-          <p className="p-4 text-sm text-neutral-400 text-center">{s.emptyState}</p>
+          <p className="p-4 text-sm text-neutral-500 text-center">{s.emptyState}</p>
         )}
 
         {state.ingredients.map((ing, index) => (
@@ -133,7 +133,7 @@ export default function ValidatePage() {
             />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className={`font-medium capitalize ${ing.checked ? 'text-neutral-900' : 'text-neutral-400 line-through'}`}>
+                <span className={`font-medium capitalize ${ing.checked ? 'text-neutral-900' : 'text-neutral-500 line-through'}`}>
                   {ing.name}
                 </span>
                 {ing.count > 1 && <span className="badge badge-neutral">×{ing.count}</span>}
@@ -142,7 +142,7 @@ export default function ValidatePage() {
 
               {ing.alternatives?.length > 0 && (
                 <div className="mt-1.5 flex items-center gap-1.5 flex-wrap">
-                  <span className="text-xs text-neutral-400">{s.orMaybe}</span>
+                  <span className="text-xs text-neutral-500">{s.orMaybe}</span>
                   {ing.alternatives.map((alt) => (
                     <button
                       key={alt}

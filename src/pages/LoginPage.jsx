@@ -215,7 +215,7 @@ export default function LoginPage() {
 
             <div className="flex items-center gap-3 my-5">
               <div className="h-px bg-neutral-100 flex-1" />
-              <span className="text-xs text-neutral-400">{s.orEmail}</span>
+              <span className="text-xs text-neutral-500">{s.orEmail}</span>
               <div className="h-px bg-neutral-100 flex-1" />
             </div>
           </>
@@ -252,7 +252,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !isFirebaseConfigured}
-                className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-fresh-700 hover:bg-fresh-800 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? s.oneMoment : s.sendResetLink}
               </button>
@@ -312,7 +312,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading || !isFirebaseConfigured}
-                className="w-full bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-fresh-700 hover:bg-fresh-800 text-white font-semibold rounded-xl py-2.5 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? s.oneMoment : mode === 'signup' ? s.createAccount : s.signinTitle}
               </button>
@@ -347,7 +347,7 @@ export default function LoginPage() {
         )}
       </div>
 
-      <p className="text-xs text-neutral-400 text-center mt-6">
+      <p className="text-xs text-neutral-500 text-center mt-6">
         {s.legalPrefix}{' '}
         <button onClick={() => goTo('legal')} className="underline underline-offset-2 hover:text-neutral-600">
           {s.legalLink}

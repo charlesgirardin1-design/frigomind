@@ -61,7 +61,7 @@ export default function CookieBanner() {
         <button
           type="button"
           onClick={accept}
-          className="shrink-0 bg-fresh-600 hover:bg-fresh-700 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition"
+          className="shrink-0 bg-fresh-700 hover:bg-fresh-800 text-white font-semibold rounded-xl px-5 py-2.5 text-sm transition"
         >
           {s.accept}
         </button>

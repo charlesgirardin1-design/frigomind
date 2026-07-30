@@ -127,7 +127,7 @@ export default function OnboardingTour() {
         <button
           type="button"
           onClick={dismiss}
-          className="float-right text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition"
+          className="float-right text-xs text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-200 transition"
         >
           {s.skip}
         </button>

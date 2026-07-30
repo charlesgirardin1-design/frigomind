@@ -135,12 +135,12 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
       </div>
 
       {recipe.missingIngredients?.length > 0 && (
-        <p className="mt-2 text-xs text-neutral-400">
+        <p className="mt-2 text-xs text-neutral-500">
           {c.toBuy} : {recipe.missingIngredients.join(', ')}
         </p>
       )}
 
-      <p className="mt-3 text-xs font-medium text-fresh-600">{c.seeRecipe}</p>
+      <p className="mt-3 text-xs font-medium text-fresh-700">{c.seeRecipe}</p>
     </div>
   )
 }

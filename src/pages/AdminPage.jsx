@@ -341,40 +341,40 @@ function UsersSection({ s, user, lang }) {
     <div className="mt-6 card p-6">
       <div className="flex items-center justify-between gap-3 mb-1">
         <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">{s.usersTitle}</h3>
-        <button onClick={loadUsers} className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
+        <button onClick={loadUsers} className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
           {s.usersRefresh}
         </button>
       </div>
 
-      {state.loading && <p className="text-sm text-neutral-400 mt-3">{s.usersLoading}</p>}
+      {state.loading && <p className="text-sm text-neutral-500 mt-3">{s.usersLoading}</p>}
 
       {!state.loading && state.error && (
-        <p className="text-sm text-zest-600 dark:text-zest-400 mt-3">
+        <p className="text-sm text-zest-700 dark:text-zest-400 mt-3">
           {state.error === 'error' ? s.usersNotConfigured : state.error}
         </p>
       )}
 
       {!state.loading && !state.error && (
         <>
-          <p className="text-xs text-neutral-400 mt-1 mb-3">{s.usersTotal(state.total)}</p>
+          <p className="text-xs text-neutral-500 mt-1 mb-3">{s.usersTotal(state.total)}</p>
 
           <div className="grid grid-cols-3 gap-2 mb-4">
             <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
               <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.newWeek}</div>
-              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statNewWeek}</div>
+              <div className="text-[11px] text-neutral-500 leading-tight mt-0.5">{s.statNewWeek}</div>
             </div>
             <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
               <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.activeWeek}</div>
-              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statActiveWeek}</div>
+              <div className="text-[11px] text-neutral-500 leading-tight mt-0.5">{s.statActiveWeek}</div>
             </div>
             <div className="rounded-lg bg-neutral-50 dark:bg-neutral-800 p-2.5 text-center">
               <div className="text-lg font-bold text-neutral-900 dark:text-neutral-50">{stats.banned}</div>
-              <div className="text-[11px] text-neutral-400 leading-tight mt-0.5">{s.statBanned}</div>
+              <div className="text-[11px] text-neutral-500 leading-tight mt-0.5">{s.statBanned}</div>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 flex-wrap mb-4 text-xs">
-            <span className="text-neutral-400">{s.statProviders}</span>
+            <span className="text-neutral-500">{s.statProviders}</span>
             {Object.entries(stats.providers).map(([provider, count]) => (
               <span key={provider} className="badge badge-neutral">
                 {providerLabel(provider, s)} · {count}
@@ -401,7 +401,7 @@ function UsersSection({ s, user, lang }) {
           </div>
 
           <div className="max-h-80 overflow-y-auto">
-            {filteredUsers.length === 0 && <p className="text-sm text-neutral-400 py-2">{s.noUsersMatch}</p>}
+            {filteredUsers.length === 0 && <p className="text-sm text-neutral-500 py-2">{s.noUsersMatch}</p>}
             {filteredUsers.map((u) => (
               <div
                 key={u.uid}
@@ -410,7 +410,7 @@ function UsersSection({ s, user, lang }) {
                 <div className="min-w-0">
                   <p className="text-sm text-neutral-800 dark:text-neutral-200 truncate">
                     {u.email || u.uid}
-                    {u.uid === user.uid && <span className="text-neutral-400"> ({s.self})</span>}
+                    {u.uid === user.uid && <span className="text-neutral-500"> ({s.self})</span>}
                   </p>
                   {u.disabled && <span className="badge badge-zest mt-0.5 inline-block">{s.disabledBadge}</span>}
                 </div>
@@ -419,7 +419,7 @@ function UsersSection({ s, user, lang }) {
                     onClick={() => toggleBan(u)}
                     disabled={pendingUid === u.uid}
                     className={`text-xs shrink-0 transition disabled:opacity-40 ${
-                      u.disabled ? 'text-fresh-600 hover:text-fresh-700 dark:text-fresh-400' : 'text-neutral-400 hover:text-red-600'
+                      u.disabled ? 'text-fresh-700 hover:text-fresh-800 dark:text-fresh-400' : 'text-neutral-500 hover:text-red-600'
                     }`}
                   >
                     {u.disabled ? s.unban : s.ban}
@@ -431,18 +431,18 @@ function UsersSection({ s, user, lang }) {
 
           <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-50 mt-5 mb-2">{s.activityTitle}</h4>
           {activityLog.length === 0 ? (
-            <p className="text-sm text-neutral-400">{s.activityEmpty}</p>
+            <p className="text-sm text-neutral-500">{s.activityEmpty}</p>
           ) : (
             <div className="max-h-64 overflow-y-auto space-y-2">
               {activityLog.map((event) => (
                 <div key={event.key} className="flex items-center justify-between gap-3 text-xs">
                   <span className="text-neutral-700 dark:text-neutral-300 truncate">
-                    <span className={event.type === 'signup' ? 'text-fresh-600 dark:text-fresh-400' : 'text-neutral-400'}>
+                    <span className={event.type === 'signup' ? 'text-fresh-700 dark:text-fresh-400' : 'text-neutral-500'}>
                       {event.type === 'signup' ? s.activitySignup : s.activitySignin}
                     </span>{' '}
                     — {event.email}
                   </span>
-                  <span className="text-neutral-400 shrink-0 tabular-nums">
+                  <span className="text-neutral-500 shrink-0 tabular-nums">
                     {new Date(event.date).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', {
                       day: '2-digit',
                       month: '2-digit',
@@ -495,12 +495,12 @@ function DebugFirestoreSection({ s, user }) {
         <button
           onClick={runDiagnostic}
           disabled={state.loading}
-          className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition disabled:opacity-50"
+          className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition disabled:opacity-50"
         >
           {state.loading ? s.usersLoading : s.debugFirestoreRun}
         </button>
       </div>
-      <p className="text-xs text-neutral-400 mt-1">{s.debugFirestoreHint}</p>
+      <p className="text-xs text-neutral-500 mt-1">{s.debugFirestoreHint}</p>
       {state.result && (
         <pre className="mt-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs overflow-x-auto whitespace-pre-wrap break-words">
           {JSON.stringify(state.result, null, 2)}
@@ -629,7 +629,7 @@ export default function AdminPage() {
           <Row
             label={s.firebaseStatus}
             value={
-              <span className={isFirebaseConfigured ? 'text-fresh-600 dark:text-fresh-400' : 'text-zest-600 dark:text-zest-400'}>
+              <span className={isFirebaseConfigured ? 'text-fresh-700 dark:text-fresh-400' : 'text-zest-700 dark:text-zest-400'}>
                 {isFirebaseConfigured ? s.configured : s.notConfigured}
               </span>
             }
@@ -649,7 +649,7 @@ export default function AdminPage() {
           <Row
             label={s.swStatus}
             value={
-              <span className={swActive ? 'text-fresh-600 dark:text-fresh-400' : 'text-neutral-400'}>
+              <span className={swActive ? 'text-fresh-700 dark:text-fresh-400' : 'text-neutral-500'}>
                 {swActive ? s.active : s.inactive}
               </span>
             }
@@ -669,7 +669,7 @@ export default function AdminPage() {
             value=""
             action={
               state.history.length > 0 && (
-                <button onClick={handleClearHistory} className="text-xs text-neutral-400 hover:text-red-600 transition">
+                <button onClick={handleClearHistory} className="text-xs text-neutral-500 hover:text-red-600 transition">
                   {s.clear}
                 </button>
               )
@@ -680,7 +680,7 @@ export default function AdminPage() {
             value=""
             action={
               state.favorites.length > 0 && (
-                <button onClick={handleClearFavorites} className="text-xs text-neutral-400 hover:text-red-600 transition">
+                <button onClick={handleClearFavorites} className="text-xs text-neutral-500 hover:text-red-600 transition">
                   {s.clear}
                 </button>
               )
@@ -690,7 +690,7 @@ export default function AdminPage() {
             label={s.preferences}
             value={`${state.preferences.maxTime} · ${state.preferences.cuisine} · ${state.preferences.vegetarien ? '🌱' : '—'}`}
             action={
-              <button onClick={handleResetPreferences} className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
+              <button onClick={handleResetPreferences} className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
                 {s.reset}
               </button>
             }
@@ -700,7 +700,7 @@ export default function AdminPage() {
             value=""
             action={
               localAvatar && (
-                <button onClick={handleClearAvatar} className="text-xs text-neutral-400 hover:text-red-600 transition">
+                <button onClick={handleClearAvatar} className="text-xs text-neutral-500 hover:text-red-600 transition">
                   {s.clear}
                 </button>
               )
@@ -727,7 +727,7 @@ export default function AdminPage() {
             value={cookieConsent ? s.accepted : s.notAnswered}
             action={
               cookieConsent && (
-                <button onClick={handleResetCookieConsent} className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
+                <button onClick={handleResetCookieConsent} className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
                   {s.reset}
                 </button>
               )
@@ -746,7 +746,7 @@ export default function AdminPage() {
         />
         {recipeQuery.trim() && (
           <>
-            <p className="text-xs text-neutral-400 mt-2">
+            <p className="text-xs text-neutral-500 mt-2">
               {s.recipesResults(recipeResults.length, RECIPES.length)}
             </p>
             <div className="max-h-72 overflow-y-auto mt-1">
@@ -757,7 +757,7 @@ export default function AdminPage() {
                   <p className="font-medium text-neutral-800 dark:text-neutral-200">
                     {r.emoji} {cleanName} {flag && <span aria-hidden>{flag}</span>}
                   </p>
-                  <p className="text-xs text-neutral-400 mt-0.5">
+                  <p className="text-xs text-neutral-500 mt-0.5">
                     {r.id} · {r.time} min · {r.level} · {r.cuisine} · {(r.required || []).length + (r.optional || []).length} ingrédients
                   </p>
                 </div>
@@ -777,7 +777,7 @@ export default function AdminPage() {
               label={s[f.labelKey]}
               value={<span className="badge badge-zest">{s.wipStatusInProgress}</span>}
               action={
-                <button onClick={() => goTo(f.view)} className="text-xs text-neutral-400 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
+                <button onClick={() => goTo(f.view)} className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition">
                   {s.view}
                 </button>
               }

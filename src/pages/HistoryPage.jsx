@@ -54,7 +54,7 @@ export default function HistoryPage() {
         subtitle={s.subtitle}
         action={
           state.history.length > 0 && (
-            <button onClick={wipeHistory} className="text-xs text-neutral-400 hover:text-red-500">
+            <button onClick={wipeHistory} className="text-xs text-neutral-500 hover:text-red-500">
               {s.clearAll}
             </button>
           )
@@ -85,7 +85,7 @@ export default function HistoryPage() {
               className="card p-4 animate-fadeIn"
               style={{ animationDelay: `${Math.min(index, 10) * 70}ms` }}
             >
-              <p className="text-xs text-neutral-400">{formatDate(entry.date, s.dateLocale)}</p>
+              <p className="text-xs text-neutral-500">{formatDate(entry.date, s.dateLocale)}</p>
               <p className="text-sm text-neutral-600 mt-1">
                 {s.ingredients} <span className="text-neutral-800">{entry.ingredients.join(', ') || '—'}</span>
               </p>

@@ -142,7 +142,7 @@ export default function StatsPage() {
               <div className="flex flex-wrap gap-2">
                 {stats.topIngredients.map(([name, count]) => (
                   <button key={name} onClick={() => goToIngredient(name)} className="chip">
-                    {name} <span className="text-neutral-400">×{count}</span>
+                    {name} <span className="text-neutral-500">×{count}</span>
                   </button>
                 ))}
               </div>
@@ -183,7 +183,7 @@ export default function StatsPage() {
                     </span>
                     <span className="text-xs font-semibold text-neutral-800 leading-tight">{label.label}</span>
                     {!badge.earned && (
-                      <span className="text-[11px] text-neutral-400 tabular-nums">
+                      <span className="text-[11px] text-neutral-500 tabular-nums">
                         {s.badgesProgress(badge.current, badge.threshold)}
                       </span>
                     )}
@@ -193,7 +193,7 @@ export default function StatsPage() {
             </div>
           </div>
 
-          <p className="mt-8 text-xs text-neutral-400 text-center">{s.footer(stats.sessions)}</p>
+          <p className="mt-8 text-xs text-neutral-500 text-center">{s.footer(stats.sessions)}</p>
         </>
       )}
     </div>

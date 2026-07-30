@@ -53,7 +53,7 @@ const PUBLIC_VIEWS = new Set(['home', 'login', 'legal', 'notfound', 'about', 'fa
 // (ou un aller-retour vers la connexion) le temps que Firebase réponde.
 function AuthGateLoading() {
   const lang = useLanguage()
-  return <div className="flex items-center justify-center py-24 text-neutral-400 text-sm">{COMMON[lang].loading}</div>
+  return <div className="flex items-center justify-center py-24 text-neutral-500 text-sm">{COMMON[lang].loading}</div>
 }
 
 // Routeur ultra simple basé sur l'état global (pas de dépendance react-router,
@@ -181,11 +181,11 @@ export default function App() {
             className="inline-flex items-center gap-2 font-extrabold text-neutral-900"
           >
             <img
-              src="https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png"
+              src="/logo-32.png"
               alt="FrigoMind"
               className="w-6 h-6 rounded-md object-cover"
             />
-            Frigo<span className="text-fresh-600 dark:text-fresh-400">Mind</span>
+            Frigo<span className="text-fresh-700 dark:text-fresh-400">Mind</span>
           </button>
 
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-5 text-sm">
@@ -224,7 +224,7 @@ export default function App() {
             </button>
           </div>
 
-          <p className="text-xs text-neutral-400 mt-6">
+          <p className="text-xs text-neutral-500 mt-6">
             {c.footerTagline}
           </p>
         </div>

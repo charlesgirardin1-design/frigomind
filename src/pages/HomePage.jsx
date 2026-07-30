@@ -437,7 +437,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-neutral-400 mt-3 pt-3 border-t border-neutral-100">{s.sources}</p>
+          <p className="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-100">{s.sources}</p>
         </div>
       </div>
 

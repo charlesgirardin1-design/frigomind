@@ -11,7 +11,7 @@ export default function PageHeader({ icon, tone = 'fresh', title, subtitle, onBa
   return (
     <div className="mb-2">
       {onBack && (
-        <button type="button" onClick={onBack} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+        <button type="button" onClick={onBack} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
           {label}
         </button>
       )}

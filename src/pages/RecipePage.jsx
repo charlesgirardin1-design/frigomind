@@ -98,7 +98,7 @@ export default function RecipePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={handleBack} className="text-sm text-neutral-400 hover:text-neutral-700 mb-4">
+      <button onClick={handleBack} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
 
@@ -214,7 +214,7 @@ export default function RecipePage() {
                     <div className="flex items-center gap-2">
                       <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
                       {qty && (
-                        <span className="text-neutral-400 tabular-nums text-xs shrink-0 w-16">{qty}</span>
+                        <span className="text-neutral-500 tabular-nums text-xs shrink-0 w-16">{qty}</span>
                       )}
                       <button
                         onClick={() => handleIngredientClick(ing)}
@@ -224,11 +224,11 @@ export default function RecipePage() {
                       >
                         {ing}
                       </button>
-                      {isMissing && <em className="text-xs text-zest-600">({c.toBuyParens})</em>}
-                      {!isMissing && !isMatched && <em className="text-xs text-neutral-400"> ({c.optional})</em>}
+                      {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
+                      {!isMissing && !isMatched && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
                     {substitutes && (
-                      <p className="text-xs text-neutral-400 mt-0.5 ml-6">
+                      <p className="text-xs text-neutral-500 mt-0.5 ml-6">
                         {c.substituteWith} {substitutes.join(', ')}
                       </p>
                     )}
@@ -236,7 +236,7 @@ export default function RecipePage() {
                 )
               })}
             </ul>
-            <p className="text-xs text-neutral-400 mt-2">{c.quantitiesNote}</p>
+            <p className="text-xs text-neutral-500 mt-2">{c.quantitiesNote}</p>
           </div>
 
           {missing.length > 0 && (

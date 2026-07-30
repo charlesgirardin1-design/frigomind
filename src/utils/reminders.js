@@ -64,7 +64,7 @@ export function maybeShowReminder(uid, history, lang, remindersEnabled) {
   try {
     new Notification(messages.title, {
       body: messages.body,
-      icon: 'https://i.ibb.co/zW91Yz1J/d65636ed-a1f8-4b6d-9a6e-3137c924b593.png',
+      icon: '/logo-192.png',
     })
     localStorage.setItem(lastShownKey, new Date().toISOString())
   } catch {
