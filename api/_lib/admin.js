@@ -36,7 +36,7 @@ function normalizePrivateKey(raw) {
   return key.replace(/\\n/g, '\n').trim()
 }
 
-function getAdminApp() {
+export function getAdminApp() {
   const apps = getApps()
   if (apps.length) return apps[0]
 

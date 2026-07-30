@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader.jsx'
 import { GearGlyph } from '../components/Illustrations.jsx'
 import { resizeImageFile } from '../utils/image.js'
 import { isNotificationSupported } from '../utils/reminders.js'
+import { enablePushNotifications, disablePushNotifications } from '../utils/pushNotifications.js'
 
 const DELETE_CONFIRM_WORD = { fr: 'SUPPRIMER', en: 'DELETE' }
 
@@ -194,6 +195,22 @@ export default function SettingsPage() {
     setRemindersEnabled(!!state.preferences.remindersEnabled)
   }, [state.preferences.remindersEnabled])
 
+  // Les rappels push sont un jeton par appareil : si la préférence est déjà
+  // activée (synchronisée depuis un autre appareil) et que ce navigateur a
+  // déjà accordé la permission de notification, on enregistre aussi ce
+  // dernier plutôt que d'exiger de rebasculer l'interrupteur manuellement.
+  useEffect(() => {
+    if (
+      state.preferences.remindersEnabled &&
+      isNotificationSupported() &&
+      Notification.permission === 'granted' &&
+      user?.uid
+    ) {
+      enablePushNotifications(user.uid)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.preferences.remindersEnabled, user?.uid])
+
   const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase()
   const avatarUrl = localAvatar || user?.photoURL
 
@@ -263,6 +280,7 @@ export default function SettingsPage() {
       setPreferences({ remindersEnabled: false })
       setRemindersEnabled(false)
       setRemindersDenied(false)
+      disablePushNotifications(user?.uid)
       return
     }
     const permission = await Notification.requestPermission()
@@ -270,6 +288,10 @@ export default function SettingsPage() {
       setPreferences({ remindersEnabled: true })
       setRemindersEnabled(true)
       setRemindersDenied(false)
+      // Rappels "vrais" (app fermée) en plus des rappels locaux existants —
+      // échoue silencieusement si non supporté (voir pushNotifications.js),
+      // les rappels locaux restent actifs dans tous les cas.
+      enablePushNotifications(user?.uid)
     } else {
       setRemindersEnabled(false)
       setRemindersDenied(true)

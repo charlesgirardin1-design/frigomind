@@ -94,3 +94,33 @@ self.addEventListener('fetch', (event) => {
     )
   }
 })
+
+// Rappels anti-gaspi "vrais" (app/onglet fermé) — voir pushNotifications.js
+// côté client et api/cron/send-reminders.js côté serveur. Le jeton obtenu
+// via Firebase Cloud Messaging (getToken) est un abonnement Web Push
+// standard : on gère donc directement l'événement natif `push` plutôt que
+// d'importer le SDK Firebase Messaging ici (qui exigerait sa configuration
+// en dur dans ce fichier statique, non traité par Vite).
+self.addEventListener('push', (event) => {
+  let payload = {}
+  try {
+    payload = event.data ? event.data.json() : {}
+  } catch {
+    // Payload non-JSON (ne devrait pas arriver côté FCM) : notification
+    // générique plutôt qu'une erreur silencieuse.
+  }
+  const notification = payload.notification || {}
+  event.waitUntil(
+    self.registration.showNotification(notification.title || 'FrigoMind', {
+      body: notification.body || '',
+      icon: '/logo-192.png',
+      badge: '/logo-32.png',
+      data: payload.data || {},
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(self.clients.openWindow('/'))
+})
