@@ -131,7 +131,7 @@ export default function Header() {
   const initial = (user?.displayName || user?.email || '?').trim().charAt(0).toUpperCase()
 
   return (
-    <header className="sticky top-0 z-30 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-100/80 dark:border-neutral-800/80 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+    <header className="print:hidden sticky top-0 z-30 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md border-b border-neutral-100/80 dark:border-neutral-800/80 shadow-[0_1px_0_rgba(15,23,42,0.03)]">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
         <button
           className="flex items-center gap-2.5 font-extrabold text-lg text-neutral-900 dark:text-neutral-50 shrink-0 group"

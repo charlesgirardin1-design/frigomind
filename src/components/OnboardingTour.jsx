@@ -117,7 +117,7 @@ export default function OnboardingTour() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fadeIn"
+      className="print:hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fadeIn"
       role="dialog"
       aria-modal="true"
       aria-label={s.ariaLabel}

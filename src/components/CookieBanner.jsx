@@ -50,7 +50,7 @@ export default function CookieBanner() {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 animate-fadeIn" role="region" aria-label={s.ariaLabel}>
+    <div className="print:hidden fixed inset-x-0 bottom-0 z-50 px-4 pb-4 animate-fadeIn" role="region" aria-label={s.ariaLabel}>
       <div className="max-w-3xl mx-auto bg-white border border-neutral-200 shadow-card rounded-2xl px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3.5">
         <p className="text-sm text-neutral-600 leading-relaxed flex-1">
           {s.text}{' '}

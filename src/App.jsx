@@ -3,6 +3,7 @@ import Header from './components/Header.jsx'
 import HomePage from './pages/HomePage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
 import OnboardingTour from './components/OnboardingTour.jsx'
+import InstallPrompt from './components/InstallPrompt.jsx'
 import { useApp } from './state/AppContext.jsx'
 import { useAuth } from './state/AuthContext.jsx'
 import { useLanguage } from './state/LanguageContext.jsx'
@@ -174,7 +175,7 @@ export default function App() {
           </Suspense>
         </div>
       </main>
-      <footer className="border-t border-neutral-100 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 mt-4">
+      <footer className="print:hidden border-t border-neutral-100 dark:border-neutral-800 bg-white/60 dark:bg-neutral-900/60 mt-4">
         <div className="max-w-3xl mx-auto px-4 py-10 text-center">
           <button
             onClick={() => { resetSession(); goTo('home') }}
@@ -231,6 +232,7 @@ export default function App() {
       </footer>
       <CookieBanner />
       {state.view === 'home' && <OnboardingTour />}
+      <InstallPrompt />
     </div>
   )
 }

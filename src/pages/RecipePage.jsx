@@ -98,7 +98,7 @@ export default function RecipePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
-      <button onClick={handleBack} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
+      <button onClick={handleBack} className="print:hidden text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
 
@@ -132,14 +132,19 @@ export default function RecipePage() {
               {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
             </div>
           </div>
-          <button onClick={handleShare} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap shrink-0">
-            {shared ? c.copied : c.share}
-          </button>
+          <div className="flex items-center gap-2 shrink-0 print:hidden">
+            <button onClick={() => window.print()} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
+              {c.print}
+            </button>
+            <button onClick={handleShare} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
+              {shared ? c.copied : c.share}
+            </button>
+          </div>
         </div>
 
         <div className="mt-6 space-y-6">
           {isFavorite && (
-            <div className="bg-neutral-50 border border-neutral-100 rounded-xl2 p-4 space-y-3">
+            <div className="print:hidden bg-neutral-50 border border-neutral-100 rounded-xl2 p-4 space-y-3">
               <div>
                 <h3 className="font-semibold text-neutral-900 text-sm mb-1.5">{c.ratingLabel}</h3>
                 <div className="flex items-center gap-1">
@@ -185,7 +190,7 @@ export default function RecipePage() {
                   onClick={() => setServings((s) => Math.max(MIN_SERVINGS, s - 1))}
                   disabled={servings <= MIN_SERVINGS}
                   aria-label={c.decreaseServings}
-                  className="w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
+                  className="print:hidden w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
                 >
                   −
                 </button>
@@ -197,7 +202,7 @@ export default function RecipePage() {
                   onClick={() => setServings((s) => Math.min(MAX_SERVINGS, s + 1))}
                   disabled={servings >= MAX_SERVINGS}
                   aria-label={c.increaseServings}
-                  className="w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
+                  className="print:hidden w-7 h-7 rounded-full border border-neutral-200 text-neutral-600 flex items-center justify-center hover:bg-neutral-50 disabled:opacity-30 disabled:hover:bg-transparent"
                 >
                   +
                 </button>
@@ -243,7 +248,7 @@ export default function RecipePage() {
             <div className="bg-zest-50 border border-zest-200 rounded-xl2 p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-neutral-900 text-sm">{c.shoppingList}</h3>
-                <button onClick={handleCopyList} className="btn-secondary !py-1.5 !px-3 text-xs shrink-0">
+                <button onClick={handleCopyList} className="print:hidden btn-secondary !py-1.5 !px-3 text-xs shrink-0">
                   {copied ? c.copied : c.copy}
                 </button>
               </div>

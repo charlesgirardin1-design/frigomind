@@ -191,3 +191,22 @@ html.dark .divide-neutral-100 > :not([hidden]) ~ :not([hidden]) {
     background-size: 200% auto;
   }
 }
+
+/* Impression (voir le bouton "Imprimer" de RecipePage.jsx) : on force un
+   rendu clair et sobre quel que soit le thème actif (clair/sombre) — les
+   couleurs de fond, ombres et dégradés de l'interface n'ont aucun intérêt
+   sur papier et gaspillent de l'encre. Les éléments d'interface (header,
+   bannières, boutons interactifs...) restent masqués via la classe
+   utilitaire Tailwind `print:hidden` posée directement dans les composants
+   concernés plutôt que listés ici, pour rester proche du JSX qu'ils cachent. */
+@media print {
+  * {
+    color: #000 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  .card {
+    border: 1px solid #ccc !important;
+  }
+}
