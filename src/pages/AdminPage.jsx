@@ -112,6 +112,9 @@ const STRINGS = {
     debugFirestoreTitle: 'Diagnostic sauvegarde cloud (Firestore)',
     debugFirestoreHint: "Teste une écriture/lecture réelle dans Firestore avec les mêmes réglages que l'app, et affiche l'erreur exacte le cas échéant.",
     debugFirestoreRun: 'Lancer le diagnostic',
+    testPushTitle: 'Test notification push',
+    testPushHint: "Envoie une vraie notification push à ce compte (nécessite d'avoir activé les rappels dans Paramètres sur cet appareil).",
+    testPushRun: 'Envoyer un test',
   },
   en: {
     title: 'Admin',
@@ -197,6 +200,9 @@ const STRINGS = {
     debugFirestoreTitle: 'Cloud sync diagnostic (Firestore)',
     debugFirestoreHint: 'Runs a real write/read against Firestore with the same settings as the app, and shows the exact error if any.',
     debugFirestoreRun: 'Run diagnostic',
+    testPushTitle: 'Test push notification',
+    testPushHint: 'Sends a real push notification to this account (requires reminders to be enabled in Settings on this device).',
+    testPushRun: 'Send a test',
   },
 }
 
@@ -510,6 +516,48 @@ function DebugFirestoreSection({ s, user }) {
   )
 }
 
+// Envoie une vraie notification push au compte admin lui-même (voir
+// api/admin/test-push.js) : vérifie toute la chaîne (VAPID, service worker,
+// identifiants Admin SDK) sans attendre le cron quotidien.
+function TestPushSection({ s, user }) {
+  const [state, setState] = useState({ loading: false, result: null })
+
+  async function runTest() {
+    setState({ loading: true, result: null })
+    try {
+      const idToken = await user.getIdToken()
+      const res = await fetch('/api/admin/test-push', {
+        headers: { Authorization: `Bearer ${idToken}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      setState({ loading: false, result: { status: res.status, ...data } })
+    } catch (err) {
+      setState({ loading: false, result: { error: err.message } })
+    }
+  }
+
+  return (
+    <div className="mt-6 card p-6">
+      <div className="flex items-center justify-between gap-3 mb-1">
+        <h3 className="font-semibold text-neutral-900 dark:text-neutral-50">{s.testPushTitle}</h3>
+        <button
+          onClick={runTest}
+          disabled={state.loading}
+          className="text-xs text-neutral-500 hover:text-fresh-700 dark:hover:text-fresh-400 transition disabled:opacity-50"
+        >
+          {state.loading ? s.usersLoading : s.testPushRun}
+        </button>
+      </div>
+      <p className="text-xs text-neutral-500 mt-1">{s.testPushHint}</p>
+      {state.result && (
+        <pre className="mt-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xs overflow-x-auto whitespace-pre-wrap break-words">
+          {JSON.stringify(state.result, null, 2)}
+        </pre>
+      )}
+    </div>
+  )
+}
+
 export default function AdminPage() {
   const { state, wipeHistory, clearFavorites, setPreferences, goTo } = useApp()
   const { user, localAvatar, setLocalAvatar } = useAuth()
@@ -788,6 +836,7 @@ export default function AdminPage() {
 
       <UsersSection s={s} user={user} lang={lang} />
       <DebugFirestoreSection s={s} user={user} />
+      <TestPushSection s={s} user={user} />
     </div>
   )
 }
