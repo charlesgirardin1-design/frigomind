@@ -104,6 +104,14 @@ async function signInWithProvider(provider, lang) {
   }
 }
 
+// Force un nouveau rendu React après reload()/updateProfile() sans perdre les
+// méthodes de l'instance Firebase User (getIdToken, reload...) : un simple
+// spread `{ ...auth.currentUser }` ne copie que les propriétés propres et
+// perd le prototype, donc `user.getIdToken` devient undefined ensuite.
+function cloneFirebaseUser(u) {
+  return Object.assign(Object.create(Object.getPrototypeOf(u)), u)
+}
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
@@ -181,7 +189,7 @@ export function AuthProvider({ children }) {
       if (u) {
         u.reload()
           .then(() => {
-            if (auth.currentUser) setUser({ ...auth.currentUser })
+            if (auth.currentUser) setUser(cloneFirebaseUser(auth.currentUser))
           })
           .catch(() => {})
       }
@@ -271,7 +279,7 @@ export function AuthProvider({ children }) {
       await updateProfile(auth.currentUser, { displayName: name })
       // updateProfile ne déclenche pas onAuthStateChanged : on force une mise
       // à jour locale pour que le nouveau nom apparaisse immédiatement.
-      setUser({ ...auth.currentUser })
+      setUser(cloneFirebaseUser(auth.currentUser))
     } catch (err) {
       throw new Error(friendlyError(err, lang))
     }
