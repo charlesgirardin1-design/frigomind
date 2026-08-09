@@ -14,6 +14,7 @@ import { estimateRecipeCalories } from '../utils/calories.js'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
+const SERVINGS_PRESETS = [2, 4, 6, 8]
 
 // Page plein écran d'une recette (ingrédients, quantités, étapes) — ouverte
 // depuis n'importe quelle liste (résultats, favoris, page ingrédient...) via
@@ -44,6 +45,7 @@ export default function RecipePage() {
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
+  const missingWithQty = missing.map((ing) => ({ ing, qty: scaleIngredientQuantity(ing, servings) }))
   const totalCalories = estimateRecipeCalories(allIngredients, servings)
   const caloriesPerServing = totalCalories ? Math.round(totalCalories / servings / 10) * 10 : null
 
@@ -59,7 +61,8 @@ export default function RecipePage() {
   }
 
   async function handleCopyList() {
-    const ok = await copyTextToClipboard(missing.join('\n'))
+    const text = missingWithQty.map(({ ing, qty }) => (qty ? `${ing} (${qty})` : ing)).join('\n')
+    const ok = await copyTextToClipboard(text)
     if (ok) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
@@ -188,9 +191,28 @@ export default function RecipePage() {
           )}
 
           <div>
-            <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
               <h3 className="font-semibold text-neutral-900">{c.ingredients}</h3>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+                <div className="print:hidden flex items-center gap-1">
+                  {SERVINGS_PRESETS.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setServings(n)}
+                      aria-label={`${n} ${c.servingsUnit(n)}`}
+                      aria-pressed={servings === n}
+                      className={`w-7 h-7 rounded-full text-xs font-semibold flex items-center justify-center border transition-colors ${
+                        servings === n
+                          ? 'bg-fresh-700 border-fresh-700 text-white'
+                          : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
+                <span className="print:hidden w-px h-5 bg-neutral-200 mx-0.5" aria-hidden />
                 <button
                   type="button"
                   onClick={() => setServings((s) => Math.max(MIN_SERVINGS, s - 1))}
@@ -258,7 +280,14 @@ export default function RecipePage() {
                   {copied ? c.copied : c.copy}
                 </button>
               </div>
-              <p className="text-sm text-neutral-600 mt-1.5">{missing.join(', ')}</p>
+              <ul className="text-sm text-neutral-600 mt-1.5 space-y-1">
+                {missingWithQty.map(({ ing, qty }) => (
+                  <li key={ing}>
+                    {ing}
+                    {qty && <span className="text-neutral-400"> — {qty}</span>}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
