@@ -7,7 +7,7 @@ import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
 import { scaleIngredientQuantity } from '../utils/servings.js'
-import { getSubstitutes } from '../data/ingredientSubstitutes.js'
+import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
@@ -46,6 +46,13 @@ export default function RecipePage() {
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
   const missingWithQty = missing.map((ing) => ({ ing, qty: scaleIngredientQuantity(ing, servings) }))
+  // Ce que l'utilisateur a réellement indiqué avoir (session en cours) : sert
+  // au moteur de substitution dynamique ci-dessous pour proposer un
+  // remplacement concret plutôt qu'une suggestion générique (voir
+  // findAvailableSubstitute). Vide si la recette est ouverte depuis les
+  // favoris/l'historique sans détection en cours — on retombe alors sur la
+  // suggestion générique, jamais sur une liste périmée d'une autre session.
+  const availableIngredientNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
   const totalCalories = estimateRecipeCalories(allIngredients, servings)
   const caloriesPerServing = totalCalories ? Math.round(totalCalories / servings / 10) * 10 : null
 
@@ -242,6 +249,8 @@ export default function RecipePage() {
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const qty = scaleIngredientQuantity(ing, servings)
                 const substitutes = isMissing ? getSubstitutes(ing) : null
+                const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
+                const dynamicSubQty = dynamicSub ? scaleIngredientQuantity(dynamicSub, servings) : null
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
@@ -260,10 +269,16 @@ export default function RecipePage() {
                       {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
                       {!isMissing && !isMatched && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
-                    {substitutes && (
-                      <p className="text-xs text-neutral-500 mt-0.5 ml-6">
-                        {c.substituteWith} {substitutes.join(', ')}
+                    {dynamicSub ? (
+                      <p className="text-xs text-fresh-700 dark:text-fresh-400 font-medium mt-0.5 ml-6">
+                        {c.dynamicSubstitute(ing, dynamicSubQty ? `${dynamicSubQty} ${dynamicSub}` : dynamicSub)}
                       </p>
+                    ) : (
+                      substitutes && (
+                        <p className="text-xs text-neutral-500 mt-0.5 ml-6">
+                          {c.substituteWith} {substitutes.join(', ')}
+                        </p>
+                      )
                     )}
                   </li>
                 )

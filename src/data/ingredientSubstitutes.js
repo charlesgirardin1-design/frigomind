@@ -112,3 +112,28 @@ export const INGREDIENT_SUBSTITUTES = {
 export function getSubstitutes(name) {
   return INGREDIENT_SUBSTITUTES[name] || null
 }
+
+const ACCENTS_REGEX = /[̀-ͯ]/g
+
+function normalize(str) {
+  return str.trim().toLowerCase().normalize('NFD').replace(ACCENTS_REGEX, '')
+}
+
+// Version "dynamique" de getSubstitutes : parmi les suggestions génériques
+// pour `name`, renvoie celle qui correspond à un ingrédient que
+// l'utilisateur a réellement indiqué avoir sous la main (`availableIngredients`
+// — la liste validée sur la photo, voir ValidatePage). Matching normalisé
+// (accents/casse) et tolérant aux suggestions composées ("crème + sucre"
+// matche si l'utilisateur a "crème"). Renvoie null si aucune correspondance
+// concrète : on retombe alors sur la suggestion générique (getSubstitutes).
+export function findAvailableSubstitute(name, availableIngredients = []) {
+  const candidates = INGREDIENT_SUBSTITUTES[name]
+  if (!candidates || availableIngredients.length === 0) return null
+  const availableNorm = availableIngredients.map(normalize)
+  return (
+    candidates.find((candidate) => {
+      const candidateNorm = normalize(candidate)
+      return availableNorm.some((a) => a === candidateNorm || candidateNorm.includes(a))
+    }) || null
+  )
+}

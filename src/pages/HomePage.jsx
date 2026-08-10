@@ -16,11 +16,12 @@ const STRINGS = {
   fr: {
     heading: (
       <>
-        Votre frigo, vos recettes, <span className="text-gradient-fresh">en 3 clics</span>.
+        Ne jetez plus. <span className="text-gradient-fresh">Cuisinez ce que vous avez déjà.</span>
       </>
     ),
     intro:
-      "Prenez une photo de votre frigo ou de votre table, FrigoMind détecte les ingrédients et vous propose des recettes simples et anti-gaspi. Pas d'inscription, pas de carte bancaire : ouvrez l'app, prenez une photo, cuisinez.",
+      "FrigoMind transforme les restes de votre réfrigérateur en repas gourmands en quelques clics. Économisez du temps, de l'argent, et réduisez le gaspillage alimentaire au quotidien.",
+    heroBadges: ['Gratuit et ultra-rapide', 'Économique', 'Un geste concret pour la planète'],
     start: '📸 Commencer',
     steps: [
       { Icon: CameraGlyph, tone: 'fresh', title: 'Photo', text: 'Prenez en photo votre frigo ou votre table.' },
@@ -94,11 +95,12 @@ const STRINGS = {
   en: {
     heading: (
       <>
-        Your fridge, your recipes, <span className="text-gradient-fresh">in 3 clicks</span>.
+        Stop wasting food. <span className="text-gradient-fresh">Cook what you already have.</span>
       </>
     ),
     intro:
-      "Take a photo of your fridge or table, FrigoMind detects the ingredients and suggests simple, zero-waste recipes. No sign-up, no credit card: open the app, take a photo, start cooking.",
+      'FrigoMind turns your fridge leftovers into delicious meals in just a few clicks. Save time, save money, and cut everyday food waste.',
+    heroBadges: ['Free and lightning-fast', 'Budget-friendly', 'A real difference for the planet'],
     start: '📸 Get started',
     steps: [
       { Icon: CameraGlyph, tone: 'fresh', title: 'Photo', text: 'Take a photo of your fridge or table.' },
@@ -322,6 +324,15 @@ export default function HomePage() {
           <button onClick={() => goTo('upload')} className="btn-primary text-base px-6 py-3.5">
             {s.start}
           </button>
+        </div>
+
+        <div
+          className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-sm text-neutral-500 animate-rise"
+          style={{ animationDelay: '250ms' }}
+        >
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">⚡ {s.heroBadges[0]}</span>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">💰 {s.heroBadges[1]}</span>
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">🌍 {s.heroBadges[2]}</span>
         </div>
       </div>
 
