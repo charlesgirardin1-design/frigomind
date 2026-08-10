@@ -25415,11 +25415,15 @@ export const RECIPES = [
 export function localizeRecipeName(recipeLike, lang) {
   if (lang !== 'en') return recipeLike.name
   const dbRecipe = RECIPES.find((r) => r.id === recipeLike.id)
-  return dbRecipe?.nameEn || recipeLike.name
+  // Priorité à la base statique (cas des entrées d'historique, qui ne
+  // stockent qu'un instantané léger sans nameEn — voir commitToHistory) ;
+  // à défaut, l'objet passé peut porter sa propre traduction (recettes
+  // générées à la volée : mariages de saveurs, voir flavorPairings.js).
+  return dbRecipe?.nameEn || recipeLike.nameEn || recipeLike.name
 }
 
 export function localizeRecipeSteps(recipeLike, lang) {
   if (lang !== 'en') return recipeLike.steps
   const dbRecipe = RECIPES.find((r) => r.id === recipeLike.id)
-  return dbRecipe?.stepsEn || recipeLike.steps
+  return dbRecipe?.stepsEn || recipeLike.stepsEn || recipeLike.steps
 }

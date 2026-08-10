@@ -146,6 +146,7 @@ export default function RecipePage() {
                 <span className="badge badge-neutral">🔥 {c.caloriesPerServing(caloriesPerServing)}</span>
               )}
               {recipe.antiGaspi && <span className="badge badge-zest">{c.antiGaspi}</span>}
+              {recipe.flavorPairing && <span className="badge badge-fresh">{c.flavorPairingBadge}</span>}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0 print:hidden">
@@ -159,6 +160,13 @@ export default function RecipePage() {
         </div>
 
         <div className="mt-6 space-y-6">
+          {recipe.flavorPairing && (
+            <div className="bg-fresh-50 border border-fresh-100 rounded-xl2 p-4">
+              <h3 className="font-semibold text-neutral-900 text-sm mb-1">{c.whyItWorks}</h3>
+              <p className="text-sm text-neutral-600">{lang === 'en' ? recipe.pairingWhyEn : recipe.pairingWhy}</p>
+            </div>
+          )}
+
           {isFavorite && (
             <div className="print:hidden bg-neutral-50 border border-neutral-100 rounded-xl2 p-4 space-y-3">
               <div>

@@ -60,6 +60,8 @@ export const COMMON = {
       substituteWith: '🔁 Remplacer par :',
       dynamicSubstitute: (missing, sub) => `🔁 Pas de ${missing} ? Utilisez ${sub} — déjà dans votre frigo !`,
       caloriesPerServing: (n) => `~${n} kcal / portion`,
+      flavorPairingBadge: '💡 Mariage gourmand',
+      whyItWorks: '💡 Pourquoi ça marche',
     },
   },
   en: {
@@ -115,6 +117,8 @@ export const COMMON = {
       substituteWith: '🔁 Substitute with:',
       dynamicSubstitute: (missing, sub) => `🔁 No ${missing}? Use ${sub} — already in your fridge!`,
       caloriesPerServing: (n) => `~${n} kcal / serving`,
+      flavorPairingBadge: '💡 Flavor pairing',
+      whyItWorks: '💡 Why it works',
     },
   },
 }

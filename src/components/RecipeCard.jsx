@@ -94,6 +94,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
           )}
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
+          {recipe.flavorPairing && <span className="badge badge-fresh whitespace-nowrap">{c.flavorPairingBadge}</span>}
           {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">{c.antiGaspi}</span>}
           {onToggleFavorite && (
             <button

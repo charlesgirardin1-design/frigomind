@@ -20,6 +20,7 @@
 
 import { RECIPES } from '../data/recipesDB.js'
 import { isPantryStaple, isPerishable } from '../data/expiryData.js'
+import { findFlavorPairings } from '../data/flavorPairings.js'
 
 // Mots-clés utilisés pour deviner si un ingrédient rend une recette
 // "non végétarienne", afin de taguer correctement les recettes générées
@@ -194,6 +195,60 @@ function buildGenericRecipes(available) {
 }
 
 /**
+ * Moteur de "mariages de saveurs" (voir flavorPairings.js) : transforme
+ * chaque mariage reconnu dans `available` (ex: poireau + pomme + roquefort)
+ * en une vraie recette nommée et expliquée — une alternative nettement plus
+ * qualitative à buildGenericRecipes pour des combinaisons d'ingrédients
+ * inhabituelles mais culinairement solides. Comme buildGenericRecipes, le
+ * `required` final inclut TOUJOURS tous les ingrédients validés (règle
+ * obligatoire du moteur) : les ingrédients validés qui ne font pas partie du
+ * mariage lui-même sont ajoutés en fin de recette via une étape générique,
+ * pour que la liste d'ingrédients affichée reste cohérente avec les étapes.
+ */
+function buildFlavorPairingRecipes(available) {
+  const matches = findFlavorPairings(available)
+  if (matches.length === 0) return []
+
+  const diet = guessDiet(available)
+  const usesPerishable = available.some((ing) => isPerishable(ing))
+
+  return matches.map((pairing) => {
+    const core = new Set([...pairing.ingredients, ...pairing.extras].map((ing) => normalize(ing)))
+    const extraFromFridge = available.filter((ing) => !core.has(normalize(ing)))
+
+    const extraStepFr = extraFromFridge.length
+      ? [
+          `Si vous avez d'autres ingrédients validés sous la main (${extraFromFridge.join(', ')}), ajoutez-les en accompagnement ou intégrez-les à la recette selon votre goût.`,
+        ]
+      : []
+    const extraStepEn = extraFromFridge.length
+      ? [
+          `If you have other validated ingredients on hand (${extraFromFridge.join(', ')}), add them as a side or work them into the dish to taste.`,
+        ]
+      : []
+
+    return {
+      id: `pairing-${pairing.id}`,
+      name: pairing.name,
+      nameEn: pairing.nameEn,
+      emoji: pairing.emoji,
+      time: pairing.time,
+      level: pairing.level,
+      cuisine: pairing.cuisine,
+      diet,
+      required: [...new Set([...pairing.ingredients, ...pairing.extras, ...available])],
+      optional: ['sel', 'poivre', 'huile'],
+      steps: [...pairing.steps, ...extraStepFr],
+      stepsEn: [...pairing.stepsEn, ...extraStepEn],
+      flavorPairing: true,
+      pairingWhy: pairing.why,
+      pairingWhyEn: pairing.whyEn,
+      antiGaspi: usesPerishable,
+    }
+  })
+}
+
+/**
  * Calcule un score de correspondance pour une recette donnée.
  */
 function scoreRecipe(recipe, availableIngredients) {
@@ -262,7 +317,34 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
 
   strong.sort((a, b) => b.score - a.score || a.recipe.time - b.recipe.time)
 
-  let results = strong.slice(0, 5)
+  // Mariages de saveurs reconnus (voir flavorPairings.js) : mis en avant même
+  // quand la base a déjà de bons résultats, car c'est justement le principe
+  // de la fonctionnalité — révéler une association réussie avec des
+  // ingrédients qui semblent incompatibles, pas seulement combler les trous
+  // quand rien d'autre ne matche. Plafonné à 2 pour laisser de la place à
+  // des résultats variés plutôt que de saturer les 5 emplacements.
+  const pairingResults = buildFlavorPairingRecipes(available)
+    .filter((recipe) => applyPreferenceFilters(recipe, prefs))
+    .slice(0, 2)
+    .map((recipe) => {
+      // Le "mariage" lui-même est garanti présent (c'est la condition du
+      // match), mais les `extras` propres à la recette (ex: pâte feuilletée
+      // pour la tarte poireau/pomme/roquefort) peuvent, eux, manquer vraiment
+      // — il ne faut jamais les afficher comme "déjà possédés".
+      const requiredMissing = recipe.required.filter(
+        (ing) => !includesIngredient(available, ing) && !isPantryStaple(ing)
+      )
+      return {
+        recipe,
+        score: 1.05 + (recipe.antiGaspi ? 0.15 : 0),
+        requiredMatched: recipe.required.filter((ing) => includesIngredient(available, ing)),
+        requiredMissing,
+        optionalMatched: [],
+        antiGaspi: recipe.antiGaspi,
+      }
+    })
+
+  let results = [...pairingResults, ...strong].slice(0, 5)
 
   // Anti-blocage (étape 1) : si moins de 3 résultats, on complète avec les
   // autres recettes de la base qui respectent quand même la règle
