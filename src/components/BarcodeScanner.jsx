@@ -190,15 +190,28 @@ export default function BarcodeScanner({ onDetected, onClose }) {
 
         // `generic_name(_fr)` est censé contenir une description générique
         // (ex: "Pâtes alimentaires") plutôt qu'une marque, contrairement à
-        // `product_name(_fr)` qui vaut souvent juste "Barilla". On le
-        // préfère donc quand il est présent et non vide.
+        // `product_name(_fr)` qui vaut souvent juste "Barilla". Mais ce nom
+        // générique est parfois *trop* générique : pour des lasagnes, OFF
+        // renvoie couramment "pâtes alimentaires aux oeufs" en generic_name,
+        // alors que product_name_fr ("pâtes à lasagne") est déjà spécifique
+        // et déjà reconnaissable par categorizeIngredient. On préfère donc
+        // le nom brut simplifié dès qu'il se catégorise correctement tout
+        // seul, et on ne retombe sur le nom générique que s'il n'est pas
+        // exploitable (absent, vide, ou juste une marque comme "barilla"
+        // que categorizeIngredient ne sait pas classer).
         const genericName = product?.generic_name_fr?.trim() || product?.generic_name?.trim()
+        const simplifiedRaw = rawName ? simplifyProductName(rawName) : null
 
         if (!rawName && !genericName) {
           setPhase('notfound')
           return
         }
-        let candidateName = genericName ? genericName.toLowerCase() : simplifyProductName(rawName)
+        let candidateName =
+          simplifiedRaw && categorizeIngredient(simplifiedRaw) !== 'other'
+            ? simplifiedRaw
+            : genericName
+              ? genericName.toLowerCase()
+              : simplifiedRaw || ''
 
         // Si le nom retenu reste non catégorisable (typiquement une marque
         // ou un nom de gamme, ex: "barilla trofie collezione 500g"), on
