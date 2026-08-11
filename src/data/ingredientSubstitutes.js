@@ -119,6 +119,38 @@ function normalize(str) {
   return str.trim().toLowerCase().normalize('NFD').replace(ACCENTS_REGEX, '')
 }
 
+// Caractère "de mot" (voir containsPhrase ci-dessous).
+const WORD_CHAR_REGEX = /[a-z0-9œæ]/
+function isWordChar(char) {
+  return !!char && WORD_CHAR_REGEX.test(char)
+}
+
+function hasWordBoundaryAfter(text, index) {
+  if (index >= text.length) return true
+  const char = text[index]
+  if (!isWordChar(char)) return true
+  return (char === 's' || char === 'x') && index === text.length - 1
+}
+
+// Vrai si `phrase` apparaît dans `text` comme un mot entier, jamais comme
+// simple fragment au milieu d'un autre mot. Un simple `.includes()` faisait
+// par exemple croire que "citronnelle" était un substitut disponible dès que
+// l'utilisateur avait du "citron" (contenu dedans), ou que "champignons"
+// suffisait pour "pignons" — deux faux positifs qui proposaient un substitut
+// que l'utilisateur n'avait en réalité pas.
+function containsPhrase(text, phrase) {
+  let searchFrom = 0
+  let index = text.indexOf(phrase, searchFrom)
+  while (index !== -1) {
+    const boundaryBefore = index === 0 || !isWordChar(text[index - 1])
+    const boundaryAfter = hasWordBoundaryAfter(text, index + phrase.length)
+    if (boundaryBefore && boundaryAfter) return true
+    searchFrom = index + 1
+    index = text.indexOf(phrase, searchFrom)
+  }
+  return false
+}
+
 // Version "dynamique" de getSubstitutes : parmi les suggestions génériques
 // pour `name`, renvoie celle qui correspond à un ingrédient que
 // l'utilisateur a réellement indiqué avoir sous la main (`availableIngredients`
@@ -133,7 +165,7 @@ export function findAvailableSubstitute(name, availableIngredients = []) {
   return (
     candidates.find((candidate) => {
       const candidateNorm = normalize(candidate)
-      return availableNorm.some((a) => a === candidateNorm || candidateNorm.includes(a))
+      return availableNorm.some((a) => a === candidateNorm || containsPhrase(candidateNorm, a))
     }) || null
   )
 }
