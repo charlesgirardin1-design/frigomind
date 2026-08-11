@@ -70,7 +70,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
       }}
       className="group card p-4 text-left w-full cursor-pointer hover:shadow-cardHover hover:-translate-y-0.5 transition"
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start justify-between gap-2 flex-wrap">
         {/* Emoji dans une tuile colorée (comme les icon-badge de l'accueil)
             plutôt qu'un emoji flottant seul, pour donner plus de présence
             visuelle à chaque carte. Le drapeau pays (recettes du monde),
@@ -93,7 +93,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 flex-wrap justify-end">
           {recipe.flavorPairing && <span className="badge badge-fresh whitespace-nowrap">{c.flavorPairingBadge}</span>}
           {recipe.antiGaspi && <span className="badge badge-zest whitespace-nowrap">{c.antiGaspi}</span>}
           {onToggleFavorite && (

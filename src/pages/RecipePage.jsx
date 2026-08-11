@@ -118,7 +118,7 @@ export default function RecipePage() {
       </button>
 
       <div className="card p-5 sm:p-6">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             {/* Même tuile colorée que sur les cartes recette (RecipeCard), pour
                 garder une identité visuelle cohérente entre la grille et le détail.
@@ -151,7 +151,7 @@ export default function RecipePage() {
               {recipe.flavorPairing && <span className="badge badge-fresh">{c.flavorPairingBadge}</span>}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0 print:hidden">
+          <div className="flex items-center gap-2 flex-wrap print:hidden">
             <button
               onClick={() => {
                 // "Débloque" la synthèse vocale sur Safari/iOS, qui exige un
@@ -224,7 +224,13 @@ export default function RecipePage() {
           <div>
             <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
               <h3 className="font-semibold text-neutral-900">{c.ingredients}</h3>
-              <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+              {/* w-full en dessous de sm: force ce bloc à occuper toute la
+                  largeur disponible une fois passé à la ligne (voir le
+                  flex-wrap du parent) — sans ça, un conteneur flex sans
+                  largeur contrainte se dimensionne à son contenu total et
+                  déborderait de la carte plutôt que de faire réellement
+                  passer ses boutons à la ligne sur petit écran. */}
+              <div className="flex items-center gap-1 flex-wrap w-full sm:w-auto">
                 <div className="print:hidden flex items-center gap-1">
                   {SERVINGS_PRESETS.map((n) => (
                     <button
@@ -253,7 +259,7 @@ export default function RecipePage() {
                 >
                   −
                 </button>
-                <span className="text-sm text-neutral-700 tabular-nums min-w-[6rem] text-center">
+                <span className="text-sm text-neutral-700 tabular-nums min-w-[5.5rem] text-center">
                   {servings} {c.servingsUnit(servings)}
                 </span>
                 <button
@@ -280,7 +286,7 @@ export default function RecipePage() {
                     <div className="flex items-center gap-2">
                       <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
                       {qty && (
-                        <span className="text-neutral-500 tabular-nums text-xs shrink-0 w-16">{qty}</span>
+                        <span className="text-neutral-500 tabular-nums text-xs shrink-0">{qty}</span>
                       )}
                       <button
                         onClick={() => handleIngredientClick(ing)}

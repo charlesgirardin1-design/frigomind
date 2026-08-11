@@ -16,7 +16,7 @@ const STRINGS = {
   fr: {
     heading: (
       <>
-        Ne jetez plus. <span className="text-gradient-fresh">Cuisinez ce que vous avez déjà.</span>
+        <span className="text-gradient-fresh">Ne jetez plus.</span> Cuisinez ce que vous avez déjà.
       </>
     ),
     intro:
@@ -95,7 +95,7 @@ const STRINGS = {
   en: {
     heading: (
       <>
-        Stop wasting food. <span className="text-gradient-fresh">Cook what you already have.</span>
+        <span className="text-gradient-fresh">Stop wasting food.</span> Cook what you already have.
       </>
     ),
     intro:

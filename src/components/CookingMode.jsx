@@ -276,7 +276,7 @@ export default function CookingMode({ recipe, servings, lang, onClose }) {
         </button>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center px-6 py-4 text-center">
         <p className="text-fresh-400 font-semibold text-sm mb-3">{s.stepLabel(stepIndex + 1, steps.length)}</p>
         <p className="text-2xl sm:text-3xl font-bold leading-snug max-w-xl">{steps[stepIndex]}</p>
 

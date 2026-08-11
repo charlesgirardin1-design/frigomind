@@ -24,13 +24,24 @@ function formatAmount(n) {
   return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',')
 }
 
-// Renvoie "200 g" / "1,5 pièce(s)" / null si l'ingrédient n'est pas dans la
-// table (nom non reconnu — reste silencieux plutôt que d'afficher un chiffre
-// inventé).
+// Au-delà de 1000, "1500 g"/"1500 ml" devient "1,5 kg"/"1,5 L" — plus court
+// et plus lisible sur mobile, et plus proche de la façon dont on lit ou dit
+// une quantité à voix haute (voir CookingMode.jsx) qu'un nombre à 4 chiffres.
+const BIG_UNIT = { g: 'kg', ml: 'L' }
+
+// Renvoie "200 g" / "1,5 kg" / "1,5 pièce(s)" / null si l'ingrédient n'est
+// pas dans la table (nom non reconnu — reste silencieux plutôt que
+// d'afficher un chiffre inventé).
 export function scaleIngredientQuantity(name, servings) {
   const base = INGREDIENT_QUANTITIES[name]
   if (!base) return null
   const raw = base.amount * (servings / BASE_SERVINGS)
   const rounded = roundNice(raw, base.unit)
+
+  const bigUnit = BIG_UNIT[base.unit]
+  if (bigUnit && rounded >= 1000) {
+    const big = Math.round(rounded / 100) / 10 // arrondi au dixième (précision à 100 g/100 ml)
+    return `${formatAmount(big)} ${bigUnit}`
+  }
   return `${formatAmount(rounded)} ${base.unit}`
 }
