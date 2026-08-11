@@ -18,8 +18,10 @@ const CATEGORY_KEYWORDS = {
   starchy: [
     'pomme de terre', 'pommes de terre', 'patate douce', 'panais', 'topinambour', 'igname',
     'riz', 'pâtes', 'nouilles', 'nouille', 'quinoa', 'semoule', 'boulgour', 'polenta', 'farro', 'freekeh',
-    'orzo', 'gnocchis', 'vermicelles', 'crozets', 'farfalle', 'macaronis', 'penne', 'rigatoni',
+    'orzo', 'gnocchi', 'gnocchis', 'vermicelles', 'crozets', 'farfalle', 'macaronis', 'penne', 'rigatoni',
     'spaghetti', 'tortellini', 'ravioles', 'pâte à raviolis', 'lasagnes', 'coquillettes', 'tagliatelles', 'fusilli',
+    'cannelloni', 'linguine', 'fettuccine', 'conchiglie', 'orecchiette', 'casarecce', 'bucatini',
+    'pipe rigate', 'torsades',
   ],
   cheese: [
     'fromage', 'parmesan', 'gruyère', 'emmental', 'mozzarella', 'chèvre', 'feta', 'ricotta',
