@@ -275,8 +275,17 @@ export default function RecipePage() {
               </div>
             </div>
             {(() => {
-              const unusedIngredients = allIngredients.filter((ing) => recipe.unusedIngredients?.includes(ing))
-              const usedIngredients = allIngredients.filter((ing) => !recipe.unusedIngredients?.includes(ing))
+              // `recipe.unusedIngredients` (voir recipeEngine.js) liste des
+              // ingrédients validés par l'utilisateur qui, par définition, ne
+              // font PAS partie de `recipe.required`/`optional` — les recettes
+              // de la base ou les mariages de saveurs n'y ajoutent jamais un
+              // ingrédient hors sujet. `allIngredients` (utilisé aussi pour le
+              // calcul des calories, à ne pas fausser en y mêlant des
+              // ingrédients qui n'entrent pas dans le plat) ne les contient
+              // donc jamais : on les ajoute ici, seulement pour l'affichage.
+              const displayIngredients = [...new Set([...allIngredients, ...(recipe.unusedIngredients || [])])]
+              const unusedIngredients = displayIngredients.filter((ing) => recipe.unusedIngredients?.includes(ing))
+              const usedIngredients = displayIngredients.filter((ing) => !recipe.unusedIngredients?.includes(ing))
 
               function renderIngredient(ing) {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
