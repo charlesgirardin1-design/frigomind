@@ -8,7 +8,6 @@ import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
 import { scaleIngredientQuantity } from '../utils/servings.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
-import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
 import CookingMode from '../components/CookingMode.jsx'
@@ -37,7 +36,9 @@ export default function RecipePage() {
   const [shared, setShared] = useState(false)
   const [note, setNote] = useState(favMatch?.note || '')
   const [rating, setRating] = useState(favMatch?.rating || 0)
-  const [servings, setServings] = useState(BASE_SERVINGS)
+  // Démarre à 1 personne (pas la base de calcul à 4 personnes des quantités,
+  // voir ingredientQuantities.js) : l'utilisateur ajuste lui-même ensuite.
+  const [servings, setServings] = useState(MIN_SERVINGS)
   const [cookingMode, setCookingMode] = useState(false)
 
   if (!recipe) {
