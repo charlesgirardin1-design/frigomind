@@ -66,6 +66,7 @@ export const COMMON = {
       flavorPairingBadge: '💡 Mariage gourmand',
       whyItWorks: '💡 Pourquoi ça marche',
       handsFreeMode: '🎙️ Mains libres',
+      dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Végétarien', 'sans-gluten': '🌾 Sans gluten' },
     },
   },
   en: {
@@ -127,6 +128,7 @@ export const COMMON = {
       flavorPairingBadge: '💡 Flavor pairing',
       whyItWorks: '💡 Why it works',
       handsFreeMode: '🎙️ Hands-free',
+      dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Vegetarian', 'sans-gluten': '🌾 Gluten-free' },
     },
   },
 }

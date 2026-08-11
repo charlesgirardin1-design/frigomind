@@ -142,6 +142,9 @@ export default function RecipePage() {
             </div>
             <h1 className="text-2xl font-bold text-neutral-900 mt-3">{cleanName}</h1>
             <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+              {recipe.diet?.map((tag) => c.dietLabels[tag] && (
+                <span key={tag} className="badge badge-fresh">{c.dietLabels[tag]}</span>
+              ))}
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
               <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
               <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>

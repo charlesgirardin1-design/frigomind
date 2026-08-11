@@ -56,6 +56,17 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
   // que noyé dans le titre.
   const displayName = localizeRecipeName(recipe, lang)
   const { flag, cleanName } = extractCountryFlag(displayName)
+  // Un seul badge régime "à la une", pas un par tag possible : "végétarien"
+  // seul concerne près de deux tiers des recettes de la base, l'afficher
+  // partout serait juste du bruit. Vegan et sans-gluten restent minoritaires
+  // et sont justement les catégories qu'on veut rendre plus visibles dans la
+  // grille de résultats — vegan prioritaire s'il y a les deux (le plus fort
+  // des deux claims).
+  const highlightDiet = recipe.diet?.includes('vegan')
+    ? 'vegan'
+    : recipe.diet?.includes('sans-gluten')
+      ? 'sans-gluten'
+      : null
 
   return (
     <div
@@ -124,6 +135,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
       <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{cleanName}</h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
+        {highlightDiet && <span className="badge badge-fresh whitespace-nowrap">{c.dietLabels[highlightDiet]}</span>}
         <span className="badge badge-neutral">⏱ {recipe.time} min</span>
         <span className={`badge ${LEVEL_STYLES[recipe.level] || 'badge-neutral'}`}>
           {c.level[recipe.level] || recipe.level}
