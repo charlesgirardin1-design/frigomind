@@ -40,8 +40,18 @@ placard.
 
 ${JSON_FORMAT_RULES}`
 
+const BOTH_PROMPT = `Voici une photo qui peut contenir à la fois des produits frais (frigo) et des produits secs
+de longue conservation (placard) : pâtes, riz, légumineuses, conserves, épices, farine, sucre, huile,
+céréales, mais aussi légumes, fruits, laitages, viandes, etc.
+Identifie tous les ingrédients alimentaires réellement visibles sur cette image, frais comme secs, sans
+te limiter à une seule de ces deux catégories.
+
+${JSON_FORMAT_RULES}`
+
 function buildPrompt(mode) {
-  return mode === 'placard' ? PLACARD_PROMPT : FRIGO_PROMPT
+  if (mode === 'placard') return PLACARD_PROMPT
+  if (mode === 'both') return BOTH_PROMPT
+  return FRIGO_PROMPT
 }
 
 function parseDataUrl(dataUrl) {

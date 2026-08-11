@@ -16,10 +16,12 @@ const STRINGS = {
   fr: {
     title: 'Ajoutez une photo',
     subtitle: 'Votre frigo, un placard, ou quelques aliments sur la table.',
-    fridge: '🧊 Frigo',
+    fridge: '🧊 Vider le frigo',
     pantry: '🥫 Vider le placard',
+    both: '🧊🥫 Frigo + placard',
     pantryHint: 'Mode placard : on cible les produits secs et de longue conservation (pâtes, riz, conserves, légumineuses...).',
     fridgeHint: 'Mode frigo : on cible les produits frais.',
+    bothHint: 'Mode combiné : on cible à la fois les produits frais et les produits secs sur la même photo.',
     previewAlt: 'Aperçu de la photo importée',
     change: '✕ Changer',
     emptyState: 'Aucune image pour le moment. Prenez une photo ou importez-en une.',
@@ -31,10 +33,12 @@ const STRINGS = {
   en: {
     title: 'Add a photo',
     subtitle: 'Your fridge, a cupboard, or a few items on the table.',
-    fridge: '🧊 Fridge',
+    fridge: '🧊 Empty the fridge',
     pantry: '🥫 Empty the pantry',
+    both: '🧊🥫 Fridge + pantry',
     pantryHint: 'Pantry mode: targets dry, long-lasting products (pasta, rice, canned goods, legumes...).',
     fridgeHint: 'Fridge mode: targets fresh products.',
+    bothHint: 'Combined mode: targets both fresh and dry products in the same photo.',
     previewAlt: 'Preview of the imported photo',
     change: '✕ Change',
     emptyState: 'No image yet. Take a photo or import one.',
@@ -118,7 +122,7 @@ export default function UploadPage() {
       <h2 className="text-2xl font-bold text-neutral-900">{s.title}</h2>
       <p className="text-neutral-500 mt-1">{s.subtitle}</p>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-4 flex gap-2 flex-wrap">
         <button
           onClick={() => setScanMode('frigo')}
           className={`chip ${scanMode === 'frigo' ? 'chip-active' : ''}`}
@@ -131,9 +135,15 @@ export default function UploadPage() {
         >
           {s.pantry}
         </button>
+        <button
+          onClick={() => setScanMode('both')}
+          className={`chip ${scanMode === 'both' ? 'chip-active' : ''}`}
+        >
+          {s.both}
+        </button>
       </div>
       <p className="text-xs text-neutral-500 mt-1.5">
-        {scanMode === 'placard' ? s.pantryHint : s.fridgeHint}
+        {scanMode === 'placard' ? s.pantryHint : scanMode === 'both' ? s.bothHint : s.fridgeHint}
       </p>
 
       <div className="mt-6 card p-4">
