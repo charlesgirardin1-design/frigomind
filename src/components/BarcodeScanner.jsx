@@ -39,10 +39,35 @@ function simplifyProductName(rawName) {
 // Correspondance entre tags de catégorie Open Food Facts (ex: "en:pastas",
 // "fr:pates-alimentaires") et un mot d'ingrédient générique français. Sert de
 // filet de secours quand le nom produit n'est qu'une marque (ex: "Barilla")
-// que categorizeIngredient (dishPatterns.js) ne peut pas classer.
+// que categorizeIngredient (dishPatterns.js) ne peut pas classer. Contient
+// aussi des formes de pâtes précises (spaghetti, lasagnes...) : OFF tague
+// souvent la forme exacte même quand le nom du produit reste vague ("Pâtes
+// alimentaires aux oeufs"), voir isVaguePastaName ci-dessous.
 const CATEGORY_TAG_TO_INGREDIENT = {
   pastas: 'pâtes',
   'pates-alimentaires': 'pâtes',
+  spaghetti: 'spaghettis',
+  spaghettis: 'spaghettis',
+  penne: 'penne',
+  fusilli: 'fusilli',
+  macaroni: 'macaronis',
+  macaronis: 'macaronis',
+  lasagne: 'pâtes à lasagne',
+  lasagnes: 'pâtes à lasagne',
+  tagliatelle: 'tagliatelles',
+  tagliatelles: 'tagliatelles',
+  rigatoni: 'rigatoni',
+  coquillettes: 'coquillettes',
+  vermicelli: 'vermicelles',
+  vermicelles: 'vermicelles',
+  gnocchi: 'gnocchis',
+  gnocchis: 'gnocchis',
+  ravioli: 'ravioles',
+  ravioles: 'ravioles',
+  tortellini: 'tortellini',
+  farfalle: 'farfalle',
+  cannelloni: 'cannelloni',
+  linguine: 'linguine',
   rices: 'riz',
   cheeses: 'fromage',
   milks: 'lait',
@@ -79,6 +104,27 @@ function categoryTagsToIngredient(tags) {
   return null
 }
 
+// Formes de pâtes reconnaissables dans un nom de produit : sert à détecter
+// qu'un nom déjà catégorisé comme "féculent" (categorizeIngredient) reste
+// trop vague pour être utile (ex: "pâtes alimentaires aux oeufs" ne dit pas
+// si ce sont des spaghettis ou des lasagnes) et mérite qu'on cherche plus
+// précis (tags de catégorie, puis IA) plutôt que de s'en contenter.
+const PASTA_SHAPE_KEYWORDS = [
+  'spaghetti', 'penne', 'fusilli', 'macaroni', 'tagliatelle', 'rigatoni',
+  'lasagne', 'coquillette', 'vermicelle', 'gnocchi', 'ravioli', 'raviole',
+  'tortellini', 'orzo', 'farfalle', 'cannelloni', 'linguine', 'tagliolini',
+  'bucatini', 'casarecce', 'orecchiette', 'cavatappi', 'conchiglie',
+  'capellini', 'fettuccine', 'crozet', 'trofie', 'nouille', 'fettucine',
+]
+
+const PASTA_GENERIC_KEYWORDS = ['pâtes', 'pates', 'pasta']
+
+function isVaguePastaName(name) {
+  const mentionsPasta = PASTA_GENERIC_KEYWORDS.some((kw) => name.includes(kw))
+  if (!mentionsPasta) return false
+  return !PASTA_SHAPE_KEYWORDS.some((shape) => name.includes(shape))
+}
+
 // Dernier filet de secours quand ni le nom générique Open Food Facts, ni les
 // mots-clés locaux (categorizeIngredient), ni les tags de catégorie n'ont
 // permis de reconnaître le produit : les métadonnées Open Food Facts sont
@@ -88,12 +134,12 @@ function categoryTagsToIngredient(tags) {
 // une IA (Gemini, via /api/normalize-product) de traduire le nom brut du
 // produit en ingrédient générique. Ne bloque jamais l'utilisateur : toute
 // erreur renvoie null, l'appelant garde alors son nom déjà calculé.
-async function normalizeProductName({ name, brands, categoriesTags }) {
+async function normalizeProductName({ name, brands, categoriesTags, imageUrl }) {
   try {
     const res = await fetch('/api/normalize-product', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name, brands, categoriesTags }),
+      body: JSON.stringify({ name, brands, categoriesTags, imageUrl }),
     })
     if (!res.ok) return null
     const data = await res.json()
@@ -182,7 +228,7 @@ export default function BarcodeScanner({ onDetected, onClose }) {
       setPhase('looking')
       try {
         const res = await fetch(
-          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags,brands`
+          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags,brands,image_front_url,image_url`
         )
         const data = await res.json()
         const product = data?.product
@@ -214,22 +260,27 @@ export default function BarcodeScanner({ onDetected, onClose }) {
               : simplifiedRaw || ''
 
         // Si le nom retenu reste non catégorisable (typiquement une marque
-        // ou un nom de gamme, ex: "barilla trofie collezione 500g"), on
-        // tente d'abord les tags de catégorie Open Food Facts, puis en tout
-        // dernier recours une normalisation par IA (voir normalizeProductName
-        // ci-dessus) — un ingrédient 'other' est traité comme compatible
-        // avec tous les archétypes de plats par recipeEngine.js, d'où
-        // l'intérêt de le catégoriser correctement en amont plutôt que de
-        // laisser un nom de marque brut finir dans une recette.
-        if (categorizeIngredient(candidateName) === 'other') {
+        // ou un nom de gamme, ex: "barilla trofie collezione 500g"), OU
+        // qu'il est catégorisable mais reste trop vague pour être vraiment
+        // utile (ex: "pâtes alimentaires aux oeufs" ne dit pas si ce sont
+        // des spaghettis ou des lasagnes — voir isVaguePastaName), on tente
+        // d'abord les tags de catégorie Open Food Facts (qui taguent souvent
+        // la forme exacte même quand le nom produit reste générique), puis
+        // en tout dernier recours une normalisation par IA (voir
+        // normalizeProductName ci-dessus), à qui on transmet aussi la photo
+        // du produit quand Open Food Facts en fournit une : le nom seul ne
+        // permet pas toujours de deviner la forme précise, mais une IA
+        // multimodale qui regarde l'emballage le peut.
+        if (categorizeIngredient(candidateName) === 'other' || isVaguePastaName(candidateName)) {
           const mapped = categoryTagsToIngredient(product?.categories_tags)
-          if (mapped) {
+          if (mapped && mapped !== candidateName) {
             candidateName = mapped
           } else {
             const aiName = await normalizeProductName({
               name: rawName || genericName,
               brands: product?.brands,
               categoriesTags: product?.categories_tags,
+              imageUrl: product?.image_front_url || product?.image_url,
             })
             if (aiName) candidateName = aiName
           }
