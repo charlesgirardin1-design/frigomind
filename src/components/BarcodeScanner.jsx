@@ -79,6 +79,30 @@ function categoryTagsToIngredient(tags) {
   return null
 }
 
+// Dernier filet de secours quand ni le nom générique Open Food Facts, ni les
+// mots-clés locaux (categorizeIngredient), ni les tags de catégorie n'ont
+// permis de reconnaître le produit : les métadonnées Open Food Facts sont
+// souvent absentes ou incomplètes (produits peu connus, gammes régionales,
+// formes de pâtes obscures...), donc plutôt que de continuer à empiler des
+// mots-clés locaux qui ne couvriront jamais tout, on demande directement à
+// une IA (Gemini, via /api/normalize-product) de traduire le nom brut du
+// produit en ingrédient générique. Ne bloque jamais l'utilisateur : toute
+// erreur renvoie null, l'appelant garde alors son nom déjà calculé.
+async function normalizeProductName({ name, brands, categoriesTags }) {
+  try {
+    const res = await fetch('/api/normalize-product', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name, brands, categoriesTags }),
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return typeof data?.ingredient === 'string' && data.ingredient.trim() ? data.ingredient.trim() : null
+  } catch {
+    return null
+  }
+}
+
 // Scanne un code-barres via l'API native BarcodeDetector (Chrome/Edge/
 // Android — pas de librairie tierce) puis récupère le nom du produit via
 // l'API publique et gratuite Open Food Facts (pas de clé requise). Le nom
@@ -158,10 +182,11 @@ export default function BarcodeScanner({ onDetected, onClose }) {
       setPhase('looking')
       try {
         const res = await fetch(
-          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags`
+          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags,brands`
         )
         const data = await res.json()
         const product = data?.product
+        const rawName = product?.product_name_fr || product?.product_name
 
         // `generic_name(_fr)` est censé contenir une description générique
         // (ex: "Pâtes alimentaires") plutôt qu'une marque, contrairement à
@@ -169,27 +194,32 @@ export default function BarcodeScanner({ onDetected, onClose }) {
         // préfère donc quand il est présent et non vide.
         const genericName = product?.generic_name_fr?.trim() || product?.generic_name?.trim()
 
-        let candidateName
-        if (genericName) {
-          candidateName = genericName.toLowerCase()
-        } else {
-          const rawName = product?.product_name_fr || product?.product_name
-          if (!rawName) {
-            setPhase('notfound')
-            return
-          }
-          candidateName = simplifyProductName(rawName)
+        if (!rawName && !genericName) {
+          setPhase('notfound')
+          return
         }
+        let candidateName = genericName ? genericName.toLowerCase() : simplifyProductName(rawName)
 
         // Si le nom retenu reste non catégorisable (typiquement une marque
-        // comme "barilla"), on tente de retrouver un mot générique via les
-        // tags de catégorie Open Food Facts avant d'abandonner — un
-        // ingrédient 'other' est traité comme compatible avec tous les
-        // archétypes de plats par recipeEngine.js, d'où l'intérêt de le
-        // catégoriser correctement en amont.
+        // ou un nom de gamme, ex: "barilla trofie collezione 500g"), on
+        // tente d'abord les tags de catégorie Open Food Facts, puis en tout
+        // dernier recours une normalisation par IA (voir normalizeProductName
+        // ci-dessus) — un ingrédient 'other' est traité comme compatible
+        // avec tous les archétypes de plats par recipeEngine.js, d'où
+        // l'intérêt de le catégoriser correctement en amont plutôt que de
+        // laisser un nom de marque brut finir dans une recette.
         if (categorizeIngredient(candidateName) === 'other') {
           const mapped = categoryTagsToIngredient(product?.categories_tags)
-          if (mapped) candidateName = mapped
+          if (mapped) {
+            candidateName = mapped
+          } else {
+            const aiName = await normalizeProductName({
+              name: rawName || genericName,
+              brands: product?.brands,
+              categoriesTags: product?.categories_tags,
+            })
+            if (aiName) candidateName = aiName
+          }
         }
 
         onDetected(candidateName)
