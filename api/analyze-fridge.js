@@ -19,10 +19,11 @@
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
 const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
-{"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."]}]}
+{"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."], "count": nombre d'unités visibles}]}
 
 Règles :
 - "alternatives" ne doit contenir des valeurs que si l'ingrédient est ambigu (ex : peut être du lait ou de la crème fraîche). Sinon tableau vide.
+- "count" : regarde attentivement la photo et compte le nombre réel d'unités visibles de cet ingrédient (ex : 3 pommes de terre, 2 poivrons rouges). Un seul objet JSON par ingrédient, avec le compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
 - Ignore la vaisselle, les contenants, les meubles (frigo, placard, table, assiette...) : uniquement des aliments/ingrédients.
 - Si aucun aliment n'est identifiable, réponds {"items": []}.`
 

@@ -51,28 +51,30 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
     const data = await response.json()
     const rawItems = Array.isArray(data.items) ? data.items : []
 
-    // Gemini décrit ce qu'il voit item par item : une photo avec deux
-    // courgettes renvoie souvent deux entrées "courgette" distinctes plutôt
-    // qu'une seule avec une quantité. On regroupe donc ici par nom (même
-    // ingrédient détecté plusieurs fois → une seule ligne + un compteur),
-    // en gardant la confiance la plus haute et en fusionnant les
-    // suggestions alternatives.
+    // Gemini est invité à compter lui-même les unités visibles de chaque
+    // ingrédient (voir le prompt dans api/analyze-fridge.js) et à renvoyer un
+    // seul objet par ingrédient avec ce compte dans "count". On regroupe
+    // quand même ici par nom au cas où le modèle répéterait malgré tout le
+    // même ingrédient dans plusieurs objets (photo avec beaucoup d'items) :
+    // dans ce cas les comptes s'additionnent, en gardant la confiance la
+    // plus haute et en fusionnant les suggestions alternatives.
     const merged = new Map()
     for (const item of rawItems) {
       if (!item || typeof item.name !== 'string' || !item.name.trim()) continue
       const name = item.name.trim().toLowerCase()
       const confidence = typeof item.confidence === 'number' ? item.confidence : 0.6
       const alternatives = Array.isArray(item.alternatives) ? item.alternatives.filter(Boolean) : []
+      const count = Number.isInteger(item.count) && item.count > 0 ? item.count : 1
 
       const existing = merged.get(name)
       if (existing) {
-        existing.count += 1
+        existing.count += count
         existing.confidence = Math.max(existing.confidence, confidence)
         for (const alt of alternatives) {
           if (!existing.alternatives.includes(alt)) existing.alternatives.push(alt)
         }
       } else {
-        merged.set(name, { name, confidence, alternatives, count: 1 })
+        merged.set(name, { name, confidence, alternatives, count })
       }
     }
 

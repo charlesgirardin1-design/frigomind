@@ -274,8 +274,11 @@ export default function RecipePage() {
                 </button>
               </div>
             </div>
-            <ul className="space-y-2 text-sm">
-              {allIngredients.map((ing) => {
+            {(() => {
+              const unusedIngredients = allIngredients.filter((ing) => recipe.unusedIngredients?.includes(ing))
+              const usedIngredients = allIngredients.filter((ing) => !recipe.unusedIngredients?.includes(ing))
+
+              function renderIngredient(ing) {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const isUnused = recipe.unusedIngredients?.includes(ing)
@@ -315,8 +318,27 @@ export default function RecipePage() {
                     )}
                   </li>
                 )
-              })}
-            </ul>
+              }
+
+              return (
+                <>
+                  {unusedIngredients.length > 0 && (
+                    <div className="mb-3">
+                      <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-1.5">
+                        {c.ingredientsNotUsed}
+                      </h4>
+                      <ul className="space-y-2 text-sm">{unusedIngredients.map(renderIngredient)}</ul>
+                    </div>
+                  )}
+                  {unusedIngredients.length > 0 && (
+                    <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-1.5">
+                      {c.ingredientsUsed}
+                    </h4>
+                  )}
+                  <ul className="space-y-2 text-sm">{usedIngredients.map(renderIngredient)}</ul>
+                </>
+              )
+            })()}
             <p className="text-xs text-neutral-500 mt-2">{c.quantitiesNote}</p>
           </div>
 
