@@ -273,7 +273,14 @@ export default function BarcodeScanner({ onDetected, onClose }) {
         // multimodale qui regarde l'emballage le peut.
         if (categorizeIngredient(candidateName) === 'other' || isVaguePastaName(candidateName)) {
           const mapped = categoryTagsToIngredient(product?.categories_tags)
-          if (mapped && mapped !== candidateName) {
+          // `mapped !== candidateName` ne suffit pas : si le seul tag Open
+          // Food Facts est le générique "pastas" (pas de forme précise),
+          // `categoryTagsToIngredient` renvoie "pâtes" — différent de
+          // "pâtes alimentaires aux oeufs" au sens strict, mais tout aussi
+          // vague. Sans le vérifier, on acceptait ce "pâtes" comme une
+          // amélioration et on sautait l'IA, alors que c'est justement le
+          // cas où elle est le plus utile.
+          if (mapped && mapped !== candidateName && !isVaguePastaName(mapped)) {
             candidateName = mapped
           } else {
             const aiName = await normalizeProductName({
