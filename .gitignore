@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .env
+
+# Sortie brute de scripts/generate-recipes.mjs : fichiers de relecture
+# temporaires, pas destinés à rester dans le dépôt (les recettes retenues
+# sont copiées à la main dans src/data/recipesDB.js après vérification).
+scripts/generated-recipes/
