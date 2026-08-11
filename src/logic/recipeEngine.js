@@ -96,6 +96,15 @@ function guessDiet(available) {
  * répartition entre ingrédients qui trouvent leur place dans ce plat
  * (`compatible`) et ceux qui n'y ont vraiment rien à faire (`incompatible`,
  * ex: du lait dans une poêlée).
+ *
+ * `recognizedMatches` compte, parmi les ingrédients effectivement reconnus
+ * (catégorie != 'other'), ceux qui correspondent à une catégorie "allow" de
+ * ce pattern. Comme un ingrédient non catégorisé est toujours compté
+ * "compatible" par défaut (voir categorizeIngredient dans dishPatterns.js),
+ * ce chiffre sert de départage en cas d'égalité sur `incompatible.length`
+ * (voir buildSmartFallbackRecipes) : il reflète combien ce pattern colle
+ * vraiment aux ingrédients qu'on a pu identifier, sans se laisser influencer
+ * par le nombre d'ingrédients non reconnus.
  */
 function tryDishPattern(pattern, available) {
   const categorized = available.map((ing) => ({ ing, cat: categorizeIngredient(ing) }))
@@ -104,11 +113,16 @@ function tryDishPattern(pattern, available) {
 
   const compatible = []
   const incompatible = []
+  let recognizedMatches = 0
   for (const { ing, cat } of categorized) {
-    if (cat === 'other' || pattern.allow.includes(cat)) compatible.push(ing)
-    else incompatible.push(ing)
+    if (cat === 'other' || pattern.allow.includes(cat)) {
+      compatible.push(ing)
+      if (cat !== 'other') recognizedMatches += 1
+    } else {
+      incompatible.push(ing)
+    }
   }
-  return { compatible, incompatible }
+  return { compatible, incompatible, recognizedMatches }
 }
 
 /**
@@ -123,6 +137,16 @@ function tryDishPattern(pattern, available) {
  * plutôt que de l'y forcer — jamais plus de 2 recettes renvoyées ici pour
  * garder de la place aux vraies recettes de la base et aux mariages de
  * saveurs dans les résultats finaux.
+ *
+ * Tri : d'abord le moins d'ingrédients incompatibles (critère principal). En
+ * cas d'égalité, on ne se contente plus de l'ordre d'apparition dans
+ * DISH_PATTERNS (ce qui favorisait systématiquement "omelette-maison", premier
+ * de la liste et le plus facile à envisager avec `requires: ['egg']`) : on
+ * départage par `recognizedMatches`, c'est-à-dire le nombre d'ingrédients
+ * *réellement catégorisés* (donc pas 'other') que ce pattern accueille. Ainsi,
+ * un ingrédient non reconnu (ex: nom de produit scanné par code-barres qui ne
+ * ressemble à rien) ne pousse plus artificiellement vers l'omelette : il ne
+ * compte ni pour ni contre aucun archétype lors du départage.
  */
 function buildSmartFallbackRecipes(available) {
   const diet = guessDiet(available)
@@ -130,7 +154,11 @@ function buildSmartFallbackRecipes(available) {
 
   const attempts = DISH_PATTERNS.map((pattern) => ({ pattern, result: tryDishPattern(pattern, available) }))
     .filter((a) => a.result)
-    .sort((a, b) => a.result.incompatible.length - b.result.incompatible.length)
+    .sort((a, b) => {
+      const byIncompatible = a.result.incompatible.length - b.result.incompatible.length
+      if (byIncompatible !== 0) return byIncompatible
+      return b.result.recognizedMatches - a.result.recognizedMatches
+    })
     .slice(0, 2)
 
   return attempts.map(({ pattern, result }) => {

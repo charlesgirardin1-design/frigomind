@@ -17,23 +17,24 @@ const CATEGORY_KEYWORDS = {
   dairy_liquid: ['lait', 'crème', 'yaourt', 'fromage blanc', 'chantilly'],
   starchy: [
     'pomme de terre', 'pommes de terre', 'patate douce', 'panais', 'topinambour', 'igname',
-    'riz', 'pâtes', 'nouilles', 'quinoa', 'semoule', 'boulgour', 'polenta', 'farro', 'freekeh',
+    'riz', 'pâtes', 'nouilles', 'nouille', 'quinoa', 'semoule', 'boulgour', 'polenta', 'farro', 'freekeh',
     'orzo', 'gnocchis', 'vermicelles', 'crozets', 'farfalle', 'macaronis', 'penne', 'rigatoni',
-    'spaghetti', 'tortellini', 'ravioles', 'pâte à raviolis',
+    'spaghetti', 'tortellini', 'ravioles', 'pâte à raviolis', 'lasagnes', 'coquillettes', 'tagliatelles', 'fusilli',
   ],
   cheese: [
     'fromage', 'parmesan', 'gruyère', 'emmental', 'mozzarella', 'chèvre', 'feta', 'ricotta',
     'mascarpone', 'roquefort', 'bleu', 'raclette', 'halloumi', 'burrata', 'paneer', 'comté', 'cheddar',
+    'brie', 'camembert',
   ],
   aromatic: ['oignon', 'ail', 'échalote', 'poireau', 'gingembre', 'citronnelle'],
   fresh_veg: [
     'tomate', 'concombre', 'avocat', 'radis', 'roquette', 'salade', 'chou rouge', 'poivron',
-    'fenouil', 'maïs', 'edamame', 'carotte', 'betterave', 'céleri',
+    'fenouil', 'maïs', 'edamame', 'carotte', 'betterave', 'céleri', 'aubergine', 'courgette',
   ],
   cured_meat: ['jambon', 'lardons', 'bacon', 'chorizo', 'saucisson', 'charcuterie', 'merguez', 'saucisse'],
   herb: ['persil', 'basilic', 'ciboulette', 'coriandre', 'menthe', 'aneth', 'estragon', 'thym', 'romarin', 'sauge'],
   mushroom: ['champignon'],
-  leafy: ['épinard', 'blette', 'chou kale', 'chou-fleur', 'brocoli', 'choux de bruxelles', 'haricots verts', 'petits pois'],
+  leafy: ['épinard', 'blette', 'chou kale', 'chou-fleur', 'brocoli', 'choux de bruxelles', 'haricots verts', 'petits pois', 'chou'],
   fruit: [
     'pomme', 'poire', 'banane', 'fraise', 'framboise', 'myrtille', 'cerise', 'pêche', 'abricot',
     'mangue', 'ananas', 'kiwi', 'raisin', 'orange', 'citron', 'pamplemousse', 'melon', 'figue', 'rhubarbe',
@@ -42,7 +43,7 @@ const CATEGORY_KEYWORDS = {
   protein: [
     'poulet', 'boeuf', 'bœuf', 'porc', 'viande', 'saumon', 'poisson', 'crevette', 'fruits de mer',
     'dinde', 'canard', 'agneau', 'veau', 'cabillaud', 'lieu', 'dorade', 'truite', 'sole', 'espadon',
-    'rouget', 'lapin', 'poulpe', 'calamar', 'crabe', 'moules', 'palourdes', 'tofu', 'seitan',
+    'rouget', 'lapin', 'poulpe', 'calamar', 'crabe', 'moules', 'palourdes', 'tofu', 'seitan', 'steak',
   ],
   // Ingrédients sucrés/pâtisserie : volontairement exclus de la liste
   // "allow" de tous les archétypes salés ci-dessous (aucun plat salé n'en a
@@ -61,6 +62,43 @@ function normalize(str) {
   return str.trim().toLowerCase().normalize('NFD').replace(ACCENTS_REGEX, '')
 }
 
+// Caractère "de mot" pour nos besoins : lettre (y compris œ/æ, des ligatures
+// que NFD ne décompose pas) ou chiffre. Sert à repérer les limites d'un mot.
+const WORD_CHAR_REGEX = /[a-z0-9œæ]/
+function isWordChar(char) {
+  return !!char && WORD_CHAR_REGEX.test(char)
+}
+
+// Vrai si le caractère suivant la fin du mot-clé marque bien une limite de
+// mot : fin de chaîne, caractère non-alphanumérique (espace, tiret...), ou
+// un simple "s"/"x" de pluriel en toute fin de chaîne (pour reconnaître les
+// pluriels non listés explicitement, ex: "carotte" -> "carottes").
+function hasWordBoundaryAfter(text, index) {
+  if (index >= text.length) return true
+  const char = text[index]
+  if (!isWordChar(char)) return true
+  return (char === 's' || char === 'x') && index === text.length - 1
+}
+
+// Vrai si `keyword` apparaît dans `text` comme un mot (ou groupe de mots)
+// entier, et pas comme simple fragment au milieu d'un autre mot. Un simple
+// `.includes()` classait par erreur "bœuf" en 'egg' (contient "œuf") et
+// "chorizo" en 'starchy' (contient "riz") — deux faux positifs qui
+// faussaient le choix d'archétype de plat (ex: du bœuf traité comme un œuf
+// pouvait déclencher à tort l'omelette).
+function containsKeyword(text, keyword) {
+  let searchFrom = 0
+  let index = text.indexOf(keyword, searchFrom)
+  while (index !== -1) {
+    const boundaryBefore = index === 0 || !isWordChar(text[index - 1])
+    const boundaryAfter = hasWordBoundaryAfter(text, index + keyword.length)
+    if (boundaryBefore && boundaryAfter) return true
+    searchFrom = index + 1
+    index = text.indexOf(keyword, searchFrom)
+  }
+  return false
+}
+
 // Renvoie la première catégorie dont un mot-clé apparaît dans le nom
 // d'ingrédient, ou 'other' si non reconnu. Un ingrédient non classé reste
 // toujours traité comme "compatible" avec n'importe quel plat (voir
@@ -69,7 +107,7 @@ function normalize(str) {
 export function categorizeIngredient(name) {
   const normalized = normalize(name)
   for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-    if (keywords.some((kw) => normalized.includes(normalize(kw)))) return category
+    if (keywords.some((kw) => containsKeyword(normalized, normalize(kw)))) return category
   }
   return 'other'
 }
