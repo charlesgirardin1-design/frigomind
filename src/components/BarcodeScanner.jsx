@@ -108,21 +108,52 @@ function categoryTagsToIngredient(tags) {
 // qu'un nom déjà catégorisé comme "féculent" (categorizeIngredient) reste
 // trop vague pour être utile (ex: "pâtes alimentaires aux oeufs" ne dit pas
 // si ce sont des spaghettis ou des lasagnes) et mérite qu'on cherche plus
-// précis (tags de catégorie, puis IA) plutôt que de s'en contenter.
+// précis (tags de catégorie, puis IA) plutôt que de s'en contenter. "nouille"
+// est volontairement absent : c'est un mot générique (comme "pâtes"), pas une
+// forme précise — le garder ici ferait passer "pâtes nouilles" pour
+// suffisamment spécifique alors que ça ne l'est pas plus que "pâtes" seul.
 const PASTA_SHAPE_KEYWORDS = [
   'spaghetti', 'penne', 'fusilli', 'macaroni', 'tagliatelle', 'rigatoni',
   'lasagne', 'coquillette', 'vermicelle', 'gnocchi', 'ravioli', 'raviole',
   'tortellini', 'orzo', 'farfalle', 'cannelloni', 'linguine', 'tagliolini',
   'bucatini', 'casarecce', 'orecchiette', 'cavatappi', 'conchiglie',
-  'capellini', 'fettuccine', 'crozet', 'trofie', 'nouille', 'fettucine',
+  'capellini', 'fettuccine', 'fettucine', 'crozet', 'trofie',
 ]
 
 const PASTA_GENERIC_KEYWORDS = ['pâtes', 'pates', 'pasta']
 
+// Même logique de limite de mot que categorizeIngredient (dishPatterns.js) :
+// un simple .includes() a déjà causé de vrais faux positifs ailleurs dans
+// cette app (ex: "veau" à l'intérieur de "oignon nouveau"), donc même sans
+// collision connue ici, mieux vaut rester cohérent plutôt que dupliquer un
+// matching non protégé.
+const WORD_CHAR_REGEX = /[a-z0-9œæ]/
+function isWordChar(char) {
+  return !!char && WORD_CHAR_REGEX.test(char)
+}
+function hasWordBoundaryAfter(text, index) {
+  if (index >= text.length) return true
+  const char = text[index]
+  if (!isWordChar(char)) return true
+  return (char === 's' || char === 'x') && index === text.length - 1
+}
+function containsWholeWord(text, word) {
+  let searchFrom = 0
+  let index = text.indexOf(word, searchFrom)
+  while (index !== -1) {
+    const boundaryBefore = index === 0 || !isWordChar(text[index - 1])
+    const boundaryAfter = hasWordBoundaryAfter(text, index + word.length)
+    if (boundaryBefore && boundaryAfter) return true
+    searchFrom = index + 1
+    index = text.indexOf(word, searchFrom)
+  }
+  return false
+}
+
 function isVaguePastaName(name) {
-  const mentionsPasta = PASTA_GENERIC_KEYWORDS.some((kw) => name.includes(kw))
+  const mentionsPasta = PASTA_GENERIC_KEYWORDS.some((kw) => containsWholeWord(name, kw))
   if (!mentionsPasta) return false
-  return !PASTA_SHAPE_KEYWORDS.some((shape) => name.includes(shape))
+  return !PASTA_SHAPE_KEYWORDS.some((shape) => containsWholeWord(name, shape))
 }
 
 // Dernier filet de secours quand ni le nom générique Open Food Facts, ni les

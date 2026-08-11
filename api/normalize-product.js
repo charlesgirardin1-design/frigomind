@@ -143,7 +143,14 @@ export default async function handler(req, res) {
       signal: controller.signal,
       body: JSON.stringify({
         contents: [{ parts }],
-        generationConfig: { responseMimeType: 'application/json', maxOutputTokens: 200 },
+        // Pas de maxOutputTokens : gemini-2.5-flash consomme une partie du
+        // budget de sortie pour son raisonnement interne avant d'émettre le
+        // JSON final (particulièrement avec une image jointe) — une limite
+        // trop serrée risque de tronquer la réponse avant le JSON utile,
+        // faisant silencieusement échouer extractJson (voir
+        // api/analyze-fridge.js, qui ne fixe aucune limite pour la même
+        // raison).
+        generationConfig: { responseMimeType: 'application/json' },
       }),
     })
 
