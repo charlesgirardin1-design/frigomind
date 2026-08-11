@@ -3,17 +3,28 @@
 // "Cerveau" de la génération de recettes. Prend les ingrédients validés par
 // l'utilisateur + ses préférences, et retourne 3 à 5 recettes réalistes.
 //
-// Principes IA voulus par le produit :
-//  - RÈGLE OBLIGATOIRE : chaque recette proposée doit impérativement utiliser
-//    TOUS les ingrédients validés par l'utilisateur (ceux détectés sur la
-//    photo, corrigés/complétés si besoin). Une recette peut en plus proposer
-//    d'autres ingrédients (basiques de placard, ou ingrédients à acheter),
-//    mais ne peut jamais ignorer un ingrédient que l'utilisateur possède déjà.
+// Principes voulus par le produit :
+//  - PRIORITÉ à la base de vraies recettes (recipesDB.js, ~1000 recettes) sur
+//    toute génération à la volée : on cherche d'abord ce qui existe déjà.
+//  - une recette n'a plus besoin d'utiliser LITTÉRALEMENT tous les
+//    ingrédients validés par l'utilisateur pour être proposée — l'exiger
+//    forçait le moteur à empiler des ingrédients hors sujet dans une même
+//    recette dès que l'utilisateur avait beaucoup d'ingrédients différents
+//    (ex: une "omelette" avec dix légumes + des pâtes). À la place, la
+//    proportion d'ingrédients validés réellement utilisés par une recette
+//    (`coverage`, voir scoreRecipe) est un simple facteur de score : plus une
+//    recette met à profit ce qu'on a sous la main, mieux elle est classée,
+//    mais une recette pertinente qui n'en utilise qu'une partie reste
+//    proposée — les ingrédients qu'elle n'utilise pas sont listés
+//    explicitement (`unusedIngredients`, affiché sur RecipePage.jsx) plutôt
+//    que forcés dedans.
 //  - ne jamais exiger d'ingrédients externes inutiles (les basiques type
 //    sel/poivre/huile ne comptent jamais comme "manquants")
-//  - ne jamais bloquer l'utilisateur : si aucune recette de la base ne
-//    respecte la règle ci-dessus, on génère à la volée des recettes
-//    "maison" qui, elles, utilisent forcément tous les ingrédients validés
+//  - ne jamais bloquer l'utilisateur : si vraiment aucune recette de la base
+//    n'a le moindre rapport avec les ingrédients validés, on génère à la
+//    volée une recette "maison" (voir buildSmartFallbackRecipes) — plafonnée
+//    à un nombre réaliste d'ingrédients par plat (voir `maxIngredients` dans
+//    dishPatterns.js), jamais un fourre-tout.
 //  - favoriser l'anti-gaspi : bonus de score pour les recettes qui utilisent
 //    des ingrédients périssables (à consommer vite)
 // -----------------------------------------------------------------------------
@@ -68,19 +79,6 @@ function includesIngredient(availableSet, ingredientName) {
   return false
 }
 
-/**
- * RÈGLE OBLIGATOIRE : vérifie qu'une recette utilise bien TOUS les
- * ingrédients validés par l'utilisateur (chacun doit se retrouver parmi les
- * ingrédients requis OU optionnels de la recette). La recette peut avoir en
- * plus d'autres ingrédients (basiques, ou à acheter) : ça ne pose pas de
- * souci, seul l'oubli d'un ingrédient déjà possédé est bloquant.
- */
-function usesAllValidatedIngredients(recipe, available) {
-  if (available.length === 0) return true
-  const pool = [...recipe.required, ...recipe.optional]
-  return available.every((ing) => includesIngredient(pool, ing))
-}
-
 function guessDiet(available) {
   const hasMeatOrFish = available.some((ing) => {
     const normalized = normalize(ing)
@@ -116,13 +114,42 @@ function tryDishPattern(pattern, available) {
   let recognizedMatches = 0
   for (const { ing, cat } of categorized) {
     if (cat === 'other' || pattern.allow.includes(cat)) {
-      compatible.push(ing)
+      compatible.push({ ing, cat })
       if (cat !== 'other') recognizedMatches += 1
     } else {
       incompatible.push(ing)
     }
   }
-  return { compatible, incompatible, recognizedMatches }
+
+  // Plafonne le nombre d'ingrédients réellement retenus pour CE plat (voir
+  // `maxIngredients` dans dishPatterns.js) : un ingrédient peut être
+  // catégoriquement compatible sans que le plat entier reste réaliste une
+  // fois qu'on en accumule 8 ou 10 (ex: une "omelette" avec dix légumes
+  // différents). Priorité aux catégories `requires` (le cœur du plat), puis
+  // aux catégories pas encore représentées (diversité), plutôt qu'à l'ordre
+  // d'arrivée — les ingrédients laissés de côté par manque de place
+  // rejoignent `incompatible` (même traitement affiché que "pas utilisé
+  // ici", voir buildSmartFallbackRecipes).
+  const cap = pattern.maxIngredients || 6
+  let kept = compatible
+  let overflow = []
+  if (compatible.length > cap) {
+    const requiresSet = new Set(pattern.requires)
+    const anchors = compatible.filter((c) => requiresSet.has(c.cat))
+    const rest = compatible.filter((c) => !requiresSet.has(c.cat))
+    const seenCategories = new Set()
+    const restNewCategory = rest.filter((c) => (seenCategories.has(c.cat) ? false : (seenCategories.add(c.cat), true)))
+    const restDuplicateCategory = rest.filter((c) => !restNewCategory.includes(c))
+    kept = [...anchors, ...restNewCategory, ...restDuplicateCategory].slice(0, cap)
+    const keptSet = new Set(kept)
+    overflow = compatible.filter((c) => !keptSet.has(c)).map((c) => c.ing)
+  }
+
+  return {
+    compatible: kept.map((c) => c.ing),
+    incompatible: [...incompatible, ...overflow],
+    recognizedMatches,
+  }
 }
 
 /**
@@ -132,7 +159,8 @@ function tryDishPattern(pattern, available) {
  * catégorise chaque ingrédient (voir dishPatterns.js) et on retient le ou
  * les archétypes de plat réalistes (omelette, gratin, salade, soupe,
  * poêlée) qui peuvent accueillir le plus d'entre eux. Si un ingrédient ne
- * trouve vraiment sa place nulle part (ex: le lait dans poulet+brocoli), on
+ * trouve vraiment sa place nulle part (ex: le lait dans poulet+brocoli), ou
+ * qu'il n'y a plus de place (voir `maxIngredients` dans tryDishPattern), on
  * le dit explicitement (`unusedIngredients`, affiché sur RecipePage.jsx)
  * plutôt que de l'y forcer — jamais plus de 2 recettes renvoyées ici pour
  * garder de la place aux vraies recettes de la base et aux mariages de
@@ -269,7 +297,20 @@ function scoreRecipe(recipe, availableIngredients) {
   )
   const antiGaspiBonus = usesPerishable ? 0.15 : 0
 
-  const score = requiredScore + optionalBonus + antiGaspiBonus
+  // Couverture : proportion des ingrédients validés par l'utilisateur que
+  // cette recette utilise réellement (requis ou optionnels). N'est plus une
+  // condition bloquante (voir generateRecipes) mais fait remonter les
+  // recettes qui mettent à profit le plus de ce qu'on a sous la main. Les
+  // ingrédients validés qui ne rentrent dans aucune recette proposée sont
+  // listés dans `unusedIngredients` plutôt que forcés dedans.
+  const pool = [...recipe.required, ...recipe.optional]
+  const unusedIngredients = availableIngredients.filter((ing) => !includesIngredient(pool, ing))
+  const coverage = availableIngredients.length
+    ? (availableIngredients.length - unusedIngredients.length) / availableIngredients.length
+    : 1
+  const coverageBonus = coverage * 0.3
+
+  const score = requiredScore + optionalBonus + antiGaspiBonus + coverageBonus
 
   return {
     score,
@@ -277,6 +318,7 @@ function scoreRecipe(recipe, availableIngredients) {
     requiredMissing,
     optionalMatched,
     antiGaspi: usesPerishable,
+    unusedIngredients,
   }
 }
 
@@ -306,14 +348,15 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     ...scoreRecipe(recipe, available),
   }))
 
-  // RÈGLE OBLIGATOIRE : on ne considère QUE les recettes qui utilisent tous
-  // les ingrédients validés par l'utilisateur. Les recettes de la base qui
-  // n'en utilisent qu'une partie sont exclues d'office, même si leur score
-  // de correspondance serait par ailleurs bon.
-  const mandatory = scored.filter((c) => usesAllValidatedIngredients(c.recipe, available))
-
-  // 1) on tente d'abord avec TOUS les filtres de préférences appliqués
-  let candidates = mandatory.filter(({ recipe }) => applyPreferenceFilters(recipe, prefs))
+  // 1) on tente d'abord avec TOUS les filtres de préférences appliqués, en ne
+  //    gardant que les recettes qui ont un minimum de rapport avec ce que
+  //    l'utilisateur a réellement (au moins un ingrédient requis ou
+  //    optionnel en commun) — pas besoin d'utiliser TOUT ce qu'il a validé
+  //    (voir scoreRecipe : `coverage` influence juste le classement), mais
+  //    une recette sans le moindre ingrédient en commun n'est pas pertinente.
+  let candidates = scored
+    .filter(({ recipe }) => applyPreferenceFilters(recipe, prefs))
+    .filter((c) => available.length === 0 || c.requiredMatched.length + c.optionalMatched.length > 0)
 
   // 2) on ne garde que les recettes avec au maximum 1 ingrédient requis manquant
   //    (règle "réaliste niveau étudiant" : pas besoin de courir acheter 3 choses)
@@ -345,19 +388,21 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
         requiredMissing,
         optionalMatched: [],
         antiGaspi: recipe.antiGaspi,
+        // Un mariage de saveurs plie déjà tous les ingrédients validés dans
+        // `required` (voir buildFlavorPairingRecipes), donc rien n'est laissé
+        // de côté ici contrairement aux autres chemins de résultats.
+        unusedIngredients: [],
       }
     })
 
   let results = [...pairingResults, ...strong].slice(0, 5)
 
   // Anti-blocage (étape 1) : si moins de 3 résultats, on complète avec les
-  // autres recettes de la base qui respectent quand même la règle
-  // obligatoire — on relâche seulement la contrainte "score/ingrédients
-  // manquants" (`strong`), jamais les préférences explicites de
-  // l'utilisateur (végétarien, cuisine, temps max) : on repioche donc dans
-  // `candidates` (déjà filtré par applyPreferenceFilters), pas dans
-  // `mandatory`, pour qu'une préférence cochée reste absolue même quand on
-  // doit compléter les résultats.
+  // autres recettes de la base pertinentes (`candidates`) en relâchant
+  // seulement la contrainte "score/ingrédients manquants" (`strong`), jamais
+  // les préférences explicites de l'utilisateur (végétarien, cuisine, temps
+  // max), pour qu'une préférence cochée reste absolue même quand on doit
+  // compléter les résultats.
   if (results.length < 3) {
     const usedIds = new Set(results.map((r) => r.recipe.id))
     const fallback = candidates
@@ -367,14 +412,14 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     results = [...results, ...fallback]
   }
 
-  // Anti-blocage (étape 2, garantie absolue) : si la base de recettes ne
-  // contient aucune combinaison respectant la règle obligatoire (ingrédients
-  // trop variés/inhabituels), on génère des recettes "maison" qui utilisent
-  // par construction tous les ingrédients validés. Ces recettes générées
-  // doivent, elles aussi, respecter les préférences (ex : si l'utilisateur a
-  // de la viande dans ses ingrédients validés et coche "végétarien
-  // uniquement", on ne peut pas fabriquer de recette végé sans trahir la
-  // règle obligatoire — on préfère alors proposer moins de 3 résultats
+  // Anti-blocage (étape 2, garantie absolue) : si la base de ~1000 recettes
+  // n'a vraiment rien de pertinent (ingrédients trop variés/inhabituels), on
+  // génère une recette "maison" à la volée (voir buildSmartFallbackRecipes),
+  // plafonnée à un nombre réaliste d'ingrédients par plat plutôt qu'un
+  // fourre-tout. Doit aussi respecter les préférences (ex : si l'utilisateur
+  // a de la viande dans ses ingrédients validés et coche "végétarien
+  // uniquement", on ne peut pas fabriquer de recette végé sans trahir ce
+  // qu'il a réellement — on préfère alors proposer moins de 3 résultats
   // plutôt qu'ignorer la préférence silencieusement.
   if (results.length < 3 && available.length > 0) {
     const generic = buildSmartFallbackRecipes(available)
@@ -386,6 +431,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
         requiredMissing: [],
         optionalMatched: recipe.optional.filter((ing) => includesIngredient(available, ing)),
         antiGaspi: recipe.antiGaspi,
+        unusedIngredients: recipe.unusedIngredients || [],
       }))
     results = [...results, ...generic].slice(0, 5)
   }
@@ -396,6 +442,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     matchedIngredients: [...new Set([...r.requiredMatched, ...r.optionalMatched])],
     missingIngredients: r.requiredMissing,
     antiGaspi: r.antiGaspi,
+    unusedIngredients: r.unusedIngredients || [],
   }))
 }
 

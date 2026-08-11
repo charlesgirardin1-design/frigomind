@@ -116,12 +116,18 @@ export function categorizeIngredient(name) {
 // catégories doit être présent pour que l'archétype soit even envisagé.
 // `allow` : catégories qu'il peut plausiblement accueillir en plus — un
 // ingrédient d'une catégorie hors de cette liste est laissé de côté plutôt
-// que forcé dans le plat (ex: pas de lait dans une poêlée).
+// que forcé dans le plat (ex: pas de lait dans une poêlée). `maxIngredients` :
+// nombre réaliste d'ingrédients pour CE plat précis — même un ingrédient de
+// catégorie "allow" est laissé de côté (voir tryDishPattern dans
+// recipeEngine.js) au-delà de cette limite, pour éviter une "omelette" à 11
+// ingrédients simplement parce que chacun d'eux est individuellement
+// compatible avec le principe de l'omelette.
 export const DISH_PATTERNS = [
   {
     id: 'omelette-maison',
     requires: ['egg'],
     allow: ['egg', 'dairy_liquid', 'starchy', 'cheese', 'aromatic', 'cured_meat', 'mushroom', 'leafy', 'herb', 'fresh_veg'],
+    maxIngredients: 5,
     emoji: '🍳',
     time: 15,
     level: 'facile',
@@ -155,6 +161,7 @@ export const DISH_PATTERNS = [
     id: 'gratin-maison',
     requires: ['starchy'],
     allow: ['starchy', 'dairy_liquid', 'cheese', 'aromatic', 'cured_meat', 'mushroom', 'protein', 'leafy'],
+    maxIngredients: 6,
     emoji: '🧀',
     time: 40,
     level: 'moyen',
@@ -177,6 +184,7 @@ export const DISH_PATTERNS = [
     id: 'salade-composee',
     requires: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned'],
     allow: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned', 'herb', 'egg', 'starchy', 'dairy_liquid', 'leafy'],
+    maxIngredients: 7,
     emoji: '🥗',
     time: 15,
     level: 'facile',
@@ -199,6 +207,7 @@ export const DISH_PATTERNS = [
     id: 'soupe-maison',
     requires: ['fresh_veg', 'starchy', 'leafy', 'aromatic', 'legume_canned'],
     allow: ['fresh_veg', 'starchy', 'leafy', 'aromatic', 'dairy_liquid', 'protein', 'legume_canned', 'herb', 'mushroom'],
+    maxIngredients: 7,
     emoji: '🍲',
     time: 30,
     level: 'facile',
@@ -221,6 +230,7 @@ export const DISH_PATTERNS = [
     id: 'poelee-maison',
     requires: ['protein', 'fresh_veg', 'starchy', 'mushroom', 'leafy', 'cured_meat'],
     allow: ['protein', 'fresh_veg', 'starchy', 'mushroom', 'leafy', 'cured_meat', 'aromatic', 'herb', 'cheese'],
+    maxIngredients: 6,
     emoji: '🥘',
     time: 20,
     level: 'facile',
