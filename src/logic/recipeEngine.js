@@ -231,11 +231,14 @@ function buildSmartFallbackRecipes(available) {
  * chaque mariage reconnu dans `available` (ex: poireau + pomme + roquefort)
  * en une vraie recette nommée et expliquée — une alternative nettement plus
  * qualitative à buildSmartFallbackRecipes pour des combinaisons d'ingrédients
- * inhabituelles mais culinairement solides. Comme buildSmartFallbackRecipes, le
- * `required` final inclut TOUJOURS tous les ingrédients validés (règle
- * obligatoire du moteur) : les ingrédients validés qui ne font pas partie du
- * mariage lui-même sont ajoutés en fin de recette via une étape générique,
- * pour que la liste d'ingrédients affichée reste cohérente avec les étapes.
+ * inhabituelles mais culinairement solides. `required` ne contient QUE les
+ * ingrédients du mariage lui-même (jamais forcé avec le reste des
+ * ingrédients validés, sans quoi on retrouverait le même défaut que le
+ * moteur générique corrigeait : un ingrédient hors sujet — ex: du saumon
+ * dans une tarte poireau/pomme/roquefort — écrasant la cohérence du plat).
+ * Les ingrédients validés qui ne font pas partie du mariage rejoignent
+ * `unusedIngredients` (même traitement affiché que pour les autres recettes,
+ * voir RecipePage.jsx).
  */
 function buildFlavorPairingRecipes(available) {
   const matches = findFlavorPairings(available)
@@ -248,14 +251,18 @@ function buildFlavorPairingRecipes(available) {
     const core = new Set([...pairing.ingredients, ...pairing.extras].map((ing) => normalize(ing)))
     const extraFromFridge = available.filter((ing) => !core.has(normalize(ing)))
 
-    const extraStepFr = extraFromFridge.length
+    const unusedNoteFr = extraFromFridge.length
       ? [
-          `Si vous avez d'autres ingrédients validés sous la main (${extraFromFridge.join(', ')}), ajoutez-les en accompagnement ou intégrez-les à la recette selon votre goût.`,
+          extraFromFridge.length === 1
+            ? `💡 ${extraFromFridge[0]} ne trouve pas vraiment sa place dans cette recette — gardez-le pour un autre usage.`
+            : `💡 ${extraFromFridge.join(', ')} ne trouvent pas vraiment leur place dans cette recette — gardez-les pour un autre usage.`,
         ]
       : []
-    const extraStepEn = extraFromFridge.length
+    const unusedNoteEn = extraFromFridge.length
       ? [
-          `If you have other validated ingredients on hand (${extraFromFridge.join(', ')}), add them as a side or work them into the dish to taste.`,
+          extraFromFridge.length === 1
+            ? `💡 ${extraFromFridge[0]} doesn't really belong in this recipe — save it for something else.`
+            : `💡 ${extraFromFridge.join(', ')} don't really belong in this recipe — save them for something else.`,
         ]
       : []
 
@@ -268,14 +275,15 @@ function buildFlavorPairingRecipes(available) {
       level: pairing.level,
       cuisine: pairing.cuisine,
       diet,
-      required: [...new Set([...pairing.ingredients, ...pairing.extras, ...available])],
+      required: [...new Set([...pairing.ingredients, ...pairing.extras])],
       optional: ['sel', 'poivre', 'huile'],
-      steps: [...pairing.steps, ...extraStepFr],
-      stepsEn: [...pairing.stepsEn, ...extraStepEn],
+      steps: [...pairing.steps, ...unusedNoteFr],
+      stepsEn: [...pairing.stepsEn, ...unusedNoteEn],
       flavorPairing: true,
       pairingWhy: pairing.why,
       pairingWhyEn: pairing.whyEn,
       antiGaspi: usesPerishable,
+      unusedIngredients: extraFromFridge,
     }
   })
 }
@@ -388,10 +396,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
         requiredMissing,
         optionalMatched: [],
         antiGaspi: recipe.antiGaspi,
-        // Un mariage de saveurs plie déjà tous les ingrédients validés dans
-        // `required` (voir buildFlavorPairingRecipes), donc rien n'est laissé
-        // de côté ici contrairement aux autres chemins de résultats.
-        unusedIngredients: [],
+        unusedIngredients: recipe.unusedIngredients || [],
       }
     })
 
