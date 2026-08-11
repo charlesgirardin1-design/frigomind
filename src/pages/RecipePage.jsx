@@ -278,6 +278,7 @@ export default function RecipePage() {
               {allIngredients.map((ing) => {
                 const isMatched = recipe.matchedIngredients?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
+                const isUnused = recipe.unusedIngredients?.includes(ing)
                 const qty = scaleIngredientQuantity(ing, servings)
                 const substitutes = isMissing ? getSubstitutes(ing) : null
                 const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
@@ -285,20 +286,21 @@ export default function RecipePage() {
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
-                      <span aria-hidden>{isMissing ? '🛒' : '✅'}</span>
+                      <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : '✅'}</span>
                       {qty && (
                         <span className="text-neutral-500 tabular-nums text-xs shrink-0">{qty}</span>
                       )}
                       <button
                         onClick={() => handleIngredientClick(ing)}
                         className={`text-left underline decoration-dotted underline-offset-2 hover:text-fresh-700 ${
-                          isMissing ? 'text-neutral-500' : 'text-neutral-800'
+                          isMissing || isUnused ? 'text-neutral-500' : 'text-neutral-800'
                         }`}
                       >
                         {ing}
                       </button>
                       {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
-                      {!isMissing && !isMatched && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
+                      {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
+                      {!isMissing && !isUnused && !isMatched && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
                     {dynamicSub ? (
                       <p className="text-xs text-fresh-700 dark:text-fresh-400 font-medium mt-0.5 ml-6">

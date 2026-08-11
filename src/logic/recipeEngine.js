@@ -21,10 +21,11 @@
 import { RECIPES } from '../data/recipesDB.js'
 import { isPantryStaple, isPerishable } from '../data/expiryData.js'
 import { findFlavorPairings } from '../data/flavorPairings.js'
+import { categorizeIngredient, DISH_PATTERNS } from '../data/dishPatterns.js'
 
 // Mots-clés utilisés pour deviner si un ingrédient rend une recette
 // "non végétarienne", afin de taguer correctement les recettes générées
-// dynamiquement (voir buildGenericRecipes).
+// dynamiquement (voir buildSmartFallbackRecipes).
 const NON_VEGETARIAN_KEYWORDS = [
   'poulet',
   'boeuf',
@@ -89,117 +90,92 @@ function guessDiet(available) {
 }
 
 /**
- * Filet de sécurité absolu : génère des recettes "maison" à la volée qui
- * utilisent, par construction, TOUS les ingrédients validés par
- * l'utilisateur. Utilisé uniquement quand aucune recette de la base
- * RECIPES ne respecte la règle obligatoire (ex : combinaison inhabituelle
- * d'ingrédients) — ça garantit qu'on ne bloque jamais l'utilisateur tout en
- * respectant la contrainte "tous les ingrédients de la photo doivent
- * apparaître".
+ * Teste un archétype de plat (voir dishPatterns.js) contre les ingrédients
+ * disponibles : renvoie null si l'archétype n'a même pas lieu d'être
+ * envisagé (aucun ingrédient de ses catégories "requires"), sinon la
+ * répartition entre ingrédients qui trouvent leur place dans ce plat
+ * (`compatible`) et ceux qui n'y ont vraiment rien à faire (`incompatible`,
+ * ex: du lait dans une poêlée).
  */
-function buildGenericRecipes(available) {
-  const list = available.join(', ')
+function tryDishPattern(pattern, available) {
+  const categorized = available.map((ing) => ({ ing, cat: categorizeIngredient(ing) }))
+  const hasRequired = categorized.some(({ cat }) => pattern.requires.includes(cat))
+  if (!hasRequired) return null
+
+  const compatible = []
+  const incompatible = []
+  for (const { ing, cat } of categorized) {
+    if (cat === 'other' || pattern.allow.includes(cat)) compatible.push(ing)
+    else incompatible.push(ing)
+  }
+  return { compatible, incompatible }
+}
+
+/**
+ * Filet de sécurité, repensé : au lieu de forcer tous les ingrédients
+ * validés dans un même moule générique quel que soit leur bon sens culinaire
+ * (l'ancienne version pouvait mettre du lait dans une "poêlée"), on
+ * catégorise chaque ingrédient (voir dishPatterns.js) et on retient le ou
+ * les archétypes de plat réalistes (omelette, gratin, salade, soupe,
+ * poêlée) qui peuvent accueillir le plus d'entre eux. Si un ingrédient ne
+ * trouve vraiment sa place nulle part (ex: le lait dans poulet+brocoli), on
+ * le dit explicitement (`unusedIngredients`, affiché sur RecipePage.jsx)
+ * plutôt que de l'y forcer — jamais plus de 2 recettes renvoyées ici pour
+ * garder de la place aux vraies recettes de la base et aux mariages de
+ * saveurs dans les résultats finaux.
+ */
+function buildSmartFallbackRecipes(available) {
   const diet = guessDiet(available)
   const usesPerishable = available.some((ing) => isPerishable(ing))
 
-  const templates = [
-    {
-      id: 'poelee-maison',
-      styleEmoji: '🍳',
-      name: `Poêlée maison (${list})`,
-      time: 20,
-      level: 'facile',
-      cuisine: 'maison',
-      steps: [
-        `Couper tous vos ingrédients (${list}) en morceaux de taille similaire.`,
-        "Faire chauffer un filet d'huile dans une poêle ou un wok.",
-        'Faire revenir en premier les ingrédients les plus longs à cuire, puis ajouter les autres.',
-        'Cuire 8 à 10 minutes à feu moyen-vif en remuant régulièrement.',
-        "Assaisonner de sel, poivre (et ail/oignon si vous en avez) et servir chaud.",
-      ],
-    },
-    {
-      id: 'bol-frais-maison',
-      styleEmoji: '🥗',
-      name: `Bol frais (${list})`,
-      time: 12,
-      level: 'facile',
-      cuisine: 'maison',
-      steps: [
-        `Couper finement tous vos ingrédients (${list}).`,
-        'Les mélanger dans un saladier.',
-        "Assaisonner d'un filet d'huile (ou de citron), sel et poivre.",
-        'Servir frais, tel quel ou avec du pain.',
-      ],
-    },
-    {
-      id: 'gratin-four-maison',
-      styleEmoji: '🧀',
-      name: `Gratin au four (${list})`,
-      time: 30,
-      level: 'moyen',
-      cuisine: 'maison',
-      steps: [
-        `Couper vos ingrédients (${list}) et les disposer dans un plat allant au four.`,
-        'Ajouter un peu de fromage râpé si vous en avez.',
-        "Enfourner 20 à 25 minutes à 200°C jusqu'à ce que ce soit doré.",
-        'Servir chaud directement dans le plat.',
-      ],
-    },
-    {
-      id: 'soupe-maison',
-      styleEmoji: '🍲',
-      name: `Soupe maison (${list})`,
-      time: 25,
-      level: 'facile',
-      cuisine: 'maison',
-      steps: [
-        `Couper tous vos ingrédients (${list}).`,
-        "Faire revenir l'oignon ou l'ail quelques minutes si vous en avez.",
-        "Ajouter le reste des ingrédients et couvrir d'eau (ou de bouillon).",
-        'Laisser mijoter 20 minutes.',
-        'Mixer pour un velouté, ou servir tel quel selon la texture voulue.',
-      ],
-    },
-    {
-      id: 'wok-minute-maison',
-      styleEmoji: '🥘',
-      name: `Wok minute (${list})`,
-      time: 15,
-      level: 'facile',
-      cuisine: 'maison',
-      steps: [
-        `Couper tous vos ingrédients (${list}) en petits morceaux.`,
-        "Faire chauffer un wok ou une grande poêle avec un filet d'huile.",
-        'Saisir à feu vif 5 à 7 minutes en remuant constamment.',
-        'Ajouter un peu de sauce soja si vous en avez.',
-        'Servir immédiatement, bien chaud.',
-      ],
-    },
-  ]
+  const attempts = DISH_PATTERNS.map((pattern) => ({ pattern, result: tryDishPattern(pattern, available) }))
+    .filter((a) => a.result)
+    .sort((a, b) => a.result.incompatible.length - b.result.incompatible.length)
+    .slice(0, 2)
 
-  return templates.map((t) => ({
-    id: t.id,
-    name: t.name,
-    emoji: t.styleEmoji,
-    time: t.time,
-    level: t.level,
-    cuisine: t.cuisine,
-    diet,
-    required: [...available],
-    optional: ['sel', 'poivre', 'huile', 'ail', 'oignon'],
-    steps: t.steps,
-    generic: true,
-    antiGaspi: usesPerishable,
-  }))
+  return attempts.map(({ pattern, result }) => {
+    const list = result.compatible.join(', ')
+    const unusedNoteFr = result.incompatible.length
+      ? [
+          result.incompatible.length === 1
+            ? `💡 ${result.incompatible[0]} ne trouve pas vraiment sa place dans cette préparation — gardez-le pour un autre usage.`
+            : `💡 ${result.incompatible.join(', ')} ne trouvent pas vraiment leur place dans cette préparation — gardez-les pour un autre usage.`,
+        ]
+      : []
+    const unusedNoteEn = result.incompatible.length
+      ? [
+          result.incompatible.length === 1
+            ? `💡 ${result.incompatible[0]} doesn't really belong in this dish — save it for something else.`
+            : `💡 ${result.incompatible.join(', ')} don't really belong in this dish — save them for something else.`,
+        ]
+      : []
+
+    return {
+      id: pattern.id,
+      name: pattern.name(list),
+      nameEn: pattern.nameEn(list),
+      emoji: pattern.emoji,
+      time: pattern.time,
+      level: pattern.level,
+      cuisine: 'maison',
+      diet,
+      required: result.compatible,
+      optional: result.incompatible.length ? [...result.incompatible, 'sel', 'poivre', 'huile'] : ['sel', 'poivre', 'huile', 'ail', 'oignon'],
+      steps: [...pattern.steps(list, result.compatible), ...unusedNoteFr],
+      stepsEn: [...pattern.stepsEn(list, result.compatible), ...unusedNoteEn],
+      generic: true,
+      unusedIngredients: result.incompatible,
+      antiGaspi: usesPerishable,
+    }
+  })
 }
 
 /**
  * Moteur de "mariages de saveurs" (voir flavorPairings.js) : transforme
  * chaque mariage reconnu dans `available` (ex: poireau + pomme + roquefort)
  * en une vraie recette nommée et expliquée — une alternative nettement plus
- * qualitative à buildGenericRecipes pour des combinaisons d'ingrédients
- * inhabituelles mais culinairement solides. Comme buildGenericRecipes, le
+ * qualitative à buildSmartFallbackRecipes pour des combinaisons d'ingrédients
+ * inhabituelles mais culinairement solides. Comme buildSmartFallbackRecipes, le
  * `required` final inclut TOUJOURS tous les ingrédients validés (règle
  * obligatoire du moteur) : les ingrédients validés qui ne font pas partie du
  * mariage lui-même sont ajoutés en fin de recette via une étape générique,
@@ -373,14 +349,14 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
   // règle obligatoire — on préfère alors proposer moins de 3 résultats
   // plutôt qu'ignorer la préférence silencieusement.
   if (results.length < 3 && available.length > 0) {
-    const generic = buildGenericRecipes(available)
+    const generic = buildSmartFallbackRecipes(available)
       .filter((recipe) => applyPreferenceFilters(recipe, prefs))
       .map((recipe) => ({
         recipe,
         score: 1 + (recipe.antiGaspi ? 0.15 : 0),
-        requiredMatched: available,
+        requiredMatched: recipe.required,
         requiredMissing: [],
-        optionalMatched: [],
+        optionalMatched: recipe.optional.filter((ing) => includesIngredient(available, ing)),
         antiGaspi: recipe.antiGaspi,
       }))
     results = [...results, ...generic].slice(0, 5)
