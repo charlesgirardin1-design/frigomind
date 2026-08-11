@@ -353,9 +353,8 @@ function scoreRecipe(recipe, availableIngredients) {
   // listés dans `unusedIngredients` plutôt que forcés dedans.
   const pool = [...recipe.required, ...recipe.optional]
   const unusedIngredients = availableIngredients.filter((ing) => !includesIngredient(pool, ing))
-  const coverage = availableIngredients.length
-    ? (availableIngredients.length - unusedIngredients.length) / availableIngredients.length
-    : 1
+  const usedCount = availableIngredients.length - unusedIngredients.length
+  const coverage = availableIngredients.length ? usedCount / availableIngredients.length : 1
   const coverageBonus = coverage * 0.3
 
   const score = requiredScore + optionalBonus + antiGaspiBonus + coverageBonus
@@ -367,6 +366,7 @@ function scoreRecipe(recipe, availableIngredients) {
     optionalMatched,
     antiGaspi: usesPerishable,
     unusedIngredients,
+    usedCount,
   }
 }
 
@@ -410,7 +410,13 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
   //    (règle "réaliste niveau étudiant" : pas besoin de courir acheter 3 choses)
   let strong = candidates.filter((c) => c.requiredMissing.length <= 1 && c.score > 0)
 
-  strong.sort((a, b) => b.score - a.score || a.recipe.time - b.recipe.time)
+  // Tri : d'abord le nombre d'ingrédients scannés réellement utilisés
+  // (`usedCount`, ordre décroissant) — une recette qui met à profit plus de
+  // ce qu'on a sous la main passe devant une autre juste parce que son ratio
+  // requis/optionnel est "plus propre" avec moins d'ingrédients. Le score
+  // (qualité de la correspondance) ne sert qu'à départager les recettes qui
+  // utilisent le même nombre d'ingrédients scannés.
+  strong.sort((a, b) => b.usedCount - a.usedCount || b.score - a.score || a.recipe.time - b.recipe.time)
 
   // Mariages de saveurs reconnus (voir flavorPairings.js) : mis en avant même
   // quand la base a déjà de bons résultats, car c'est justement le principe
@@ -452,7 +458,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     const usedIds = new Set(results.map((r) => r.recipe.id))
     const fallback = candidates
       .filter((c) => !usedIds.has(c.recipe.id))
-      .sort((a, b) => b.score - a.score || a.recipe.time - b.recipe.time)
+      .sort((a, b) => b.usedCount - a.usedCount || b.score - a.score || a.recipe.time - b.recipe.time)
       .slice(0, 5 - results.length)
     results = [...results, ...fallback]
   }
