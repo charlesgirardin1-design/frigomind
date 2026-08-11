@@ -69,10 +69,50 @@ function normalize(str) {
     .replace(ACCENTS_REGEX, '') // retire les accents pour un matching plus tolerant
 }
 
+// Caractère "de mot" : lettre (y compris œ/æ, des ligatures que NFD ne
+// décompose pas) ou chiffre. Sert à ne faire correspondre une phrase à une
+// autre que sur de vraies limites de mot (voir containsPhrase ci-dessous).
+const WORD_CHAR_REGEX = /[a-z0-9œæ]/
+function isWordChar(char) {
+  return !!char && WORD_CHAR_REGEX.test(char)
+}
+
+// Vrai si le caractère suivant la fin de `phrase` marque bien une limite de
+// mot : fin de chaîne, caractère non-alphanumérique, ou un simple "s"/"x" de
+// pluriel en toute fin de chaîne (pour tolérer un pluriel non normalisé, ex:
+// "tomate" -> "tomates").
+function hasWordBoundaryAfter(text, index) {
+  if (index >= text.length) return true
+  const char = text[index]
+  if (!isWordChar(char)) return true
+  return (char === 's' || char === 'x') && index === text.length - 1
+}
+
+// Vrai si `phrase` apparaît dans `text` comme un mot (ou groupe de mots)
+// entier, jamais comme simple fragment au milieu d'un autre mot. Un simple
+// `.includes()` faisait par exemple correspondre "veau" à l'intérieur de
+// "oignon nouveau" — le moteur croyait alors que l'utilisateur avait déjà du
+// veau alors qu'il n'avait qu'un oignon nouveau, faisant remonter à tort des
+// recettes à base de veau (ou les faisant compter comme non-végétariennes).
+function containsPhrase(text, phrase) {
+  if (!phrase) return false
+  let searchFrom = 0
+  let index = text.indexOf(phrase, searchFrom)
+  while (index !== -1) {
+    const boundaryBefore = index === 0 || !isWordChar(text[index - 1])
+    const boundaryAfter = hasWordBoundaryAfter(text, index + phrase.length)
+    if (boundaryBefore && boundaryAfter) return true
+    searchFrom = index + 1
+    index = text.indexOf(phrase, searchFrom)
+  }
+  return false
+}
+
 function includesIngredient(availableSet, ingredientName) {
   const target = normalize(ingredientName)
   for (const available of availableSet) {
-    if (normalize(available) === target || normalize(available).includes(target) || target.includes(normalize(available))) {
+    const normAvailable = normalize(available)
+    if (normAvailable === target || containsPhrase(normAvailable, target) || containsPhrase(target, normAvailable)) {
       return true
     }
   }
@@ -82,7 +122,7 @@ function includesIngredient(availableSet, ingredientName) {
 function guessDiet(available) {
   const hasMeatOrFish = available.some((ing) => {
     const normalized = normalize(ing)
-    return NON_VEGETARIAN_KEYWORDS.some((kw) => normalized.includes(normalize(kw)))
+    return NON_VEGETARIAN_KEYWORDS.some((kw) => containsPhrase(normalized, normalize(kw)))
   })
   return hasMeatOrFish ? [] : ['vegetarien']
 }
@@ -516,7 +556,7 @@ export function findRecipesUsingIngredient(ingredientName) {
   return RECIPES.filter((recipe) =>
     [...recipe.required, ...recipe.optional].some((ing) => {
       const normalizedIng = normalize(ing)
-      return normalizedIng.includes(target) || target.includes(normalizedIng)
+      return containsPhrase(normalizedIng, target) || containsPhrase(target, normalizedIng)
     })
   )
 }
