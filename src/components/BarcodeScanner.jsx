@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLanguage } from '../state/LanguageContext.jsx'
+import { categorizeIngredient } from '../data/dishPatterns.js'
 
 const STRINGS = {
   fr: {
@@ -35,6 +36,49 @@ function simplifyProductName(rawName) {
   return rawName.split(/[-,(]/)[0].trim().toLowerCase()
 }
 
+// Correspondance entre tags de catégorie Open Food Facts (ex: "en:pastas",
+// "fr:pates-alimentaires") et un mot d'ingrédient générique français. Sert de
+// filet de secours quand le nom produit n'est qu'une marque (ex: "Barilla")
+// que categorizeIngredient (dishPatterns.js) ne peut pas classer.
+const CATEGORY_TAG_TO_INGREDIENT = {
+  pastas: 'pâtes',
+  'pates-alimentaires': 'pâtes',
+  rices: 'riz',
+  cheeses: 'fromage',
+  milks: 'lait',
+  yogurts: 'yaourt',
+  creams: 'crème',
+  eggs: 'œuf',
+  meats: 'viande',
+  poultries: 'poulet',
+  fishes: 'poisson',
+  seafood: 'fruits de mer',
+  chocolates: 'chocolat',
+  tomatoes: 'tomate',
+  onions: 'oignon',
+  potatoes: 'pomme de terre',
+  mushrooms: 'champignon',
+  hams: 'jambon',
+  sausages: 'saucisse',
+  breads: 'pain',
+  legumes: 'lentilles',
+  pulses: 'lentilles',
+  'canned-fish': 'thon',
+  butters: 'beurre',
+  sugars: 'sucre',
+}
+
+// Parcourt les tags de catégorie du plus spécifique (dernier de la liste) au
+// plus général et renvoie le premier mot générique reconnu, ou null.
+function categoryTagsToIngredient(tags) {
+  if (!Array.isArray(tags)) return null
+  for (let i = tags.length - 1; i >= 0; i--) {
+    const key = tags[i]?.split(':').pop()
+    if (key && CATEGORY_TAG_TO_INGREDIENT[key]) return CATEGORY_TAG_TO_INGREDIENT[key]
+  }
+  return null
+}
+
 // Scanne un code-barres via l'API native BarcodeDetector (Chrome/Edge/
 // Android — pas de librairie tierce) puis récupère le nom du produit via
 // l'API publique et gratuite Open Food Facts (pas de clé requise). Le nom
@@ -61,7 +105,20 @@ export default function BarcodeScanner({ onDetected, onClose }) {
 
     async function start() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        // Résolution haute + mise au point continue : sans ça le navigateur
+        // choisit parfois un flux basse résolution et l'autofocus met du
+        // temps à faire le point sur un code-barres tenu de près, ce qui
+        // oblige à plusieurs essais avant une détection réussie. `focusMode`
+        // n'est pas `exact`, donc les navigateurs qui ne le supportent pas
+        // l'ignorent simplement, sans erreur.
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+            focusMode: 'continuous',
+          },
+        })
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop())
           return
@@ -100,14 +157,42 @@ export default function BarcodeScanner({ onDetected, onClose }) {
       stopCamera()
       setPhase('looking')
       try {
-        const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr`)
+        const res = await fetch(
+          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags`
+        )
         const data = await res.json()
-        const rawName = data?.product?.product_name_fr || data?.product?.product_name
-        if (!rawName) {
-          setPhase('notfound')
-          return
+        const product = data?.product
+
+        // `generic_name(_fr)` est censé contenir une description générique
+        // (ex: "Pâtes alimentaires") plutôt qu'une marque, contrairement à
+        // `product_name(_fr)` qui vaut souvent juste "Barilla". On le
+        // préfère donc quand il est présent et non vide.
+        const genericName = product?.generic_name_fr?.trim() || product?.generic_name?.trim()
+
+        let candidateName
+        if (genericName) {
+          candidateName = genericName.toLowerCase()
+        } else {
+          const rawName = product?.product_name_fr || product?.product_name
+          if (!rawName) {
+            setPhase('notfound')
+            return
+          }
+          candidateName = simplifyProductName(rawName)
         }
-        onDetected(simplifyProductName(rawName))
+
+        // Si le nom retenu reste non catégorisable (typiquement une marque
+        // comme "barilla"), on tente de retrouver un mot générique via les
+        // tags de catégorie Open Food Facts avant d'abandonner — un
+        // ingrédient 'other' est traité comme compatible avec tous les
+        // archétypes de plats par recipeEngine.js, d'où l'intérêt de le
+        // catégoriser correctement en amont.
+        if (categorizeIngredient(candidateName) === 'other') {
+          const mapped = categoryTagsToIngredient(product?.categories_tags)
+          if (mapped) candidateName = mapped
+        }
+
+        onDetected(candidateName)
       } catch {
         setPhase('notfound')
       }
