@@ -62,6 +62,7 @@ export const COMMON = {
       caloriesPerServing: (n) => `~${n} kcal / portion`,
       flavorPairingBadge: '💡 Mariage gourmand',
       whyItWorks: '💡 Pourquoi ça marche',
+      handsFreeMode: '🎙️ Mains libres',
     },
   },
   en: {
@@ -119,6 +120,7 @@ export const COMMON = {
       caloriesPerServing: (n) => `~${n} kcal / serving`,
       flavorPairingBadge: '💡 Flavor pairing',
       whyItWorks: '💡 Why it works',
+      handsFreeMode: '🎙️ Hands-free',
     },
   },
 }

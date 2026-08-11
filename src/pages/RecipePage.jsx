@@ -11,6 +11,7 @@ import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubst
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
+import CookingMode from '../components/CookingMode.jsx'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
@@ -37,6 +38,7 @@ export default function RecipePage() {
   const [note, setNote] = useState(favMatch?.note || '')
   const [rating, setRating] = useState(favMatch?.rating || 0)
   const [servings, setServings] = useState(BASE_SERVINGS)
+  const [cookingMode, setCookingMode] = useState(false)
 
   if (!recipe) {
     goTo('home')
@@ -150,6 +152,20 @@ export default function RecipePage() {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0 print:hidden">
+            <button
+              onClick={() => {
+                // "Débloque" la synthèse vocale sur Safari/iOS, qui exige un
+                // premier appel speak() synchrone dans le geste utilisateur —
+                // sans ça, la toute première lecture d'étape (qui démarre un
+                // instant plus tard, une fois CookingMode monté) resterait
+                // muette sur ces navigateurs.
+                window.speechSynthesis?.speak(new window.SpeechSynthesisUtterance(''))
+                setCookingMode(true)
+              }}
+              className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap"
+            >
+              {c.handsFreeMode}
+            </button>
             <button onClick={() => window.print()} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
               {c.print}
             </button>
@@ -329,6 +345,10 @@ export default function RecipePage() {
           </div>
         </div>
       </div>
+
+      {cookingMode && (
+        <CookingMode recipe={recipe} servings={servings} lang={lang} onClose={() => setCookingMode(false)} />
+      )}
     </div>
   )
 }
