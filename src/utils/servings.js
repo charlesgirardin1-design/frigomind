@@ -8,6 +8,23 @@
 
 import { BASE_SERVINGS, INGREDIENT_QUANTITIES } from '../data/ingredientQuantities.js'
 
+const UNIT_TRANSLATIONS_EN = {
+  bouquet: 'bunch',
+  'boîte(s)': 'can(s)',
+  'branche(s)': 'sprig(s)',
+  'c. à café': 'tsp',
+  'c. à soupe': 'tbsp',
+  'feuille(s)': 'sheet(s)',
+  'gousse / sachet': 'pod / packet',
+  'gousse(s)': 'clove(s)',
+  'morceau (3 cm)': 'piece (3 cm)',
+  pincée: 'pinch',
+  'pièce(s)': 'piece(s)',
+  'tasse(s)': 'cup(s)',
+  'tige(s)': 'stalk(s)',
+  'tranche(s)': 'slice(s)',
+}
+
 function roundNice(amount, unit) {
   if (unit === 'g' || unit === 'ml') {
     const step = amount >= 200 ? 10 : 5
@@ -20,8 +37,9 @@ function roundNice(amount, unit) {
   return Math.max(0.5, Math.round(amount * 2) / 2)
 }
 
-function formatAmount(n) {
-  return Number.isInteger(n) ? String(n) : n.toFixed(1).replace('.', ',')
+function formatAmount(n, lang = 'fr') {
+  if (Number.isInteger(n)) return String(n)
+  return lang === 'en' ? n.toFixed(1) : n.toFixed(1).replace('.', ',')
 }
 
 // Au-delà de 1000, "1500 g"/"1500 ml" devient "1,5 kg"/"1,5 L" — plus court
@@ -29,10 +47,10 @@ function formatAmount(n) {
 // une quantité à voix haute (voir CookingMode.jsx) qu'un nombre à 4 chiffres.
 const BIG_UNIT = { g: 'kg', ml: 'L' }
 
-// Renvoie "200 g" / "1,5 kg" / "1,5 pièce(s)" / null si l'ingrédient n'est
-// pas dans la table (nom non reconnu — reste silencieux plutôt que
-// d'afficher un chiffre inventé).
-export function scaleIngredientQuantity(name, servings) {
+// Renvoie "200 g" / "1,5 kg" / "1,5 pièce(s)" ("1.5 piece(s)" en anglais) /
+// null si l'ingrédient n'est pas dans la table (nom non reconnu — reste
+// silencieux plutôt que d'afficher un chiffre inventé).
+export function scaleIngredientQuantity(name, servings, lang = 'fr') {
   const base = INGREDIENT_QUANTITIES[name]
   if (!base) return null
   const raw = base.amount * (servings / BASE_SERVINGS)
@@ -41,7 +59,8 @@ export function scaleIngredientQuantity(name, servings) {
   const bigUnit = BIG_UNIT[base.unit]
   if (bigUnit && rounded >= 1000) {
     const big = Math.round(rounded / 100) / 10 // arrondi au dixième (précision à 100 g/100 ml)
-    return `${formatAmount(big)} ${bigUnit}`
+    return `${formatAmount(big, lang)} ${bigUnit}`
   }
-  return `${formatAmount(rounded)} ${base.unit}`
+  const unit = lang === 'en' ? UNIT_TRANSLATIONS_EN[base.unit] || base.unit : base.unit
+  return `${formatAmount(rounded, lang)} ${unit}`
 }

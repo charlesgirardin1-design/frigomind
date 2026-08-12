@@ -11,6 +11,7 @@ import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubst
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
 import { getRecipeIntro, getRecipeTip } from '../utils/recipeVoice.js'
+import { translateIngredientName } from '../data/ingredientTranslations.js'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
@@ -47,7 +48,7 @@ export default function RecipePage() {
 
   const allIngredients = [...new Set([...recipe.required, ...recipe.optional])]
   const missing = recipe.missingIngredients || []
-  const missingWithQty = missing.map((ing) => ({ ing, qty: scaleIngredientQuantity(ing, servings) }))
+  const missingWithQty = missing.map((ing) => ({ ing, qty: scaleIngredientQuantity(ing, servings, lang) }))
   // Ce que l'utilisateur a réellement indiqué avoir (session en cours) : sert
   // au moteur de substitution dynamique ci-dessous pour proposer un
   // remplacement concret plutôt qu'une suggestion générique (voir
@@ -74,7 +75,12 @@ export default function RecipePage() {
   }
 
   async function handleCopyList() {
-    const text = missingWithQty.map(({ ing, qty }) => (qty ? `${ing} (${qty})` : ing)).join('\n')
+    const text = missingWithQty
+      .map(({ ing, qty }) => {
+        const label = translateIngredientName(ing, lang)
+        return qty ? `${label} (${qty})` : label
+      })
+      .join('\n')
     const ok = await copyTextToClipboard(text)
     if (ok) {
       setCopied(true)
@@ -294,10 +300,11 @@ export default function RecipePage() {
                 const isRequired = recipe.required?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const isUnused = recipe.unusedIngredients?.includes(ing)
-                const qty = scaleIngredientQuantity(ing, servings)
+                const qty = scaleIngredientQuantity(ing, servings, lang)
                 const substitutes = isMissing ? getSubstitutes(ing) : null
                 const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
-                const dynamicSubQty = dynamicSub ? scaleIngredientQuantity(dynamicSub, servings) : null
+                const dynamicSubQty = dynamicSub ? scaleIngredientQuantity(dynamicSub, servings, lang) : null
+                const ingLabel = translateIngredientName(ing, lang)
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
@@ -311,7 +318,7 @@ export default function RecipePage() {
                           isMissing || isUnused ? 'text-neutral-500' : 'text-neutral-800'
                         }`}
                       >
-                        {ing}
+                        {ingLabel}
                       </button>
                       {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
                       {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
@@ -319,12 +326,15 @@ export default function RecipePage() {
                     </div>
                     {dynamicSub ? (
                       <p className="text-xs text-fresh-700 dark:text-fresh-400 font-medium mt-0.5 ml-6">
-                        {c.dynamicSubstitute(ing, dynamicSubQty ? `${dynamicSubQty} ${dynamicSub}` : dynamicSub)}
+                        {c.dynamicSubstitute(
+                          ingLabel,
+                          dynamicSubQty ? `${dynamicSubQty} ${translateIngredientName(dynamicSub, lang)}` : translateIngredientName(dynamicSub, lang)
+                        )}
                       </p>
                     ) : (
                       substitutes && (
                         <p className="text-xs text-neutral-500 mt-0.5 ml-6">
-                          {c.substituteWith} {substitutes.join(', ')}
+                          {c.substituteWith} {substitutes.map((s) => translateIngredientName(s, lang)).join(', ')}
                         </p>
                       )
                     )}
@@ -365,7 +375,7 @@ export default function RecipePage() {
               <ul className="text-sm text-neutral-600 mt-1.5 space-y-1">
                 {missingWithQty.map(({ ing, qty }) => (
                   <li key={ing}>
-                    {ing}
+                    {translateIngredientName(ing, lang)}
                     {qty && <span className="text-neutral-400"> — {qty}</span>}
                   </li>
                 ))}
