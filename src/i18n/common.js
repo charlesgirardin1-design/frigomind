@@ -67,6 +67,7 @@ export const COMMON = {
       whyItWorks: '💡 Pourquoi ça marche',
       handsFreeMode: '🎙️ Mains libres',
       dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Végétarien', 'sans-gluten': '🌾 Sans gluten' },
+      chefTip: '👩‍🍳 Astuce',
     },
   },
   en: {
@@ -129,6 +130,7 @@ export const COMMON = {
       whyItWorks: '💡 Why it works',
       handsFreeMode: '🎙️ Hands-free',
       dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Vegetarian', 'sans-gluten': '🌾 Gluten-free' },
+      chefTip: "👩‍🍳 Chef's tip",
     },
   },
 }

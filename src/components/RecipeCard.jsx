@@ -3,6 +3,7 @@ import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { localizeRecipeName } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
+import { getRecipeIntro } from '../utils/recipeVoice.js'
 
 const LEVEL_STYLES = {
   facile: 'badge-fresh',
@@ -67,6 +68,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
     : recipe.diet?.includes('sans-gluten')
       ? 'sans-gluten'
       : null
+  const intro = getRecipeIntro(recipe, lang, c.cuisine[recipe.cuisine], c.level[recipe.level])
 
   return (
     <div
@@ -133,6 +135,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
       </div>
 
       <h3 className="mt-2 font-semibold text-neutral-900 leading-snug">{cleanName}</h3>
+      {intro && <p className="mt-1 text-xs text-neutral-500 leading-snug line-clamp-2">{intro}</p>}
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
         {highlightDiet && <span className="badge badge-fresh whitespace-nowrap">{c.dietLabels[highlightDiet]}</span>}

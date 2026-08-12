@@ -10,6 +10,7 @@ import { scaleIngredientQuantity } from '../utils/servings.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
+import { getRecipeIntro, getRecipeTip } from '../utils/recipeVoice.js'
 import CookingMode from '../components/CookingMode.jsx'
 
 const MIN_SERVINGS = 1
@@ -61,6 +62,10 @@ export default function RecipePage() {
 
   const displayName = localizeRecipeName(recipe, lang)
   const { flag, cleanName } = extractCountryFlag(displayName)
+  const cuisineLabel = c.cuisine[recipe.cuisine] || recipe.cuisine
+  const levelLabel = c.level[recipe.level] || recipe.level
+  const intro = getRecipeIntro(recipe, lang, cuisineLabel, levelLabel)
+  const tip = getRecipeTip(recipe, lang)
 
   function handleBack() {
     goTo(state.recipeReturnView || 'home')
@@ -140,14 +145,17 @@ export default function RecipePage() {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-neutral-900 mt-3">{cleanName}</h1>
-            <div className="mt-2 flex flex-wrap gap-1.5 text-xs">
+            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900 mt-3 leading-tight">{cleanName}</h1>
+            {intro && (
+              <p className="mt-2 text-neutral-600 text-[15px] leading-relaxed max-w-lg">{intro}</p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-1.5 text-xs">
               {recipe.diet?.map((tag) => c.dietLabels[tag] && (
                 <span key={tag} className="badge badge-fresh">{c.dietLabels[tag]}</span>
               ))}
               <span className="badge badge-neutral">⏱ {recipe.time} min</span>
-              <span className="badge badge-neutral">{c.level[recipe.level] || recipe.level}</span>
-              <span className="badge badge-neutral capitalize">{c.cuisine[recipe.cuisine] || recipe.cuisine}</span>
+              <span className="badge badge-neutral">{levelLabel}</span>
+              <span className="badge badge-neutral capitalize">{cuisineLabel}</span>
               {caloriesPerServing && (
                 <span className="badge badge-neutral">🔥 {c.caloriesPerServing(caloriesPerServing)}</span>
               )}
@@ -291,7 +299,15 @@ export default function RecipePage() {
               const usedIngredients = displayIngredients.filter((ing) => !recipe.unusedIngredients?.includes(ing))
 
               function renderIngredient(ing) {
-                const isMatched = recipe.matchedIngredients?.includes(ing)
+                // Un ingrédient est "optionnel" s'il fait partie de
+                // `recipe.optional` (fait structurel de la recette), pas
+                // simplement s'il n'a pas été "matché" lors d'un scan photo
+                // — `recipe.matchedIngredients` n'existe que pour les
+                // recettes ouvertes depuis un résultat de scan ; en
+                // provenance directe (page "Toutes les recettes", favoris
+                // anciens...) il est absent, ce qui étiquetait à tort TOUS
+                // les ingrédients comme optionnels, y compris les requis.
+                const isRequired = recipe.required?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const isUnused = recipe.unusedIngredients?.includes(ing)
                 const qty = scaleIngredientQuantity(ing, servings)
@@ -315,7 +331,7 @@ export default function RecipePage() {
                       </button>
                       {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
                       {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
-                      {!isMissing && !isUnused && !isMatched && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
+                      {!isMissing && !isUnused && !isRequired && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
                     {dynamicSub ? (
                       <p className="text-xs text-fresh-700 dark:text-fresh-400 font-medium mt-0.5 ml-6">
@@ -374,17 +390,27 @@ export default function RecipePage() {
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-3">{c.steps}</h3>
-            <ol className="space-y-4">
+            <h3 className="font-semibold text-neutral-900 mb-4">{c.steps}</h3>
+            {/* Étapes présentées comme un vrai fil de préparation plutôt
+                qu'une liste technique : trait vertical continu entre les
+                numéros (via la bordure du conteneur + un décalage négatif),
+                texte plus grand et plus aéré pour une lecture posée. */}
+            <ol className="relative border-l-2 border-fresh-100 dark:border-fresh-900/40 space-y-6 ml-3.5">
               {localizeRecipeSteps(recipe, lang).map((step, i) => (
-                <li key={i} className="flex gap-3 text-sm text-neutral-700">
-                  <span className="shrink-0 w-7 h-7 rounded-full bg-fresh-100 text-fresh-700 font-semibold text-xs flex items-center justify-center">
+                <li key={i} className="relative pl-6">
+                  <span className="absolute -left-[15px] top-0 w-7 h-7 rounded-full bg-fresh-600 text-white font-semibold text-xs flex items-center justify-center ring-4 ring-white dark:ring-neutral-900">
                     {i + 1}
                   </span>
-                  <span className="pt-1">{step}</span>
+                  <p className="text-[15px] leading-relaxed text-neutral-700">{step}</p>
                 </li>
               ))}
             </ol>
+            {tip && (
+              <div className="mt-6 bg-zest-50 dark:bg-zest-900/20 border border-zest-100 dark:border-zest-900/40 rounded-xl2 p-4">
+                <h4 className="font-semibold text-zest-800 dark:text-zest-400 text-sm mb-1">{c.chefTip}</h4>
+                <p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">{tip}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

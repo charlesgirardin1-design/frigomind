@@ -26,11 +26,21 @@ function formatArray(arr, indent) {
 
 function formatRecipe(r) {
   const i = '    '
+  const introLines = r.intro && r.introEn
+    ? `${i}intro: ${quote(r.intro)},
+${i}introEn: ${quote(r.introEn)},
+`
+    : ''
+  const tipLines = r.tip && r.tipEn
+    ? `${i}tip: ${quote(r.tip)},
+${i}tipEn: ${quote(r.tipEn)},
+`
+    : ''
   return `  {
 ${i}id: ${quote(r.id)},
 ${i}name: ${quote(r.name)},
 ${i}nameEn: ${quote(r.nameEn)},
-${i}emoji: ${quote(r.emoji)},
+${introLines}${i}emoji: ${quote(r.emoji)},
 ${i}time: ${r.time},
 ${i}level: ${quote(r.level)},
 ${i}cuisine: ${quote(r.cuisine)},
@@ -39,7 +49,7 @@ ${i}required: ${formatArray(r.required, i)},
 ${i}optional: ${formatArray(r.optional, i)},
 ${i}steps: ${formatArray(r.steps, i)},
 ${i}stepsEn: ${formatArray(r.stepsEn, i)},
-  },`
+${tipLines}  },`
 }
 
 async function main() {

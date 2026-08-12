@@ -86,16 +86,32 @@ function buildIngredientVocabularyHint() {
 }
 
 function buildPrompt({ count, theme, existingIds, ingredientHint }) {
-  return `Tu es un générateur de recettes de cuisine "réalistes niveau étudiant" pour une app française
-(FrigoMind) qui suggère des recettes à partir d'ingrédients qu'on a déjà chez soi.
+  return `Tu es un cuisinier qui rédige des fiches recettes "réalistes niveau étudiant" pour une app
+française (FrigoMind) qui suggère des recettes à partir d'ingrédients qu'on a déjà chez soi.
 
 Génère exactement ${count} NOUVELLES recettes, au format JSON strict décrit ci-dessous. ${
     theme ? `Contrainte/thème : ${theme}.` : "Varie les styles, cuisines et catégories d'ingrédients pour compléter une base existante déjà riche."
   }
 
+TON D'ÉCRITURE — le plus important : écris comme un vrai cuisinier qui explique sa recette à un ami,
+PAS comme une notice technique générée par une IA. Concrètement :
+- Varie la structure des phrases d'une étape à l'autre. N'ouvre pas systématiquement chaque étape par
+  un verbe à l'infinitif suivi mécaniquement du même schéma ("Couper X. Ajouter Y. Cuire Z.") — mélange
+  des tournures, des repères sensoriels ("jusqu'à ce que ça embaume", "quand les bords dorent",
+  "quand la lame glisse facilement dedans") et des petites explications du pourquoi ("pour qu'elle
+  reste croquante", "ça évite qu'il attache").
+- Évite le jargon creux et les formulations passe-partout répétées d'une recette à l'autre.
+- Reste concret et court : pas de blabla, juste une vraie voix humaine plutôt qu'un ton robotique.
+
 RÈGLES IMPORTANTES :
 - "id" : slug unique en kebab-case (minuscules, tirets), qui ne doit JAMAIS être un des identifiants
   suivants déjà utilisés (liste ci-dessous) : ${existingIds}
+- "intro"/"introEn" : UNE phrase d'accroche chaleureuse (pas un résumé technique) qui donne envie, en
+  français pour "intro", en anglais pour "introEn" (traduction fidèle, même ton). Évite de répéter la
+  même structure de phrase d'une recette à l'autre dans le lot.
+- "tip"/"tipEn" : UNE astuce de cuisinier concrète et spécifique à CETTE recette (une variante possible,
+  un geste technique qui change le résultat, une astuce de conservation ou d'accompagnement) — jamais
+  une astuce générique qui irait pour n'importe quel plat.
 - "required" : les ingrédients VRAIMENT indispensables à la recette (pas sel/poivre/huile/eau — jamais
   comptés comme manquants par l'app, inutile de les lister en required).
 - "optional" : ingrédients facultatifs qui améliorent la recette sans être indispensables.
@@ -120,6 +136,10 @@ exact :
     "id": "exemple-slug-unique",
     "name": "Nom en français",
     "nameEn": "English name",
+    "intro": "Une phrase d'accroche chaleureuse et spécifique à cette recette.",
+    "introEn": "A warm, recipe-specific hook sentence.",
+    "tip": "Une astuce concrète propre à cette recette.",
+    "tipEn": "A concrete tip specific to this recipe.",
     "emoji": "🍳",
     "time": 20,
     "level": "facile",
@@ -167,6 +187,10 @@ function validateRecipe(recipe, existingIdSet, seenIdsThisBatch) {
 
   if (!recipe.name?.trim()) errors.push('name manquant')
   if (!recipe.nameEn?.trim()) errors.push('nameEn manquant')
+  if (!recipe.intro?.trim()) errors.push('intro manquante')
+  if (!recipe.introEn?.trim()) errors.push('introEn manquante')
+  if (!recipe.tip?.trim()) errors.push('tip manquante')
+  if (!recipe.tipEn?.trim()) errors.push('tipEn manquante')
   if (!recipe.emoji?.trim()) errors.push('emoji manquant')
   if (!Number.isFinite(recipe.time) || recipe.time <= 0) errors.push('time invalide')
   if (!KNOWN_LEVELS.includes(recipe.level)) errors.push(`level invalide: ${recipe.level}`)
