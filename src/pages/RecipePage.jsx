@@ -11,7 +11,6 @@ import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubst
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
 import { getRecipeIntro, getRecipeTip } from '../utils/recipeVoice.js'
-import CookingMode from '../components/CookingMode.jsx'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
@@ -40,7 +39,6 @@ export default function RecipePage() {
   // Démarre à 1 personne (pas la base de calcul à 4 personnes des quantités,
   // voir ingredientQuantities.js) : l'utilisateur ajuste lui-même ensuite.
   const [servings, setServings] = useState(MIN_SERVINGS)
-  const [cookingMode, setCookingMode] = useState(false)
 
   if (!recipe) {
     goTo('home')
@@ -164,20 +162,6 @@ export default function RecipePage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-wrap print:hidden">
-            <button
-              onClick={() => {
-                // "Débloque" la synthèse vocale sur Safari/iOS, qui exige un
-                // premier appel speak() synchrone dans le geste utilisateur —
-                // sans ça, la toute première lecture d'étape (qui démarre un
-                // instant plus tard, une fois CookingMode monté) resterait
-                // muette sur ces navigateurs.
-                window.speechSynthesis?.speak(new window.SpeechSynthesisUtterance(''))
-                setCookingMode(true)
-              }}
-              className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap"
-            >
-              {c.handsFreeMode}
-            </button>
             <button onClick={() => window.print()} className="btn-secondary !py-1.5 !px-3 text-xs whitespace-nowrap">
               {c.print}
             </button>
@@ -415,9 +399,6 @@ export default function RecipePage() {
         </div>
       </div>
 
-      {cookingMode && (
-        <CookingMode recipe={recipe} servings={servings} lang={lang} onClose={() => setCookingMode(false)} />
-      )}
     </div>
   )
 }
