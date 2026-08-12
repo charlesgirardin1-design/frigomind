@@ -74,6 +74,31 @@ function extractJson(text) {
   }
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+// Gemini répond parfois 503 "high demand" ou 429 "quota" — des erreurs
+// explicitement transitoires côté Google ("usually temporary" dans leur
+// propre message). Sans retentative, une seule surcharge passagère faisait
+// échouer toute l'analyse et affichait "aucun ingrédient détecté" à
+// l'utilisateur alors qu'un simple nouvel essai quelques centaines de ms
+// plus tard aurait suffi. Bornée à 2 tentatives supplémentaires avec un
+// court backoff pour rester dans le budget d'exécution de la fonction
+// serverless.
+async function fetchWithRetry(url, options, maxRetries = 2) {
+  let lastResponse
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    const response = await fetch(url, options)
+    if (response.ok || (response.status !== 503 && response.status !== 429)) {
+      return response
+    }
+    lastResponse = response
+    if (attempt < maxRetries) await sleep(500 * (attempt + 1))
+  }
+  return lastResponse
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ items: [], error: 'Méthode non autorisée' })
@@ -98,7 +123,7 @@ export default async function handler(req, res) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
   try {
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
