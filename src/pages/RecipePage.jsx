@@ -6,7 +6,7 @@ import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
-import { scaleIngredientQuantity } from '../utils/servings.js'
+import { scaleIngredientQuantity, scaleStepText } from '../utils/servings.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
@@ -408,28 +408,25 @@ export default function RecipePage() {
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-1">{c.steps}</h3>
-            {/* Les étapes contiennent des quantités écrites en dur pour
-                BASE_SERVINGS personnes (voir scripts/detail-recipe-steps.mjs)
-                — contrairement à la liste d'ingrédients au-dessus, leur texte
-                ne peut pas se recalculer dynamiquement. On le dit explicitement
-                dès que l'utilisateur s'écarte de ce nombre de personnes,
-                plutôt que de laisser les deux sections se contredire en
-                silence. */}
-            {servings !== BASE_SERVINGS && (
-              <p className="text-xs text-neutral-500 mb-3">{c.stepsServingsNote(BASE_SERVINGS)}</p>
-            )}
+            <h3 className="font-semibold text-neutral-900 mb-4">{c.steps}</h3>
             {/* Étapes présentées comme un vrai fil de préparation plutôt
                 qu'une liste technique : trait vertical continu entre les
                 numéros (via la bordure du conteneur + un décalage négatif),
-                texte plus grand et plus aéré pour une lecture posée. */}
+                texte plus grand et plus aéré pour une lecture posée. Les
+                quantités écrites en dur dans le texte (voir
+                scripts/detail-recipe-steps.mjs) sont réécrites à la volée
+                pour rester cohérentes avec le nombre de personnes choisi
+                ci-dessus (voir scaleStepText) — sans ça, la liste
+                d'ingrédients et les étapes affichaient deux chiffres
+                différents pour le même ingrédient dès que l'utilisateur
+                changeait le nombre de personnes. */}
             <ol className="relative border-l-2 border-fresh-100 dark:border-fresh-900/40 space-y-6 ml-3.5">
               {localizeRecipeSteps(recipe, lang).map((step, i) => (
                 <li key={i} className="relative pl-6">
                   <span className="absolute -left-[15px] top-0 w-7 h-7 rounded-full bg-fresh-600 text-white font-semibold text-xs flex items-center justify-center ring-4 ring-white dark:ring-neutral-900">
                     {i + 1}
                   </span>
-                  <p className="text-[15px] leading-relaxed text-neutral-700">{step}</p>
+                  <p className="text-[15px] leading-relaxed text-neutral-700">{scaleStepText(step, recipe, servings, lang)}</p>
                 </li>
               ))}
             </ol>

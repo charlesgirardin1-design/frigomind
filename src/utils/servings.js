@@ -7,6 +7,7 @@
 // -----------------------------------------------------------------------------
 
 import { BASE_SERVINGS, INGREDIENT_QUANTITIES } from '../data/ingredientQuantities.js'
+import { translateIngredientName } from '../data/ingredientTranslations.js'
 
 const UNIT_TRANSLATIONS_EN = {
   bouquet: 'bunch',
@@ -63,4 +64,77 @@ export function scaleIngredientQuantity(name, servings, lang = 'fr') {
   }
   const unit = lang === 'en' ? UNIT_TRANSLATIONS_EN[base.unit] || base.unit : base.unit
   return `${formatAmount(rounded, lang)} ${unit}`
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function leadingNumber(str) {
+  const match = /^([\d.,]+)/.exec(str)
+  return match ? match[1] : null
+}
+
+// Les étapes détaillées (voir scripts/detail-recipe-steps.mjs) contiennent
+// des quantités écrites en dur dans le texte pour BASE_SERVINGS personnes
+// ("Coupez les 600 g de pommes de terre..."), puisque ce sont des phrases
+// figées et non des données structurées. Cette fonction retrouve, pour
+// chaque ingrédient de la recette dont la quantité de base est un nombre
+// entier (les fractions type "0,5 bouquet" ne sont pas fiables à repérer
+// dans un texte rédigé par une IA, donc laissées telles quelles plutôt que
+// mal réécrites), le nombre déjà présent dans la phrase et le remplace par
+// la quantité recalculée pour `servings` — en ancrant la recherche sur le
+// nom de l'ingrédient à proximité immédiate pour ne jamais toucher un autre
+// nombre de la même phrase (temps de cuisson, température...).
+export function scaleStepText(step, recipe, servings, lang = 'fr') {
+  if (!recipe || servings === BASE_SERVINGS || !step) return step
+
+  const ingredients = [...new Set([...(recipe.required || []), ...(recipe.optional || [])])]
+  let result = step
+
+  for (const ing of ingredients) {
+    const base = INGREDIENT_QUANTITIES[ing]
+    if (!base || !Number.isInteger(base.amount)) continue
+
+    const scaled = scaleIngredientQuantity(ing, servings, lang)
+    if (!scaled) continue
+
+    const baseAmountStr = String(base.amount)
+    // Le texte des étapes est déjà traduit en anglais (stepsEn) quand
+    // lang==='en' — le nom d'ingrédient à repérer doit donc l'être aussi
+    // (translateIngredientName), sans quoi la recherche du nom français
+    // canonique ("fromage") ne trouverait jamais rien dans un texte qui dit
+    // "cheese".
+    const displayIngName = translateIngredientName(ing, lang)
+    // Le nom de l'ingrédient doit apparaître dans les ~15 caractères qui
+    // suivent le nombre (unité + connecteur "de"/"d'"/"of" éventuels) —
+    // assez large pour "600 g de pommes de terre", assez court pour ne pas
+    // déborder sur une autre phrase ou un autre nombre sans rapport. "s?"
+    // sur CHAQUE mot (pas seulement le dernier) car le pluriel d'un nom
+    // composé porte souvent sur le premier mot ("pomme de terre" ->
+    // "pommes de terre", pas "pomme de terres").
+    const ingPattern = displayIngName
+      .split(' ')
+      .map((word) => `${escapeRegex(word)}s?`)
+      .join('\\s+')
+
+    // Pas de `\b` autour de `ingPattern` : les caractères français comme
+    // œ/é/è ne sont pas reconnus comme "mots" par `\b` en JS (basé sur
+    // [A-Za-z0-9_] uniquement), ce qui ferait silencieusement échouer le
+    // repérage pour des ingrédients comme "œufs".
+    // Lookahead borné en LONGUEUR (pas en ponctuation) : des unités comme
+    // "c. à café" contiennent un point, qui exclurait à tort la suite de la
+    // phrase si on s'arrêtait au premier ".".
+    if (base.unit === 'g' || base.unit === 'ml') {
+      const regex = new RegExp(`\\b${baseAmountStr}\\s*${base.unit}\\b(?=.{0,15}${ingPattern})`, 'gi')
+      result = result.replace(regex, scaled)
+    } else {
+      const newNumber = leadingNumber(scaled)
+      if (!newNumber) continue
+      const regex = new RegExp(`\\b${baseAmountStr}\\b(?=.{0,15}${ingPattern})`, 'gi')
+      result = result.replace(regex, newNumber)
+    }
+  }
+
+  return result
 }
