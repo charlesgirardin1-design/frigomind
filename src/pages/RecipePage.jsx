@@ -323,7 +323,11 @@ export default function RecipePage() {
                       >
                         {ingLabel}
                       </button>
-                      {isMissing && <em className="text-xs text-zest-700">({c.toBuyParens})</em>}
+                      {isMissing && (
+                        <em className="text-xs text-zest-700">
+                          ({c.toBuyParens}{!isRequired ? `, ${c.optional}` : ''})
+                        </em>
+                      )}
                       {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
                       {!isMissing && !isUnused && !isRequired && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>

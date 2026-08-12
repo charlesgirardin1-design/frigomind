@@ -335,6 +335,12 @@ function scoreRecipe(recipe, availableIngredients) {
   const requiredMatched = recipe.required.filter((ing) => includesIngredient(availableIngredients, ing))
   const requiredMissing = recipe.required.filter((ing) => !includesIngredient(availableIngredients, ing) && !isPantryStaple(ing))
   const optionalMatched = recipe.optional.filter((ing) => includesIngredient(availableIngredients, ing))
+  // Un ingrédient optionnel non scanné n'est pas "dans le frigo" pour autant
+  // — il ne doit pas s'afficher coché comme s'il était déjà disponible (voir
+  // RecipePage.jsx : `isMissing` inclut désormais aussi ceux-ci, avec la
+  // mention "optionnel" en plus de "à acheter" pour rester honnête sur le
+  // fait qu'il n'est pas indispensable à la recette).
+  const optionalMissing = recipe.optional.filter((ing) => !includesIngredient(availableIngredients, ing) && !isPantryStaple(ing))
 
   const requiredScore = recipe.required.length ? requiredMatched.length / recipe.required.length : 1
   const optionalBonus = recipe.optional.length ? (optionalMatched.length / recipe.optional.length) * 0.25 : 0
@@ -364,6 +370,7 @@ function scoreRecipe(recipe, availableIngredients) {
     requiredMatched,
     requiredMissing,
     optionalMatched,
+    optionalMissing,
     antiGaspi: usesPerishable,
     unusedIngredients,
     usedCount,
@@ -430,6 +437,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
             requiredMatched: recipe.required,
             requiredMissing: [],
             optionalMatched: recipe.optional.filter((ing) => includesIngredient(available, ing)),
+            optionalMissing: recipe.optional.filter((ing) => !includesIngredient(available, ing) && !isPantryStaple(ing)),
             antiGaspi: recipe.antiGaspi,
             unusedIngredients: recipe.unusedIngredients || [],
             usedCount: available.length - (recipe.unusedIngredients || []).length,
@@ -469,6 +477,7 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
         requiredMatched: recipe.required.filter((ing) => includesIngredient(available, ing)),
         requiredMissing,
         optionalMatched: [],
+        optionalMissing: recipe.optional.filter((ing) => !includesIngredient(available, ing) && !isPantryStaple(ing)),
         antiGaspi: recipe.antiGaspi,
         unusedIngredients: recipe.unusedIngredients || [],
       }
@@ -495,7 +504,12 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
     ...r.recipe,
     matchScore: Math.round(Math.min(r.score, 1.15) * 100),
     matchedIngredients: [...new Set([...r.requiredMatched, ...r.optionalMatched])],
-    missingIngredients: r.requiredMissing,
+    // Un ingrédient optionnel non scanné est "à acheter" au même titre qu'un
+    // requis manquant — sans ça, il s'affichait coché comme s'il était déjà
+    // dans le frigo (voir le commentaire sur `optionalMissing` dans
+    // scoreRecipe). RecipePage.jsx distingue toujours requis/optionnel via
+    // `recipe.required`, donc les fusionner ici ne perd pas cette info.
+    missingIngredients: [...r.requiredMissing, ...(r.optionalMissing || [])],
     antiGaspi: r.antiGaspi,
     unusedIngredients: r.unusedIngredients || [],
   }))
