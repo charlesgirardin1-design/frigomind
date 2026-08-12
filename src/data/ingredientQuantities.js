@@ -108,6 +108,7 @@ export const INGREDIENT_QUANTITIES = {
   "dinde": { amount: 500, unit: "g" },
   "dorade": { amount: 500, unit: "g" },
   "edamame": { amount: 200, unit: "g" },
+  "eau": { amount: 500, unit: "ml" },
   "endives": { amount: 4, unit: "pièce(s)" },
   "escalope de veau": { amount: 500, unit: "g" },
   "espadon": { amount: 500, unit: "g" },

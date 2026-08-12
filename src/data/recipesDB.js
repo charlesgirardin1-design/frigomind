@@ -59,7 +59,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poulet', 'riz', 'poivron'],
-    optional: ['ail', 'oignon', 'carotte'],
+    optional: ['ail', 'oignon', 'carotte', 'eau'],
     steps: [
       'Cuire le riz dans l\'eau bouillante salée (environ 12 min).',
       'Couper le poulet en dés, émincer le poivron et l\'oignon.',
@@ -89,7 +89,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'tomates'],
-    optional: ['ail', 'basilic', 'parmesan'],
+    optional: ['ail', 'basilic', 'parmesan', 'eau'],
     steps: [
       'Faire cuire les pâtes dans l\'eau bouillante salée.',
       'Pendant ce temps, faire revenir l\'ail puis les tomates coupées en dés.',
@@ -233,7 +233,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'fromage'],
-    optional: ['lardons', 'oignon'],
+    optional: ['lardons', 'oignon', 'eau'],
     steps: [
       'Couper les pommes de terre en tranches et les cuire 10 min à l\'eau bouillante.',
       'Faire revenir l\'oignon et les lardons si disponibles.',
@@ -347,7 +347,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['carotte', 'pommes de terre'],
-    optional: ['oignon', 'crème fraîche'],
+    optional: ['oignon', 'crème fraîche', 'eau'],
     steps: [
       'Éplucher et couper carottes et pommes de terre en morceaux.',
       'Faire revenir l\'oignon si disponible, puis ajouter les légumes.',
@@ -403,7 +403,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâtes', 'champignons', 'crème fraîche'],
-    optional: ['ail', 'parmesan'],
+    optional: ['ail', 'parmesan', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir les champignons émincés avec l\'ail 5 minutes.',
@@ -487,7 +487,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['brocoli'],
-    optional: ['citron', 'ail', "huile d'olive"],
+    optional: ['citron', 'ail', "huile d'olive", 'eau'],
     steps: [
       'Couper le brocoli en petits bouquets.',
       'Cuire à la vapeur (ou à l\'eau bouillante) 8 à 10 minutes.',
@@ -515,7 +515,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pomme'],
-    optional: ['sucre', 'citron'],
+    optional: ['sucre', 'citron', 'eau'],
     steps: [
       'Éplucher et couper les pommes en morceaux.',
       'Les mettre dans une casserole avec un fond d\'eau.',
@@ -543,7 +543,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['saumon', 'riz', 'brocoli'],
-    optional: ['citron', 'sauce soja'],
+    optional: ['citron', 'sauce soja', 'eau'],
     steps: [
       'Cuire le riz dans l\'eau bouillante salée (environ 12 minutes).',
       'Cuire le brocoli à la vapeur 8 à 10 minutes.',
@@ -629,7 +629,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles', 'carotte', 'oignon'],
-    optional: ['cumin', 'ail'],
+    optional: ['cumin', 'ail', 'eau'],
     steps: [
       'Faire revenir l\'oignon (et l\'ail) quelques minutes dans une casserole.',
       'Ajouter la carotte coupée en dés et les lentilles rincées.',
@@ -853,7 +853,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['porc', 'ananas', 'riz'],
-    optional: ['sauce soja', 'poivron'],
+    optional: ['sauce soja', 'poivron', 'eau'],
     steps: [
       'Cuire le riz dans l\'eau bouillante salée.',
       'Couper le porc en dés, faire revenir 6-8 minutes à feu vif.',
@@ -881,7 +881,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['saucisse', 'pommes de terre', 'oignon'],
-    optional: ['fromage'],
+    optional: ['fromage', 'eau'],
     steps: [
       'Couper les pommes de terre en petits dés et les précuire 10 minutes à l\'eau bouillante.',
       'Couper la saucisse en rondelles, émincer l\'oignon.',
@@ -937,7 +937,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['maïs', 'carotte', 'petits pois'],
-    optional: ['mayonnaise', 'œuf dur'],
+    optional: ['mayonnaise', 'œuf dur', 'eau'],
     steps: [
       'Cuire la carotte et les petits pois à l\'eau bouillante 8-10 minutes (ou utiliser des légumes déjà cuits/en boîte).',
       'Égoutter le maïs, mélanger tous les légumes.',
@@ -1143,7 +1143,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles corail', 'lait de coco'],
-    optional: ['curry', 'ail', 'oignon', 'épinards'],
+    optional: ['curry', 'ail', 'oignon', 'épinards', 'eau'],
     steps: [
       'Rincer les lentilles corail.',
       'Faire revenir l\'oignon et l\'ail si disponibles, avec une pincée de curry.',
@@ -1201,7 +1201,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['semoule', 'tomate', 'concombre'],
-    optional: ['menthe', 'citron', "huile d'olive"],
+    optional: ['menthe', 'citron', "huile d'olive", 'eau'],
     steps: [
       'Verser de l\'eau bouillante sur la semoule, couvrir 10 minutes.',
       'Égrainer la semoule à la fourchette une fois gonflée.',
@@ -1231,7 +1231,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['semoule', 'carotte', 'courgette', 'pois chiches'],
-    optional: ['oignon', 'cumin', 'raisins secs'],
+    optional: ['oignon', 'cumin', 'raisins secs', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible, puis ajouter carotte et courgette coupées en morceaux.',
       'Ajouter les pois chiches égouttés et une pincée de cumin si disponible.',
@@ -1407,7 +1407,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'avocat', 'pois chiches'],
-    optional: ['carotte', 'citron', "huile d'olive"],
+    optional: ['carotte', 'citron', "huile d'olive", 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, puis égoutter.',
       'Couper l\'avocat (et la carotte si disponible) en tranches ou en dés.',
@@ -1437,7 +1437,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['nouilles de riz', 'œufs', 'crevettes'],
-    optional: ['cacahuètes', 'citron vert', 'carotte'],
+    optional: ['cacahuètes', 'citron vert', 'carotte', 'eau'],
     steps: [
       'Faire tremper les nouilles de riz dans l\'eau chaude selon le paquet.',
       'Faire cuire les œufs battus en petits morceaux dans un wok.',
@@ -1555,7 +1555,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['tofu', 'pâte miso'],
-    optional: ['algues', 'oignon nouveau'],
+    optional: ['algues', 'oignon nouveau', 'eau'],
     steps: [
       'Faire chauffer de l\'eau sans la faire bouillir fort.',
       'Diluer la pâte miso dans un peu d\'eau chaude, puis l\'ajouter au bouillon.',
@@ -1703,7 +1703,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte', 'oignon'],
-    optional: ['vin rouge', 'champignons', 'pommes de terre'],
+    optional: ['vin rouge', 'champignons', 'pommes de terre', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, faire dorer 5-6 minutes dans une cocotte.',
       'Ajouter oignon et carotte coupés en morceaux, cuire 5 minutes.',
@@ -2183,7 +2183,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['riz', 'curry', 'carotte', 'pommes de terre'],
-    optional: ['poulet', 'oignon'],
+    optional: ['poulet', 'oignon', 'eau'],
     steps: [
       'Cuire le riz dans l\'eau bouillante salée.',
       'Couper carotte et pommes de terre en morceaux, le poulet en dés si disponible.',
@@ -2355,7 +2355,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['tortilla', 'boeuf haché', 'riz'],
-    optional: ['haricots rouges', 'fromage', 'salade'],
+    optional: ['haricots rouges', 'fromage', 'salade', 'eau'],
     steps: [
       'Cuire le riz dans l\'eau bouillante salée.',
       'Faire revenir le bœuf haché 6-8 minutes, assaisonner.',
@@ -2443,7 +2443,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz basmati'],
-    optional: ['oignon', 'cumin', 'curry'],
+    optional: ['oignon', 'cumin', 'curry', 'eau'],
     steps: [
       'Rincer le riz basmati à l\'eau claire.',
       'Faire revenir l\'oignon émincé si disponible avec une pincée de cumin ou de curry.',
@@ -2613,7 +2613,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['potiron'],
-    optional: ['oignon', 'crème fraîche'],
+    optional: ['oignon', 'crème fraîche', 'eau'],
     steps: [
       'Éplucher et couper le potiron en morceaux.',
       'Faire revenir l\'oignon si disponible, ajouter le potiron.',
@@ -2641,7 +2641,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poisson blanc', 'tomates', 'bouillon'],
-    optional: ['oignon', 'ail', 'safran'],
+    optional: ['oignon', 'ail', 'safran', 'eau'],
     steps: [
       'Faire revenir l\'oignon et l\'ail si disponibles.',
       'Ajouter les tomates coupées en dés et le bouillon.',
@@ -2671,7 +2671,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pâtes', 'haricots blancs', 'carotte', 'tomates'],
-    optional: ['courgette', 'oignon', 'parmesan'],
+    optional: ['courgette', 'oignon', 'parmesan', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible, ajouter la carotte coupée en dés.',
       'Ajouter les tomates et la courgette si disponible, couvrir d\'eau.',
@@ -2701,7 +2701,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['courgette'],
-    optional: ['oignon', 'crème fraîche'],
+    optional: ['oignon', 'crème fraîche', 'eau'],
     steps: [
       'Couper la courgette en morceaux.',
       'Faire revenir l\'oignon si disponible, ajouter la courgette.',
@@ -2729,7 +2729,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poisson', 'tomates'],
-    optional: ['safran', 'ail', 'pommes de terre'],
+    optional: ['safran', 'ail', 'pommes de terre', 'eau'],
     steps: [
       'Faire revenir l\'ail si disponible dans un peu d\'huile.',
       'Ajouter les tomates coupées en dés et couvrir d\'eau.',
@@ -2787,7 +2787,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['brocoli'],
-    optional: ['oignon', 'crème fraîche'],
+    optional: ['oignon', 'crème fraîche', 'eau'],
     steps: [
       'Couper le brocoli en petits bouquets.',
       'Faire revenir l\'oignon si disponible, ajouter le brocoli.',
@@ -2815,7 +2815,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pois cassés', 'carotte'],
-    optional: ['oignon', 'croûtons'],
+    optional: ['oignon', 'croûtons', 'eau'],
     steps: [
       'Rincer les pois cassés.',
       'Faire revenir l\'oignon si disponible, ajouter la carotte coupée en dés.',
@@ -2873,7 +2873,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte', 'pommes de terre'],
-    optional: ['poireau', 'oignon'],
+    optional: ['poireau', 'oignon', 'eau'],
     steps: [
       'Couper le bœuf en gros morceaux, le mettre dans une grande marmite avec de l\'eau froide.',
       'Porter à ébullition, écumer, puis baisser à feu doux.',
@@ -2903,7 +2903,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['veau', 'carotte', 'crème fraîche'],
-    optional: ['champignons', 'oignon', 'riz'],
+    optional: ['champignons', 'oignon', 'riz', 'eau'],
     steps: [
       'Couper le veau en morceaux, le faire blanchir 2-3 minutes à l\'eau bouillante.',
       'Ajouter carotte et oignon si disponible, couvrir d\'eau, laisser mijoter 30 minutes.',
@@ -2933,7 +2933,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'pommes de terre', 'carotte'],
-    optional: ['oignon', 'petits pois'],
+    optional: ['oignon', 'petits pois', 'eau'],
     steps: [
       'Couper l\'agneau en morceaux, le faire dorer 5-6 minutes dans une cocotte.',
       'Ajouter oignon, carotte et pommes de terre coupés en morceaux.',
@@ -2961,7 +2961,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'tomates', 'carotte'],
-    optional: ['oignon', 'vin blanc'],
+    optional: ['oignon', 'vin blanc', 'eau'],
     steps: [
       'Faire dorer le bœuf 5-6 minutes de chaque côté dans une cocotte.',
       'Ajouter oignon et carotte coupés en morceaux, cuire 5 minutes.',
@@ -2989,7 +2989,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'paprika', 'oignon'],
-    optional: ['pommes de terre', 'poivron'],
+    optional: ['pommes de terre', 'poivron', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, faire dorer 5-6 minutes.',
       'Ajouter l\'oignon émincé, cuire 5 minutes.',
@@ -3019,7 +3019,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'abricots secs'],
-    optional: ['oignon', 'cannelle', 'amandes'],
+    optional: ['oignon', 'cannelle', 'amandes', 'eau'],
     steps: [
       'Faire dorer le poulet 5-6 minutes dans une cocotte.',
       'Ajouter l\'oignon émincé si disponible, cuire 5 minutes.',
@@ -3049,7 +3049,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['haricots blancs', 'saucisse'],
-    optional: ['lardons', 'tomates', 'ail'],
+    optional: ['lardons', 'tomates', 'ail', 'eau'],
     steps: [
       'Faire revenir la saucisse coupée en tronçons (et les lardons si disponibles) 5 minutes.',
       'Ajouter l\'ail si disponible, puis les tomates.',
@@ -3077,7 +3077,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'carotte', 'poireau'],
-    optional: ['pommes de terre', 'oignon'],
+    optional: ['pommes de terre', 'oignon', 'eau'],
     steps: [
       'Mettre le poulet dans une grande marmite avec de l\'eau froide, porter à ébullition et écumer.',
       'Ajouter carotte, poireau (et pommes de terre/oignon si disponibles) coupés en gros morceaux.',
@@ -3133,7 +3133,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['carotte', 'pommes de terre', 'poireau'],
-    optional: ['navet', 'oignon'],
+    optional: ['navet', 'oignon', 'eau'],
     steps: [
       'Couper tous les légumes en gros morceaux.',
       'Faire revenir l\'oignon si disponible, ajouter les autres légumes.',
@@ -3161,7 +3161,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'œufs', 'lardons'],
-    optional: ['parmesan', 'poivre'],
+    optional: ['parmesan', 'poivre', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire dorer les lardons à la poêle.',
@@ -3191,7 +3191,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'boeuf haché', 'tomates'],
-    optional: ['oignon', 'carotte', 'parmesan'],
+    optional: ['oignon', 'carotte', 'parmesan', 'eau'],
     steps: [
       'Faire revenir l\'oignon (et la carotte si disponible) 5 minutes.',
       'Ajouter le bœuf haché, cuire 6-8 minutes en émiettant.',
@@ -3221,7 +3221,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'basilic'],
-    optional: ['parmesan', 'pignons', 'ail'],
+    optional: ['parmesan', 'pignons', 'ail', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Mixer le basilic avec l\'ail si disponible et un filet d\'huile d\'olive.',
@@ -3279,7 +3279,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'fruits de mer', 'tomates'],
-    optional: ['ail', 'persil'],
+    optional: ['ail', 'persil', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir l\'ail si disponible, ajouter les fruits de mer 3-4 minutes.',
@@ -3307,7 +3307,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['macaronis', 'fromage', 'lait'],
-    optional: ['beurre', 'farine'],
+    optional: ['beurre', 'farine', 'eau'],
     steps: [
       'Cuire les macaronis dans l\'eau bouillante salée, égoutter.',
       'Faire fondre un peu de beurre, ajouter la farine si disponible pour épaissir.',
@@ -3337,7 +3337,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['pâtes', 'thon en boîte', 'tomates'],
-    optional: ['ail', 'olives'],
+    optional: ['ail', 'olives', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir l\'ail si disponible, ajouter les tomates coupées en dés.',
@@ -3365,7 +3365,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['gnocchis', 'tomates'],
-    optional: ['parmesan', 'basilic', 'ail'],
+    optional: ['parmesan', 'basilic', 'ail', 'eau'],
     steps: [
       'Cuire les gnocchis dans l\'eau bouillante jusqu\'à ce qu\'ils remontent à la surface.',
       'Faire revenir l\'ail si disponible, ajouter les tomates coupées en dés.',
@@ -3393,7 +3393,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'tomates', 'olives'],
-    optional: ['câpres', 'ail', 'piment'],
+    optional: ['câpres', 'ail', 'piment', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir l\'ail si disponible avec une pincée de piment.',
@@ -3423,7 +3423,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['orzo', 'courgette', 'tomates'],
-    optional: ['parmesan', 'ail'],
+    optional: ['parmesan', 'ail', 'eau'],
     steps: [
       'Cuire l\'orzo dans l\'eau bouillante salée selon le paquet.',
       'Faire revenir l\'ail si disponible, ajouter la courgette coupée en dés.',
@@ -3451,7 +3451,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['riz', 'carotte', 'petits pois'],
-    optional: ['oignon', 'bouillon'],
+    optional: ['oignon', 'bouillon', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec le riz 1-2 minutes.',
       'Ajouter la carotte coupée en dés et les petits pois.',
@@ -3623,7 +3623,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['riz', 'poulet', 'saucisse'],
-    optional: ['poivron', 'tomates', 'oignon'],
+    optional: ['poivron', 'tomates', 'oignon', 'eau'],
     steps: [
       'Couper le poulet et la saucisse en morceaux, les faire dorer 6-8 minutes.',
       'Ajouter oignon et poivron si disponibles, cuire 5 minutes.',
@@ -3651,7 +3651,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['riz', 'poulet', 'fruits de mer'],
-    optional: ['poivron', 'tomates', 'safran'],
+    optional: ['poivron', 'tomates', 'safran', 'eau'],
     steps: [
       'Faire dorer le poulet 5-6 minutes dans une grande poêle.',
       'Ajouter le poivron et les tomates si disponibles, cuire 5 minutes.',
@@ -3799,7 +3799,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz complet', 'courgette', 'poivron'],
-    optional: ['aubergine', "huile d'olive"],
+    optional: ['aubergine', "huile d'olive", 'eau'],
     steps: [
       'Cuire le riz complet dans l\'eau bouillante salée 25-30 minutes.',
       'Couper courgette, poivron (et aubergine si disponible) en tranches.',
@@ -3827,7 +3827,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['quinoa', 'poulet', 'avocat'],
-    optional: ['tomate', 'citron'],
+    optional: ['tomate', 'citron', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter.',
       'Faire cuire le poulet à la poêle 6-8 minutes, le couper en morceaux.',
@@ -3855,7 +3855,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['quinoa', 'saumon', 'brocoli'],
-    optional: ['citron', 'sésame'],
+    optional: ['citron', 'sésame', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter.',
       'Cuire le saumon à la poêle 3-4 minutes de chaque côté.',
@@ -3883,7 +3883,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'tomate', 'concombre'],
-    optional: ['menthe', 'citron'],
+    optional: ['menthe', 'citron', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter et laisser refroidir.',
       'Couper la tomate et le concombre en petits dés.',
@@ -3911,7 +3911,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz complet', 'edamame', 'avocat'],
-    optional: ['carotte', 'sésame'],
+    optional: ['carotte', 'sésame', 'eau'],
     steps: [
       'Cuire le riz complet dans l\'eau bouillante salée 25-30 minutes.',
       'Cuire les edamame quelques minutes à l\'eau bouillante, égoutter.',
@@ -3967,7 +3967,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['riz', 'ananas', 'crevettes'],
-    optional: ['petits pois', 'sauce soja'],
+    optional: ['petits pois', 'sauce soja', 'eau'],
     steps: [
       'Cuire le riz à l\'avance (idéalement de la veille).',
       'Faire revenir les crevettes 3-4 minutes dans un wok.',
@@ -3995,7 +3995,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'pois chiches', 'concombre'],
-    optional: ['tomate', 'citron'],
+    optional: ['tomate', 'citron', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter.',
       'Écraser une partie des pois chiches avec du citron pour un houmous rapide, garder le reste tel quel.',
@@ -4023,7 +4023,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz', 'lentilles', 'oignon'],
-    optional: ['cumin'],
+    optional: ['cumin', 'eau'],
     steps: [
       'Rincer les lentilles, les cuire 15 minutes à l\'eau bouillante, égoutter.',
       'Émincer l\'oignon finement, le faire dorer à la poêle jusqu\'à ce qu\'il soit bien croustillant.',
@@ -4137,7 +4137,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['riz', 'poulet', 'basilic'],
-    optional: ['piment', 'ail', 'sauce soja'],
+    optional: ['piment', 'ail', 'sauce soja', 'eau'],
     steps: [
       'Cuire le riz.',
       'Faire revenir l\'ail et le piment si disponibles, ajouter le poulet coupé en morceaux.',
@@ -4167,7 +4167,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'feta', 'tomate'],
-    optional: ['olives', 'concombre'],
+    optional: ['olives', 'concombre', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter.',
       'Couper la tomate (et le concombre si disponible) en dés.',
@@ -4223,7 +4223,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz complet', 'carotte', 'concombre'],
-    optional: ['edamame', 'sésame'],
+    optional: ['edamame', 'sésame', 'eau'],
     steps: [
       'Cuire le riz complet dans l\'eau bouillante salée 25-30 minutes, laisser refroidir.',
       'Râper la carotte, couper le concombre en dés.',
@@ -4279,7 +4279,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['riz', 'safran'],
-    optional: ['oignon', 'beurre'],
+    optional: ['oignon', 'beurre', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible dans un peu de beurre.',
       'Ajouter le riz, mélanger 1 minute.',
@@ -4503,7 +4503,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'paprika', 'crème fraîche'],
-    optional: ['oignon', 'riz'],
+    optional: ['oignon', 'riz', 'eau'],
     steps: [
       'Couper le poulet en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon émincé si disponible, saupoudrer de paprika.',
@@ -4615,7 +4615,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte'],
-    optional: ['oignon', 'vin rouge'],
+    optional: ['oignon', 'vin rouge', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, le faire dorer 5-6 minutes.',
       'Ajouter oignon et carotte coupés en morceaux, cuire 5 minutes.',
@@ -4727,7 +4727,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['porc', 'sauce soja', 'sucre'],
-    optional: ['ail', 'riz'],
+    optional: ['ail', 'riz', 'eau'],
     steps: [
       'Couper le porc en morceaux.',
       'Faire chauffer le sucre dans une poêle jusqu\'à ce qu\'il caramélise légèrement.',
@@ -5035,7 +5035,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['saucisse', 'lentilles'],
-    optional: ['carotte', 'oignon'],
+    optional: ['carotte', 'oignon', 'eau'],
     steps: [
       'Faire dorer les saucisses 8-10 minutes dans une poêle, réserver.',
       'Faire revenir l\'oignon et la carotte si disponibles dans la même poêle.',
@@ -5063,7 +5063,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['poulet', 'ananas', 'poivron'],
-    optional: ['sauce soja', 'riz'],
+    optional: ['sauce soja', 'riz', 'eau'],
     steps: [
       'Couper le poulet en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter le poivron émincé, cuire 4-5 minutes.',
@@ -5429,7 +5429,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulpe', 'citron'],
-    optional: ["huile d'olive", 'persil'],
+    optional: ["huile d'olive", 'persil', 'eau'],
     steps: [
       'Cuire le poulpe 20 minutes à l\'eau bouillante jusqu\'à ce qu\'il soit tendre.',
       'Couper en morceaux, faire griller à la poêle bien chaude 3-4 minutes.',
@@ -5541,7 +5541,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poisson blanc', 'lait de coco', 'curry'],
-    optional: ['oignon', 'épinards'],
+    optional: ['oignon', 'épinards', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec le curry 1-2 minutes.',
       'Ajouter le lait de coco, laisser mijoter 5 minutes.',
@@ -5569,7 +5569,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poisson blanc', 'pommes de terre', 'farine'],
-    optional: ['citron'],
+    optional: ['citron', 'eau'],
     steps: [
       'Couper les pommes de terre en frites, les faire cuire à la poêle ou au four jusqu\'à ce qu\'elles soient dorées.',
       'Préparer une pâte avec la farine et de l\'eau froide.',
@@ -5681,7 +5681,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['morue', 'pommes de terre'],
-    optional: ['ail', "huile d'olive"],
+    optional: ['ail', "huile d'olive", 'eau'],
     steps: [
       'Cuire la morue à l\'eau frémissante 8-10 minutes, l\'émietter.',
       'Cuire les pommes de terre à l\'eau bouillante, les écraser.',
@@ -5989,7 +5989,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['carotte', 'courgette', 'lait de coco', 'curry'],
-    optional: ['oignon', 'pois chiches'],
+    optional: ['oignon', 'pois chiches', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec le curry 1-2 minutes.',
       'Ajouter la carotte et la courgette coupées en morceaux.',
@@ -6383,7 +6383,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pois chiches', 'courge', 'curry'],
-    optional: ['lait de coco', 'oignon'],
+    optional: ['lait de coco', 'oignon', 'eau'],
     steps: [
       'Couper la courge en morceaux.',
       'Faire revenir l\'oignon si disponible avec le curry 1-2 minutes.',
@@ -6439,7 +6439,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles vertes', 'carotte'],
-    optional: ['oignon rouge', 'vinaigre'],
+    optional: ['oignon rouge', 'vinaigre', 'eau'],
     steps: [
       'Rincer les lentilles vertes, les cuire 18-20 minutes à l\'eau bouillante, égoutter.',
       'Couper la carotte en petits dés (crue ou légèrement cuite).',
@@ -6467,7 +6467,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots verts', 'ail'],
-    optional: ["huile d'olive", 'amandes'],
+    optional: ["huile d'olive", 'amandes', 'eau'],
     steps: [
       'Cuire les haricots verts 5-6 minutes à l\'eau bouillante, égoutter.',
       'Faire chauffer un filet d\'huile d\'olive avec l\'ail écrasé.',
@@ -6753,7 +6753,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'lait'],
-    optional: ['beurre', 'muscade'],
+    optional: ['beurre', 'muscade', 'eau'],
     steps: [
       'Éplucher et couper les pommes de terre en morceaux.',
       'Cuire 15-18 minutes à l\'eau bouillante salée jusqu\'à ce qu\'elles soient tendres.',
@@ -6809,7 +6809,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles', 'pois chiches', 'tomates'],
-    optional: ['curry', 'oignon'],
+    optional: ['curry', 'oignon', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec une pincée de curry si disponible.',
       'Ajouter les tomates, laisser mijoter 8-10 minutes.',
@@ -6865,7 +6865,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pâtes', 'tomate', 'mozzarella'],
-    optional: ['basilic', "huile d'olive"],
+    optional: ['basilic', "huile d'olive", 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter et laisser refroidir.',
       'Couper la tomate et la mozzarella en dés.',
@@ -6949,7 +6949,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'œufs'],
-    optional: ['mayonnaise', 'oignon rouge'],
+    optional: ['mayonnaise', 'oignon rouge', 'eau'],
     steps: [
       'Cuire les pommes de terre et les œufs à l\'eau bouillante 18-20 minutes.',
       'Laisser refroidir, couper en morceaux.',
@@ -6977,7 +6977,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['thon en boîte', 'œufs', 'tomate', 'haricots verts'],
-    optional: ['olives', 'oignon rouge'],
+    optional: ['olives', 'oignon rouge', 'eau'],
     steps: [
       'Cuire les œufs et les haricots verts à l\'eau bouillante.',
       'Couper la tomate en quartiers, les œufs en deux.',
@@ -7033,7 +7033,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'concombre', 'poivron'],
-    optional: ['feta', 'citron'],
+    optional: ['feta', 'citron', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter et laisser refroidir.',
       'Couper le concombre et le poivron en petits dés.',
@@ -7145,7 +7145,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pâtes', 'basilic', 'tomates'],
-    optional: ['parmesan', 'pignons'],
+    optional: ['parmesan', 'pignons', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter et laisser refroidir.',
       'Mixer le basilic avec un filet d\'huile d\'olive pour le pesto.',
@@ -7285,7 +7285,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['roquette', 'parmesan'],
-    optional: ["huile d'olive", 'citron'],
+    optional: ["huile d'olive", 'citron', 'eau'],
     steps: [
       'Laver la roquette et la disposer dans un saladier.',
       'Ajouter des copeaux de parmesan.',
@@ -7341,7 +7341,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots verts', 'tomate'],
-    optional: ['oignon rouge', "huile d'olive"],
+    optional: ['oignon rouge', "huile d'olive", 'eau'],
     steps: [
       'Cuire les haricots verts 5-6 minutes à l\'eau bouillante, égoutter et refroidir.',
       'Couper la tomate en quartiers.',
@@ -7369,7 +7369,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulpe', 'pommes de terre'],
-    optional: ["huile d'olive", 'persil'],
+    optional: ["huile d'olive", 'persil', 'eau'],
     steps: [
       'Cuire le poulpe 20 minutes à l\'eau bouillante jusqu\'à ce qu\'il soit tendre, couper en morceaux.',
       'Cuire les pommes de terre à l\'eau bouillante, les couper en morceaux.',
@@ -7397,7 +7397,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles', 'feta', 'tomate'],
-    optional: ["huile d'olive", 'menthe'],
+    optional: ["huile d'olive", 'menthe', 'eau'],
     steps: [
       'Rincer les lentilles, les cuire 20 minutes à l\'eau bouillante, égoutter.',
       'Couper la tomate en dés, émietter la feta.',
@@ -7425,7 +7425,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['œufs', 'mayonnaise'],
-    optional: ['persil', 'paprika'],
+    optional: ['persil', 'paprika', 'eau'],
     steps: [
       'Cuire les œufs durs 9-10 minutes à l\'eau bouillante.',
       'Les couper en deux, retirer les jaunes.',
@@ -7453,7 +7453,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['pâtes', 'thon en boîte', 'maïs'],
-    optional: ['mayonnaise', 'tomate'],
+    optional: ['mayonnaise', 'tomate', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter et laisser refroidir.',
       'Égoutter le thon et le maïs.',
@@ -7481,7 +7481,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['quinoa', 'avocat', 'crevettes'],
-    optional: ['citron', 'tomate'],
+    optional: ['citron', 'tomate', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante salée 12-15 minutes, égoutter et laisser refroidir.',
       'Cuire les crevettes si elles ne sont pas déjà cuites.',
@@ -7873,7 +7873,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'fromage', 'chapelure'],
-    optional: ['œufs'],
+    optional: ['œufs', 'eau'],
     steps: [
       'Cuire les pommes de terre à l\'eau bouillante, les écraser.',
       'Mélanger avec le fromage râpé, saler et poivrer.',
@@ -8153,7 +8153,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['œufs', 'moutarde'],
-    optional: ['mayonnaise', 'paprika'],
+    optional: ['mayonnaise', 'paprika', 'eau'],
     steps: [
       'Cuire les œufs durs 9-10 minutes à l\'eau bouillante.',
       'Les couper en deux, retirer les jaunes.',
@@ -8983,7 +8983,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pruneaux', 'farine', 'œufs', 'lait'],
-    optional: ['sucre', 'rhum'],
+    optional: ['sucre', 'rhum', 'eau'],
     steps: [
       'Préchauffer le four à 180°C.',
       'Battre la farine, les œufs, le lait et le sucre si disponible pour former une pâte lisse.',
@@ -9101,7 +9101,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine', 'citron', 'œufs', 'sucre'],
-    optional: ['beurre'],
+    optional: ['beurre', 'eau'],
     steps: [
       'Préchauffer le four à 180°C.',
       'Battre les œufs et le sucre jusqu\'à blanchiment.',
@@ -9213,7 +9213,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['chocolat', 'lait'],
-    optional: ['chantilly', 'cannelle'],
+    optional: ['chantilly', 'cannelle', 'eau'],
     steps: [
       'Faire chauffer le lait dans une casserole.',
       'Ajouter le chocolat coupé en morceaux, remuer jusqu\'à ce qu\'il fonde complètement.',
@@ -9353,7 +9353,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâte sablée', 'chocolat', 'crème'],
-    optional: ['beurre'],
+    optional: ['beurre', 'eau'],
     steps: [
       'Préchauffer le four à 180°C et foncer un moule avec la pâte sablée, cuire à blanc 15 minutes.',
       'Faire chauffer la crème sans bouillir.',
@@ -9411,7 +9411,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'pâte d\'arachide', 'tomates'],
-    optional: ['oignon', 'carotte'],
+    optional: ['oignon', 'carotte', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon si disponible, cuire 5 minutes.',
@@ -9439,7 +9439,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['semoule', 'poulet', 'merguez'],
-    optional: ['carotte', 'pois chiches'],
+    optional: ['carotte', 'pois chiches', 'eau'],
     steps: [
       'Faire dorer le poulet et les merguez séparément, réserver.',
       'Faire revenir la carotte coupée en morceaux si disponible, couvrir d\'eau.',
@@ -9497,7 +9497,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['riz', 'tomates', 'poulet'],
-    optional: ['poivron', 'oignon'],
+    optional: ['poivron', 'oignon', 'eau'],
     steps: [
       'Faire dorer le poulet 6-8 minutes, réserver.',
       'Faire revenir l\'oignon et le poivron si disponibles, ajouter les tomates.',
@@ -9581,7 +9581,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['haricots noirs', 'porc', 'saucisse'],
-    optional: ['oignon', 'ail'],
+    optional: ['oignon', 'ail', 'eau'],
     steps: [
       'Faire dorer le porc et la saucisse coupés en morceaux 6-8 minutes.',
       'Ajouter l\'oignon et l\'ail si disponibles, cuire 5 minutes.',
@@ -9721,7 +9721,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['betterave', 'chou', 'boeuf'],
-    optional: ['carotte', 'crème fraîche'],
+    optional: ['carotte', 'crème fraîche', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, le faire dorer 5-6 minutes.',
       'Ajouter la betterave et la carotte râpées si disponibles, couvrir d\'eau.',
@@ -9749,7 +9749,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine', 'pommes de terre', 'fromage'],
-    optional: ['oignon', 'beurre'],
+    optional: ['oignon', 'beurre', 'eau'],
     steps: [
       'Préparer une pâte avec la farine, de l\'eau et une pincée de sel.',
       'Cuire les pommes de terre, les écraser avec le fromage.',
@@ -9805,7 +9805,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['chou', 'boeuf haché', 'riz'],
-    optional: ['oignon', 'tomates'],
+    optional: ['oignon', 'tomates', 'eau'],
     steps: [
       'Blanchir les feuilles de chou 3-4 minutes à l\'eau bouillante.',
       'Cuire le riz, le mélanger avec le bœuf haché et l\'oignon si disponible.',
@@ -9833,7 +9833,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'paprika', 'pommes de terre'],
-    optional: ['oignon', 'carotte'],
+    optional: ['oignon', 'carotte', 'eau'],
     steps: [
       'Couper le bœuf en petits morceaux, le faire dorer 5-6 minutes.',
       'Ajouter l\'oignon si disponible, saupoudrer de paprika.',
@@ -9861,7 +9861,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'carotte', 'petits pois'],
-    optional: ['mayonnaise', 'œufs'],
+    optional: ['mayonnaise', 'œufs', 'eau'],
     steps: [
       'Cuire les pommes de terre et la carotte à l\'eau bouillante, couper en petits dés.',
       'Cuire les petits pois, les œufs durs si disponibles.',
@@ -9889,7 +9889,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['nouilles', 'poulet', 'bouillon'],
-    optional: ['œufs', 'oignon nouveau'],
+    optional: ['œufs', 'oignon nouveau', 'eau'],
     steps: [
       'Faire chauffer le bouillon.',
       'Cuire le poulet coupé en morceaux, ajouter au bouillon.',
@@ -9973,7 +9973,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâte à raviolis', 'porc haché', 'chou'],
-    optional: ['sauce soja', 'ail'],
+    optional: ['sauce soja', 'ail', 'eau'],
     steps: [
       'Mélanger le porc haché avec le chou émincé et l\'ail si disponible.',
       'Garnir chaque disque de pâte de farce, refermer en pliant les bords.',
@@ -10225,7 +10225,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'jambon', 'fromage'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter.',
@@ -10253,7 +10253,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['chou-fleur', 'fromage', 'crème fraîche'],
-    optional: ['muscade'],
+    optional: ['muscade', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Cuire le chou-fleur en petits bouquets 8-10 minutes à l\'eau bouillante, égoutter.',
@@ -10281,7 +10281,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'boeuf haché', 'fromage'],
-    optional: ['oignon', 'lait'],
+    optional: ['oignon', 'lait', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pommes de terre à l\'eau bouillante, les écraser avec un peu de lait si disponible.',
@@ -10341,7 +10341,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['saumon', 'crème fraîche', 'pâtes'],
-    optional: ['échalote', 'citron'],
+    optional: ['échalote', 'citron', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter.',
       'Couper le saumon en morceaux, le faire cuire à la poêle 3-4 minutes.',
@@ -10369,7 +10369,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['brocoli', 'fromage', 'crème fraîche'],
-    optional: ['ail'],
+    optional: ['ail', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Cuire le brocoli en bouquets 8 minutes à l\'eau bouillante, égoutter.',
@@ -10397,7 +10397,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'confit de canard'],
-    optional: ['fromage', 'échalote'],
+    optional: ['fromage', 'échalote', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pommes de terre à l\'eau bouillante, les écraser.',
@@ -10485,7 +10485,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'boeuf haché', 'maïs'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Cuire les pommes de terre à l\'eau bouillante, les écraser.',
@@ -10515,7 +10515,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['macaronis', 'jambon', 'fromage'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les macaronis dans l\'eau bouillante salée, égoutter.',
@@ -10571,7 +10571,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'tomates', 'fromage', 'boeuf haché'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pâtes al dente dans l\'eau bouillante salée, égoutter.',
@@ -10937,7 +10937,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'boeuf haché', 'petits pois'],
-    optional: ['oignon', 'carotte'],
+    optional: ['oignon', 'carotte', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pommes de terre à l\'eau bouillante, les écraser.',
@@ -10967,7 +10967,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['fenouil', 'crème fraîche', 'fromage'],
-    optional: [],
+    optional: ['eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Couper le fenouil en quartiers, le cuire 10 minutes à l\'eau bouillante.',
@@ -11053,7 +11053,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pommes de terre', 'saucisse', 'fromage'],
-    optional: ['crème fraîche', 'oignon'],
+    optional: ['crème fraîche', 'oignon', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Couper les pommes de terre en tranches, les précuire 10 minutes à l\'eau bouillante.',
@@ -11139,7 +11139,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['fromage à raclette', 'pommes de terre'],
-    optional: ['charcuterie', 'cornichons'],
+    optional: ['charcuterie', 'cornichons', 'eau'],
     steps: [
       'Cuire les pommes de terre à l\'eau bouillante avec la peau, 20 minutes.',
       'Couper le fromage à raclette en tranches.',
@@ -11195,7 +11195,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['choucroute', 'saucisse', 'lardons'],
-    optional: ['pommes de terre'],
+    optional: ['pommes de terre', 'eau'],
     steps: [
       'Rincer la choucroute si elle est très acide.',
       'Faire revenir les lardons quelques minutes dans une grande cocotte.',
@@ -11223,7 +11223,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['petit salé', 'lentilles', 'carotte'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Faire blanchir le petit salé 5 minutes à l\'eau bouillante si très salé, égoutter.',
       'Faire revenir l\'oignon et la carotte si disponibles.',
@@ -11251,7 +11251,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'fromage', 'ail'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Cuire les pommes de terre à l\'eau bouillante, les écraser en purée bien lisse.',
       'Ajouter l\'ail écrasé et un peu de crème fraîche si disponible.',
@@ -11477,7 +11477,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['champignons', 'oignon'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Émincer les champignons et l\'oignon.',
       'Faire revenir l\'oignon puis les champignons quelques minutes.',
@@ -12151,7 +12151,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['quinoa', 'fruits', 'yaourt'],
-    optional: ['miel'],
+    optional: ['miel', 'eau'],
     steps: [
       'Cuire le quinoa dans l\'eau bouillante 12-15 minutes, égoutter et laisser refroidir.',
       'Couper les fruits en morceaux.',
@@ -12347,7 +12347,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'tomates', 'piment'],
-    optional: ['ail', 'persil'],
+    optional: ['ail', 'persil', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir l\'ail si disponible avec le piment finement haché.',
@@ -12375,7 +12375,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pâtes', 'courgette', 'citron'],
-    optional: ['parmesan'],
+    optional: ['parmesan', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Couper la courgette en rubans avec un économe, la faire revenir 5-6 minutes.',
@@ -12431,7 +12431,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâtes', 'aubergine', 'tomates'],
-    optional: ['ricotta', 'basilic'],
+    optional: ['ricotta', 'basilic', 'eau'],
     steps: [
       'Couper l\'aubergine en dés, la faire dorer 8-10 minutes à la poêle.',
       'Ajouter les tomates, laisser mijoter 10 minutes.',
@@ -12459,7 +12459,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'palourdes', 'ail'],
-    optional: ['vin blanc', 'persil'],
+    optional: ['vin blanc', 'persil', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire revenir l\'ail dans un peu d\'huile.',
@@ -12487,7 +12487,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['tortellini', 'crème fraîche', 'parmesan'],
-    optional: ['champignons'],
+    optional: ['champignons', 'eau'],
     steps: [
       'Cuire les tortellini dans l\'eau bouillante selon le paquet, égoutter.',
       'Faire chauffer la crème fraîche dans une poêle.',
@@ -12515,7 +12515,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['ravioles', 'beurre', 'sauge'],
-    optional: ['parmesan'],
+    optional: ['parmesan', 'eau'],
     steps: [
       'Cuire les ravioles dans l\'eau bouillante selon le paquet, égoutter.',
       'Faire fondre le beurre dans une poêle avec les feuilles de sauge jusqu\'à ce qu\'il soit noisette.',
@@ -12543,7 +12543,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pâtes', 'épinards', 'ricotta'],
-    optional: ['ail', 'parmesan'],
+    optional: ['ail', 'parmesan', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Faire tomber les épinards avec l\'ail si disponible quelques minutes.',
@@ -12571,7 +12571,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['spaghetti', 'boeuf haché', 'tomates'],
-    optional: ['oignon', 'parmesan'],
+    optional: ['oignon', 'parmesan', 'eau'],
     steps: [
       'Mélanger le bœuf haché avec l\'oignon haché si disponible, former des boulettes.',
       'Faire dorer les boulettes 6-8 minutes.',
@@ -12599,7 +12599,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['rigatoni', 'saucisse', 'tomates'],
-    optional: ['oignon', 'parmesan'],
+    optional: ['oignon', 'parmesan', 'eau'],
     steps: [
       'Émietter la saucisse, la faire dorer 6-8 minutes avec l\'oignon si disponible.',
       'Ajouter les tomates, laisser mijoter 15 minutes.',
@@ -12627,7 +12627,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'saumon', 'crème fraîche'],
-    optional: ['citron', 'aneth'],
+    optional: ['citron', 'aneth', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       'Couper le saumon en morceaux, le faire cuire à la poêle 3-4 minutes.',
@@ -12655,7 +12655,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['farfalle', 'poulet', 'brocoli'],
-    optional: ['crème fraîche', 'parmesan'],
+    optional: ['crème fraîche', 'parmesan', 'eau'],
     steps: [
       'Cuire les farfalle dans l\'eau bouillante salée.',
       'Couper le poulet en morceaux, le faire dorer 6-8 minutes.',
@@ -12683,7 +12683,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['penne', 'poulet', 'tomates'],
-    optional: ['piment', 'ail'],
+    optional: ['piment', 'ail', 'eau'],
     steps: [
       'Couper le poulet en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'ail et le piment si disponibles, puis les tomates.',
@@ -12935,7 +12935,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['polenta', 'parmesan'],
-    optional: ['beurre'],
+    optional: ['beurre', 'eau'],
     steps: [
       'Faire chauffer de l\'eau salée à ébullition.',
       'Verser la polenta en pluie en remuant sans cesse.',
@@ -13047,7 +13047,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['veau', 'tomates', 'citron'],
-    optional: ['ail', 'persil'],
+    optional: ['ail', 'persil', 'eau'],
     steps: [
       'Faire dorer le veau 5-6 minutes de chaque côté dans une cocotte.',
       'Ajouter les tomates, couvrir d\'eau, laisser mijoter 35-40 minutes.',
@@ -13075,7 +13075,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['spaghetti', 'ail', "huile d'olive"],
-    optional: ['piment', 'persil'],
+    optional: ['piment', 'persil', 'eau'],
     steps: [
       'Cuire les spaghetti dans l\'eau bouillante salée.',
       'Faire chauffer l\'huile d\'olive avec l\'ail émincé et le piment si disponible, sans faire brûler l\'ail.',
@@ -13103,7 +13103,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['pâtes', 'brocoli', 'anchois'],
-    optional: ['ail', 'piment'],
+    optional: ['ail', 'piment', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée, ajouter le brocoli en fin de cuisson 3-4 minutes.',
       'Faire fondre les anchois avec l\'ail dans un peu d\'huile.',
@@ -13189,7 +13189,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['boulgour', 'carotte', 'oignon'],
-    optional: ['cumin'],
+    optional: ['cumin', 'eau'],
     steps: [
       'Faire revenir l\'oignon et la carotte coupés en dés 5 minutes.',
       'Ajouter le boulgour, mélanger 1 minute avec une pincée de cumin si disponible.',
@@ -13217,7 +13217,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['boulgour', 'tomate', 'menthe'],
-    optional: ['citron', 'concombre'],
+    optional: ['citron', 'concombre', 'eau'],
     steps: [
       'Verser de l\'eau bouillante sur le boulgour, couvrir 10-12 minutes.',
       'Égrainer à la fourchette une fois gonflé.',
@@ -13245,7 +13245,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['farro', 'courgette', 'poivron'],
-    optional: ["huile d'olive", 'parmesan'],
+    optional: ["huile d'olive", 'parmesan', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Couper la courgette et le poivron en morceaux, les faire rôtir 20 minutes avec un filet d\'huile.',
@@ -13273,7 +13273,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['farro', 'feta', 'tomates séchées'],
-    optional: ["huile d'olive", 'basilic'],
+    optional: ["huile d'olive", 'basilic', 'eau'],
     steps: [
       'Cuire le farro dans l\'eau bouillante salée 20-25 minutes, égoutter et laisser refroidir.',
       'Couper les tomates séchées en morceaux.',
@@ -13301,7 +13301,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['freekeh', 'poulet', 'oignon'],
-    optional: ['amandes', 'cumin'],
+    optional: ['amandes', 'cumin', 'eau'],
     steps: [
       'Faire dorer le poulet coupé en morceaux 6-8 minutes, réserver.',
       'Faire revenir l\'oignon avec une pincée de cumin si disponible.',
@@ -13329,7 +13329,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['boulgour', 'agneau haché', 'tomate'],
-    optional: ['cumin', 'persil'],
+    optional: ['cumin', 'persil', 'eau'],
     steps: [
       'Mélanger l\'agneau haché avec le cumin si disponible, former des petites boulettes.',
       'Verser de l\'eau bouillante sur le boulgour, couvrir 10-12 minutes puis égrainer.',
@@ -13497,7 +13497,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['riz', 'vermicelles', 'beurre'],
-    optional: [],
+    optional: ['eau'],
     steps: [
       'Faire dorer les vermicelles dans le beurre 2-3 minutes.',
       'Ajouter le riz, mélanger 1 minute.',
@@ -13525,7 +13525,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles', 'citron'],
-    optional: ['blette', 'ail'],
+    optional: ['blette', 'ail', 'eau'],
     steps: [
       'Rincer les lentilles, les cuire 20 minutes à l\'eau bouillante.',
       'Faire revenir l\'ail si disponible, ajouter à la soupe.',
@@ -13581,7 +13581,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['persil', 'boulgour', 'tomate'],
-    optional: ['citron', 'menthe'],
+    optional: ['citron', 'menthe', 'eau'],
     steps: [
       'Verser un peu d\'eau bouillante sur le boulgour fin, couvrir 10 minutes.',
       'Hacher finement une grande quantité de persil.',
@@ -13693,7 +13693,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['freekeh', 'persil', 'menthe'],
-    optional: ['citron', 'tomate'],
+    optional: ['citron', 'tomate', 'eau'],
     steps: [
       'Cuire le freekeh dans l\'eau bouillante salée 20 minutes, égoutter et laisser refroidir.',
       'Hacher le persil et la menthe.',
@@ -13749,7 +13749,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles', 'pois chiches', 'tomates'],
-    optional: ['oignon', 'coriandre'],
+    optional: ['oignon', 'coriandre', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible, ajouter les tomates.',
       'Ajouter les lentilles et les pois chiches égouttés, couvrir d\'eau.',
@@ -13833,7 +13833,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots blancs', 'tomates', 'oignon'],
-    optional: ['ail', 'cumin'],
+    optional: ['ail', 'cumin', 'eau'],
     steps: [
       'Faire revenir l\'oignon et l\'ail si disponibles.',
       'Ajouter les tomates et une pincée de cumin si disponible.',
@@ -13861,7 +13861,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz complet', 'persil', 'citron'],
-    optional: ["huile d'olive"],
+    optional: ["huile d'olive", 'eau'],
     steps: [
       'Cuire le riz complet dans l\'eau bouillante salée 25-30 minutes, égoutter.',
       'Hacher le persil.',
@@ -13889,7 +13889,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['boulgour', 'pois chiches', 'cumin'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec le cumin.',
       'Ajouter les pois chiches égouttés, cuire 3-4 minutes.',
@@ -13973,7 +13973,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['freekeh', 'courge', 'oignon'],
-    optional: ['cannelle'],
+    optional: ['cannelle', 'eau'],
     steps: [
       'Couper la courge en dés.',
       'Faire revenir l\'oignon, ajouter la courge, cuire 8 minutes.',
@@ -14113,7 +14113,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['lapin', 'moutarde', 'crème fraîche'],
-    optional: ['échalote'],
+    optional: ['échalote', 'eau'],
     steps: [
       'Badigeonner les morceaux de lapin de moutarde, les faire dorer 6-8 minutes.',
       'Ajouter l\'échalote si disponible, couvrir d\'eau.',
@@ -14169,7 +14169,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['mouton', 'carotte', 'pommes de terre'],
-    optional: ['oignon', 'navet'],
+    optional: ['oignon', 'navet', 'eau'],
     steps: [
       'Couper le mouton en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon si disponible, cuire 5 minutes.',
@@ -14253,7 +14253,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'lait de coco', 'pommes de terre'],
-    optional: ['cacahuètes', 'curry'],
+    optional: ['cacahuètes', 'curry', 'eau'],
     steps: [
       'Couper le poulet en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter le curry si disponible, mélanger 1 minute.',
@@ -14281,7 +14281,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'oignon', 'paprika'],
-    optional: ['œufs', 'ail'],
+    optional: ['œufs', 'ail', 'eau'],
     steps: [
       'Faire fondre l\'oignon émincé à feu doux 15 minutes sans coloration.',
       'Ajouter le paprika (et l\'ail si disponible), cuire 2 minutes.',
@@ -14337,7 +14337,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'curry', 'pommes de terre'],
-    optional: ['oignon', 'ail'],
+    optional: ['oignon', 'ail', 'eau'],
     steps: [
       'Couper le poulet en morceaux, le faire mariner avec le curry 15 minutes si possible.',
       'Faire dorer le poulet avec l\'oignon et l\'ail si disponibles, 6-8 minutes.',
@@ -14365,7 +14365,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'pruneaux', 'oignon'],
-    optional: ['cannelle', 'amandes'],
+    optional: ['cannelle', 'amandes', 'eau'],
     steps: [
       'Couper l\'agneau en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon émincé, cuire 5 minutes.',
@@ -14421,7 +14421,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'haricots blancs', 'tomates'],
-    optional: ['oignon', 'ail'],
+    optional: ['oignon', 'ail', 'eau'],
     steps: [
       'Couper le porc en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter oignon et ail si disponibles, cuire 5 minutes.',
@@ -14449,7 +14449,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'tomates', 'yaourt'],
-    optional: ['curry', 'oignon'],
+    optional: ['curry', 'oignon', 'eau'],
     steps: [
       'Couper l\'agneau en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon et le curry si disponibles, cuire 5 minutes.',
@@ -14561,7 +14561,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['lentilles', 'saucisse fumée', 'carotte'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Couper la saucisse fumée en rondelles, la faire dorer 5 minutes.',
       'Ajouter l\'oignon et la carotte si disponibles, cuire 5 minutes.',
@@ -14589,7 +14589,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'pommes de terre', 'curry'],
-    optional: ['oignon', 'lait de coco'],
+    optional: ['oignon', 'lait de coco', 'eau'],
     steps: [
       'Couper le bœuf en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon et le curry si disponibles, mélanger 1-2 minutes.',
@@ -14617,7 +14617,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['queue de boeuf', 'carotte', 'oignon'],
-    optional: ['vin rouge', 'tomates'],
+    optional: ['vin rouge', 'tomates', 'eau'],
     steps: [
       'Faire dorer la queue de bœuf 8-10 minutes dans une cocotte.',
       'Ajouter oignon et carotte, cuire 5 minutes.',
@@ -14673,7 +14673,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['patate douce', 'haricots noirs', 'piment'],
-    optional: ['oignon', 'cumin'],
+    optional: ['oignon', 'cumin', 'eau'],
     steps: [
       'Couper la patate douce en dés.',
       'Faire revenir l\'oignon si disponible avec le piment et une pincée de cumin si disponible.',
@@ -14729,7 +14729,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['lapin', 'pruneaux', 'oignon'],
-    optional: ['vin blanc'],
+    optional: ['vin blanc', 'eau'],
     steps: [
       'Faire dorer les morceaux de lapin 6-8 minutes.',
       'Ajouter l\'oignon émincé, cuire 5 minutes.',
@@ -14785,7 +14785,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pois chiches', 'carotte', 'courgette'],
-    optional: ['cannelle', 'oignon'],
+    optional: ['cannelle', 'oignon', 'eau'],
     steps: [
       'Faire revenir l\'oignon si disponible avec une pincée de cannelle si disponible.',
       'Ajouter carotte et courgette coupées en morceaux, cuire 5 minutes.',
@@ -14813,7 +14813,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['dinde', 'panais', 'carotte'],
-    optional: ['oignon', 'crème fraîche'],
+    optional: ['oignon', 'crème fraîche', 'eau'],
     steps: [
       'Couper la dinde en morceaux, la faire dorer 6-8 minutes.',
       'Ajouter oignon, panais et carotte coupés en morceaux si disponibles.',
@@ -14841,7 +14841,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'carotte', 'navet'],
-    optional: ['oignon', 'romarin'],
+    optional: ['oignon', 'romarin', 'eau'],
     steps: [
       'Couper l\'agneau en morceaux, le faire dorer 6-8 minutes dans une cocotte.',
       'Ajouter oignon, carotte et navet coupés en morceaux si disponibles.',
@@ -15709,7 +15709,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['macaronis', 'fromage', 'bacon'],
-    optional: ['lait'],
+    optional: ['lait', 'eau'],
     steps: [
       'Cuire les macaronis dans l\'eau bouillante salée, égoutter.',
       'Faire dorer le bacon coupé en morceaux à la poêle.',
@@ -15821,7 +15821,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['blette', 'crème fraîche', 'fromage'],
-    optional: ['ail'],
+    optional: ['ail', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Couper les blettes, les faire cuire 8-10 minutes à l\'eau bouillante, égoutter.',
@@ -15905,7 +15905,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['gnocchis', 'fromage', 'crème fraîche'],
-    optional: ['ail'],
+    optional: ['ail', 'eau'],
     steps: [
       'Cuire les gnocchis dans l\'eau bouillante jusqu\'à ce qu\'ils remontent à la surface.',
       'Préchauffer le four en position grill.',
@@ -15933,7 +15933,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pâtes', 'thon en boîte', 'fromage'],
-    optional: ['crème fraîche', 'tomates'],
+    optional: ['crème fraîche', 'tomates', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter.',
@@ -15961,7 +15961,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['haricots verts', 'champignons', 'crème fraîche'],
-    optional: ['oignon frit', 'fromage'],
+    optional: ['oignon frit', 'fromage', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Cuire les haricots verts 5-6 minutes à l\'eau bouillante, égoutter.',
@@ -16185,7 +16185,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['macaronis', 'courgette', 'fromage'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les macaronis dans l\'eau bouillante salée, égoutter.',
@@ -16241,7 +16241,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['crozets', 'fromage', 'lardons'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les crozets dans l\'eau bouillante salée 15-18 minutes, égoutter.',
@@ -16325,7 +16325,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâtes', 'courge', 'fromage'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Cuire les pâtes dans l\'eau bouillante salée, égoutter.',
@@ -16409,7 +16409,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['haricots verts', 'fromage', 'crème fraîche'],
-    optional: ['ail'],
+    optional: ['ail', 'eau'],
     steps: [
       'Préchauffer le four à 190°C.',
       'Cuire les haricots verts 5-6 minutes à l\'eau bouillante, égoutter.',
@@ -16605,7 +16605,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'chocolat', 'tomates'],
-    optional: ['oignon', 'piment'],
+    optional: ['oignon', 'piment', 'eau'],
     steps: [
       'Faire dorer le poulet 6-8 minutes.',
       'Faire revenir l\'oignon si disponible, ajouter les tomates et une pincée de piment si disponible.',
@@ -16689,7 +16689,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'maïs', 'piment'],
-    optional: ['oignon', 'chou'],
+    optional: ['oignon', 'chou', 'eau'],
     steps: [
       'Couper le porc en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon et le piment si disponibles, couvrir d\'eau.',
@@ -16773,7 +16773,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['lentilles', 'crème fraîche', 'beurre'],
-    optional: ['curry', 'ail'],
+    optional: ['curry', 'ail', 'eau'],
     steps: [
       'Rincer les lentilles, les cuire 20 minutes à l\'eau bouillante.',
       'Faire fondre le beurre avec l\'ail et le curry si disponibles.',
@@ -16829,7 +16829,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'chou-fleur', 'curry'],
-    optional: ['oignon', 'ail'],
+    optional: ['oignon', 'ail', 'eau'],
     steps: [
       'Couper les pommes de terre et le chou-fleur en petits morceaux.',
       'Faire revenir l\'oignon et l\'ail si disponibles avec le curry.',
@@ -16857,7 +16857,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'vinaigre', 'piment'],
-    optional: ['tomates', 'ail'],
+    optional: ['tomates', 'ail', 'eau'],
     steps: [
       'Faire mariner le poulet avec le vinaigre et l\'ail si disponible 15 minutes si possible.',
       'Faire dorer le poulet 6-8 minutes avec le piment.',
@@ -16885,7 +16885,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâte feuilletée', 'pommes de terre', 'petits pois'],
-    optional: ['curry', 'oignon'],
+    optional: ['curry', 'oignon', 'eau'],
     steps: [
       'Cuire les pommes de terre à l\'eau bouillante, les écraser grossièrement.',
       'Faire revenir l\'oignon si disponible avec le curry si disponible.',
@@ -16941,7 +16941,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'tomates', 'yaourt'],
-    optional: ['curry', 'oignon'],
+    optional: ['curry', 'oignon', 'eau'],
     steps: [
       'Couper l\'agneau en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter l\'oignon et le curry si disponibles, cuire 5 minutes.',
@@ -17081,7 +17081,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['riz', 'crabe', 'œufs'],
-    optional: ['oignon nouveau', 'sauce soja'],
+    optional: ['oignon nouveau', 'sauce soja', 'eau'],
     steps: [
       'Cuire le riz à l\'avance (idéalement de la veille).',
       'Battre les œufs, les cuire en petits morceaux dans un wok.',
@@ -17165,7 +17165,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'ananas', 'poivron'],
-    optional: ['vinaigre', 'sucre'],
+    optional: ['vinaigre', 'sucre', 'eau'],
     steps: [
       'Couper le porc en morceaux, le faire dorer 6-8 minutes.',
       'Ajouter le poivron émincé, cuire 5 minutes.',
@@ -17221,7 +17221,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['nouilles de riz', 'boeuf', 'sauce soja'],
-    optional: ['pousses de soja', 'oignon nouveau'],
+    optional: ['pousses de soja', 'oignon nouveau', 'eau'],
     steps: [
       'Cuire les nouilles de riz plates selon le paquet.',
       'Couper le bœuf en fines lanières, le faire dorer 3-4 minutes à feu vif.',
@@ -17277,7 +17277,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['tofu', 'boeuf haché', 'piment'],
-    optional: ['ail', 'oignon nouveau'],
+    optional: ['ail', 'oignon nouveau', 'eau'],
     steps: [
       'Couper le tofu en dés.',
       'Faire revenir l\'ail si disponible, ajouter le bœuf haché, cuire 5-6 minutes.',
@@ -17417,7 +17417,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['céleri-rave', 'crème fraîche'],
-    optional: ['beurre', 'muscade'],
+    optional: ['beurre', 'muscade', 'eau'],
     steps: [
       'Éplucher et couper le céleri-rave en morceaux.',
       'Cuire 18-20 minutes à l\'eau bouillante salée jusqu\'à ce que ce soit tendre.',
@@ -17445,7 +17445,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['panais', 'beurre'],
-    optional: ['crème fraîche'],
+    optional: ['crème fraîche', 'eau'],
     steps: [
       'Éplucher et couper les panais en morceaux.',
       'Cuire 18-20 minutes à l\'eau bouillante salée jusqu\'à ce que ce soit tendre.',
@@ -17473,7 +17473,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['champignons', 'échalote', 'beurre'],
-    optional: ['persil'],
+    optional: ['persil', 'eau'],
     steps: [
       'Hacher finement les champignons et l\'échalote.',
       'Faire fondre le beurre, ajouter l\'échalote, cuire 3 minutes.',
@@ -17501,7 +17501,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['carotte', 'miel', 'beurre'],
-    optional: ['persil'],
+    optional: ['persil', 'eau'],
     steps: [
       'Couper les carottes en rondelles.',
       'Cuire 8-10 minutes à l\'eau bouillante, égoutter.',
@@ -17641,7 +17641,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['petits pois', 'menthe'],
-    optional: ["huile d'olive"],
+    optional: ["huile d'olive", 'eau'],
     steps: [
       'Cuire les petits pois 5-6 minutes à l\'eau bouillante, égoutter.',
       'Mixer avec la menthe ciselée.',
@@ -17669,7 +17669,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['chou rouge', 'pomme', 'vinaigre'],
-    optional: ['oignon'],
+    optional: ['oignon', 'eau'],
     steps: [
       'Émincer finement le chou rouge, couper la pomme en morceaux.',
       'Faire revenir l\'oignon si disponible, ajouter le chou et la pomme.',
@@ -17725,7 +17725,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['navet', 'beurre', 'sucre'],
-    optional: ['persil'],
+    optional: ['persil', 'eau'],
     steps: [
       'Éplucher et couper les navets en morceaux.',
       'Cuire 8-10 minutes à l\'eau bouillante, égoutter.',
@@ -17809,7 +17809,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['chou-fleur', 'ail', 'crème fraîche'],
-    optional: [],
+    optional: ['eau'],
     steps: [
       'Couper le chou-fleur en petits bouquets.',
       'Cuire 12-15 minutes à l\'eau bouillante avec l\'ail, égoutter.',
@@ -17865,7 +17865,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['salsifis', 'crème fraîche'],
-    optional: ['persil'],
+    optional: ['persil', 'eau'],
     steps: [
       'Cuire les salsifis 15-18 minutes à l\'eau bouillante, égoutter.',
       'Faire chauffer la crème fraîche dans une poêle.',
@@ -17977,7 +17977,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots beurre', 'ail'],
-    optional: ["huile d'olive"],
+    optional: ["huile d'olive", 'eau'],
     steps: [
       'Cuire les haricots beurre 6-8 minutes à l\'eau bouillante, égoutter.',
       'Faire chauffer un filet d\'huile d\'olive avec l\'ail écrasé.',
@@ -18061,7 +18061,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['courge butternut', 'crème fraîche'],
-    optional: ['muscade'],
+    optional: ['muscade', 'eau'],
     steps: [
       'Éplucher et couper la courge en morceaux.',
       'Cuire 15-18 minutes à l\'eau bouillante jusqu\'à ce que ce soit tendre.',
@@ -18397,7 +18397,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine de maïs', 'œufs', 'lait'],
-    optional: ['beurre', 'miel'],
+    optional: ['beurre', 'miel', 'eau'],
     steps: [
       'Préchauffer le four à 200°C.',
       'Mélanger la farine de maïs, les œufs et le lait.',
@@ -18425,7 +18425,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine', 'œufs'],
-    optional: ['graines de sésame'],
+    optional: ['graines de sésame', 'eau'],
     steps: [
       'Mélanger la farine, l\'eau tiède et une pincée de sel pour former une pâte, laisser lever 30 minutes.',
       'Former des anneaux avec la pâte.',
@@ -18789,7 +18789,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine', 'gros sel'],
-    optional: ['beurre'],
+    optional: ['beurre', 'eau'],
     steps: [
       'Mélanger la farine, l\'eau tiède et une pincée de sel pour former une pâte, laisser lever 30 minutes.',
       'Diviser en boudins, former des bretzels.',
@@ -19461,7 +19461,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['yaourt', 'farine', 'œufs', 'sucre'],
-    optional: ['citron'],
+    optional: ['citron', 'eau'],
     steps: [
       'Préchauffer le four à 180°C.',
       'Mélanger le yaourt, les œufs et le sucre.',
@@ -19825,7 +19825,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['chocolat', 'crème', 'cacao'],
-    optional: ['beurre'],
+    optional: ['beurre', 'eau'],
     steps: [
       'Faire chauffer la crème sans bouillir.',
       'Verser sur le chocolat coupé en morceaux, mélanger jusqu\'à obtenir une ganache lisse, ajouter un peu de beurre si disponible.',
@@ -19881,7 +19881,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['poire', 'vanille'],
-    optional: ['sucre', 'citron'],
+    optional: ['sucre', 'citron', 'eau'],
     steps: [
       'Éplucher et couper les poires en morceaux.',
       'Les mettre dans une casserole avec un fond d\'eau et la vanille.',
@@ -20119,7 +20119,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poisson blanc', 'pommes de terre', 'oignon'],
-    optional: ['olives', 'œufs', "huile d'olive"],
+    optional: ['olives', 'œufs', "huile d'olive", 'eau'],
     steps: [
       'Cuire les pommes de terre en tranches à l\'eau bouillante 12-15 minutes.',
       "Faire revenir l'oignon émincé dans l'huile d'olive.",
@@ -20149,7 +20149,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poisson blanc', 'riz', 'tomates'],
-    optional: ['carotte', 'chou', 'piment'],
+    optional: ['carotte', 'chou', 'piment', 'eau'],
     steps: [
       "Faire dorer le poisson dans un peu d'huile, réserver.",
       'Faire revenir tomates et légumes coupés en morceaux (carotte, chou) 5 minutes.',
@@ -20179,7 +20179,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz', 'haricots noirs', 'oignon'],
-    optional: ['ail', 'poivron', 'cumin'],
+    optional: ['ail', 'poivron', 'cumin', 'eau'],
     steps: [
       "Faire revenir l'oignon et l'ail émincés dans un peu d'huile.",
       'Ajouter le poivron coupé en dés si disponible, cuire 3 minutes.',
@@ -20239,7 +20239,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles corail', 'oignon', 'tomates'],
-    optional: ['ail', 'gingembre', 'piment'],
+    optional: ['ail', 'gingembre', 'piment', 'eau'],
     steps: [
       "Faire revenir l'oignon émincé longuement jusqu'à coloration, 8-10 minutes.",
       'Ajouter ail, gingembre et piment si disponibles, cuire 2 minutes.',
@@ -20269,7 +20269,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['gâteaux de riz', 'sauce soja', 'piment'],
-    optional: ['graines de sésame', 'oignon'],
+    optional: ['graines de sésame', 'oignon', 'eau'],
     steps: [
       "Porter à ébullition de l'eau avec la sauce soja et le piment.",
       'Ajouter les gâteaux de riz, cuire 8-10 minutes en remuant.',
@@ -20299,7 +20299,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['vermicelles de riz', 'carotte', 'épinards'],
-    optional: ['sauce soja', 'graines de sésame', 'champignons'],
+    optional: ['sauce soja', 'graines de sésame', 'champignons', 'eau'],
     steps: [
       "Faire tremper les vermicelles dans l'eau chaude 8-10 minutes, égoutter.",
       'Faire sauter la carotte en juliennes 3 minutes.',
@@ -20449,7 +20449,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['kimchi', 'tofu', 'oignon'],
-    optional: ['porc', 'sauce soja', 'ail'],
+    optional: ['porc', 'sauce soja', 'ail', 'eau'],
     steps: [
       "Faire revenir le kimchi coupé en morceaux avec l'oignon 3-4 minutes.",
       'Ajouter le porc en dés si disponible, cuire 5 minutes.',
@@ -20479,7 +20479,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poulet', 'lait de coco', 'citron vert'],
-    optional: ['champignons', 'coriandre fraîche', 'gingembre'],
+    optional: ['champignons', 'coriandre fraîche', 'gingembre', 'eau'],
     steps: [
       'Faire chauffer le lait de coco avec le gingembre émincé si disponible.',
       'Ajouter le poulet coupé en morceaux, cuire 10 minutes.',
@@ -20509,7 +20509,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['chou', 'carotte', 'beurre de cacahuète'],
-    optional: ['œufs', 'concombre', 'sauce soja'],
+    optional: ['œufs', 'concombre', 'sauce soja', 'eau'],
     steps: [
       'Cuire le chou et la carotte à la vapeur 8-10 minutes.',
       'Faire durcir les œufs 9 minutes si disponibles, écaler et couper en deux.',
@@ -20539,7 +20539,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'olives', 'citron'],
-    optional: ['oignon', 'ail', 'coriandre fraîche'],
+    optional: ['oignon', 'ail', 'coriandre fraîche', 'eau'],
     steps: [
       "Faire dorer les morceaux de poulet dans un peu d'huile.",
       'Ajouter l\'oignon émincé et l\'ail si disponibles, cuire 5 minutes.',
@@ -20599,7 +20599,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['farine', 'œufs', 'fromage'],
-    optional: ['oignon', 'beurre'],
+    optional: ['oignon', 'beurre', 'eau'],
     steps: [
       'Mélanger farine, œufs et un peu de lait ou eau pour obtenir une pâte épaisse.',
       "Faire tomber la pâte en petits morceaux dans l'eau bouillante salée.",
@@ -20749,7 +20749,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'pommes de terre', 'maïs'],
-    optional: ['carotte', 'coriandre fraîche', 'ail'],
+    optional: ['carotte', 'coriandre fraîche', 'ail', 'eau'],
     steps: [
       'Faire dorer les morceaux de poulet dans une grande casserole.',
       "Couvrir d'eau, ajouter l'ail écrasé si disponible, porter à ébullition.",
@@ -20779,7 +20779,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'pommes de terre', 'maïs'],
-    optional: ['crème fraîche', 'câpres', 'avocat'],
+    optional: ['crème fraîche', 'câpres', 'avocat', 'eau'],
     steps: [
       'Cuire le poulet dans un grand volume d\'eau 25 minutes, puis effilocher.',
       'Ajouter les pommes de terre coupées en morceaux au bouillon, cuire 15 minutes jusqu\'à ce qu\'elles épaississent légèrement la soupe.',
@@ -20839,7 +20839,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poisson blanc', 'lait de coco', 'tomates'],
-    optional: ['poivron', 'oignon', 'coriandre fraîche'],
+    optional: ['poivron', 'oignon', 'coriandre fraîche', 'eau'],
     steps: [
       "Faire revenir l'oignon et le poivron émincés 5 minutes.",
       'Ajouter les tomates concassées, cuire 5 minutes.',
@@ -20869,7 +20869,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pain', 'poulet', 'curry'],
-    optional: ['pommes de terre', 'tomates', 'oignon'],
+    optional: ['pommes de terre', 'tomates', 'oignon', 'eau'],
     steps: [
       "Faire revenir l'oignon émincé, ajouter le poulet en morceaux.",
       'Saupoudrer de curry, cuire 3 minutes.',
@@ -20929,7 +20929,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['igname', 'beurre'],
-    optional: ['sel'],
+    optional: ['sel', 'eau'],
     steps: [
       "Éplucher l'igname et la couper en morceaux.",
       "Cuire à l'eau bouillante 20-25 minutes jusqu'à ce qu'elle soit bien tendre.",
@@ -20959,7 +20959,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['farine de maïs', 'beurre'],
-    optional: ['sel'],
+    optional: ['sel', 'eau'],
     steps: [
       "Porter l'eau à ébullition dans une casserole.",
       'Verser la farine de maïs en pluie tout en remuant énergiquement pour éviter les grumeaux.',
@@ -20989,7 +20989,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'riz basmati', 'tomates'],
-    optional: ['safran', 'raisins secs', 'amandes'],
+    optional: ['safran', 'raisins secs', 'amandes', 'eau'],
     steps: [
       'Faire dorer les morceaux de poulet dans une cocotte.',
       'Ajouter les tomates concassées et une pincée de safran si disponible, cuire 5 minutes.',
@@ -21049,7 +21049,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'riz', 'aubergine'],
-    optional: ['pommes de terre', 'tomates', 'amandes'],
+    optional: ['pommes de terre', 'tomates', 'amandes', 'eau'],
     steps: [
       "Faire dorer les tranches d'aubergine (et de pommes de terre si disponibles) à la poêle, réserver.",
       "Faire dorer le poulet dans le fond d'une cocotte.",
@@ -21139,7 +21139,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['pommes de terre', 'petits pois', 'pain'],
-    optional: ['tomates', 'curry', 'beurre'],
+    optional: ['tomates', 'curry', 'beurre', 'eau'],
     steps: [
       "Cuire les pommes de terre et les petits pois à l'eau bouillante 15 minutes, égoutter.",
       "Écraser grossièrement les légumes cuits.",
@@ -21169,7 +21169,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots rouges', 'tomates', 'oignon'],
-    optional: ['ail', 'gingembre', 'coriandre fraîche'],
+    optional: ['ail', 'gingembre', 'coriandre fraîche', 'eau'],
     steps: [
       "Faire revenir l'oignon émincé 5 minutes jusqu'à coloration.",
       'Ajouter ail et gingembre si disponibles, cuire 1 minute.',
@@ -21229,7 +21229,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'lait de coco', 'nouilles'],
-    optional: ['curry', 'citron vert', 'coriandre fraîche'],
+    optional: ['curry', 'citron vert', 'coriandre fraîche', 'eau'],
     steps: [
       'Faire chauffer le lait de coco avec le curry si disponible.',
       'Ajouter le poulet coupé en morceaux, cuire 12-15 minutes.',
@@ -21293,7 +21293,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['spaghetti', 'ail', 'huile d\'olive'],
-    optional: ['piment', 'persil', 'parmesan'],
+    optional: ['piment', 'persil', 'parmesan', 'eau'],
     steps: [
       "Cuire les spaghetti dans l'eau bouillante salée selon le paquet.",
       "Faire dorer l'ail émincé (et le piment si dispo) dans l'huile d'olive à feu doux.",
@@ -21461,7 +21461,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâte à raviolis', 'pomme de terre', 'fromage'],
-    optional: ['oignon', 'beurre', 'crème fraîche'],
+    optional: ['oignon', 'beurre', 'crème fraîche', 'eau'],
     steps: [
       "Écraser la pomme de terre cuite avec le fromage pour la farce.",
       'Garnir des carrés de pâte à raviolis avec la farce, refermer en triangle.',
@@ -21601,7 +21601,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['semoule', 'pois chiches', 'carotte'],
-    optional: ['harissa', 'poulet', 'courgette'],
+    optional: ['harissa', 'poulet', 'courgette', 'eau'],
     steps: [
       'Faire gonfler la semoule avec de l\'eau chaude et un filet d\'huile.',
       'Faire mijoter carotte, courgette et pois chiches dans un bouillon épicé à la harissa.',
@@ -21629,7 +21629,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['agneau', 'tomates', 'pois chiches'],
-    optional: ['persil', 'coriandre', 'vermicelles'],
+    optional: ['persil', 'coriandre', 'vermicelles', 'eau'],
     steps: [
       "Faire revenir l'agneau coupé en petits morceaux.",
       'Ajouter les tomates concassées, les pois chiches et couvrir d\'eau.',
@@ -21685,7 +21685,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['riz basmati', 'safran', 'beurre'],
-    optional: ['raisins secs', 'pistaches', 'yaourt'],
+    optional: ['raisins secs', 'pistaches', 'yaourt', 'eau'],
     steps: [
       "Faire tremper le riz basmati 20 minutes puis rincer.",
       "Cuire le riz à l'eau bouillante salée jusqu'à mi-cuisson, égoutter.",
@@ -21769,7 +21769,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles corail', 'cumin', 'ail'],
-    optional: ['tomates', 'coriandre', 'piment'],
+    optional: ['tomates', 'coriandre', 'piment', 'eau'],
     steps: [
       "Rincer les lentilles corail, les couvrir d'eau et porter à ébullition.",
       'Laisser mijoter 15-20 minutes jusqu\'à ce que les lentilles se défassent.',
@@ -21881,7 +21881,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['nouilles de riz', 'crevettes', 'curry'],
-    optional: ['pousses de soja', 'oeufs', 'piment'],
+    optional: ['pousses de soja', 'oeufs', 'piment', 'eau'],
     steps: [
       "Faire tremper les nouilles de riz dans l'eau chaude selon le paquet.",
       'Faire revenir les crevettes avec un peu de curry en poudre.',
@@ -21909,7 +21909,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles corail', 'lait de coco', 'curry'],
-    optional: ['tomates', 'oignon', 'piment'],
+    optional: ['tomates', 'oignon', 'piment', 'eau'],
     steps: [
       "Rincer les lentilles, les couvrir d'eau et porter à ébullition.",
       "Ajouter le curry en poudre et laisser mijoter 15 minutes.",
@@ -22105,7 +22105,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['riz', 'haricots rouges', 'lait de coco'],
-    optional: ['oignon nouveau', 'thym', 'piment'],
+    optional: ['oignon nouveau', 'thym', 'piment', 'eau'],
     steps: [
       "Faire chauffer le lait de coco avec le thym et un peu de piment.",
       'Ajouter les haricots rouges égouttés, laisser mijoter 5 minutes.',
@@ -22133,7 +22133,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['riz', 'tomates', 'poivron'],
-    optional: ['piment', 'oignon', 'ail'],
+    optional: ['piment', 'oignon', 'ail', 'eau'],
     steps: [
       "Mixer tomates, poivron, oignon et piment pour obtenir une sauce.",
       "Faire revenir cette sauce 10 minutes jusqu'à ce qu'elle épaississe.",
@@ -22161,7 +22161,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['beurre de cacahuète', 'poulet', 'tomates'],
-    optional: ['piment', 'oignon', 'gingembre'],
+    optional: ['piment', 'oignon', 'gingembre', 'eau'],
     steps: [
       "Faire revenir l'oignon, le gingembre et le poulet coupé en morceaux.",
       'Ajouter les tomates concassées, laisser mijoter 10 minutes.',
@@ -22217,7 +22217,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['haricots rouges', 'maïs', 'tomates'],
-    optional: ['oignon', 'piment', 'coriandre'],
+    optional: ['oignon', 'piment', 'coriandre', 'eau'],
     steps: [
       "Faire revenir l'oignon dans un peu d'huile.",
       'Ajouter les tomates, laisser réduire 5 minutes.',
@@ -22301,7 +22301,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['boulgour', 'persil', 'tomate'],
-    optional: ['citron', 'menthe', 'huile d\'olive'],
+    optional: ['citron', 'menthe', 'huile d\'olive', 'eau'],
     steps: [
       "Faire tremper le boulgour dans l'eau chaude 15 minutes, égoutter.",
       'Ciseler finement le persil et la menthe, couper la tomate en petits dés.',
@@ -22329,7 +22329,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf haché', 'boulgour', 'oignon'],
-    optional: ['pignons', 'cannelle', 'persil'],
+    optional: ['pignons', 'cannelle', 'persil', 'eau'],
     steps: [
       "Faire tremper le boulgour dans l'eau chaude 15 minutes, égoutter et presser.",
       "Mélanger avec la moitié du boeuf haché, l'oignon râpé et une pointe de cannelle.",
@@ -22357,7 +22357,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['polenta', 'fromage', 'beurre'],
-    optional: ['crème fraîche', 'œufs'],
+    optional: ['crème fraîche', 'œufs', 'eau'],
     steps: [
       "Porter de l'eau salée à ébullition, verser la polenta en pluie en fouettant.",
       'Cuire 5-8 minutes en remuant jusqu\'à épaississement.',
@@ -22385,7 +22385,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'paprika', 'oignon'],
-    optional: ['poivron', 'tomates', 'pommes de terre'],
+    optional: ['poivron', 'tomates', 'pommes de terre', 'eau'],
     steps: [
       "Faire revenir l'oignon puis le porc coupé en cubes.",
       'Saupoudrer de paprika, ajouter poivron et tomates.',
@@ -22413,7 +22413,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['vegetarien'],
     required: ['pâte à raviolis', 'pomme de terre', 'oignon'],
-    optional: ['beurre', 'crème fraîche'],
+    optional: ['beurre', 'crème fraîche', 'eau'],
     steps: [
       "Écraser la pomme de terre cuite, mélanger avec l'oignon revenu.",
       'Garnir des carrés de pâte à raviolis, refermer en pinçant les bords.',
@@ -22525,7 +22525,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pomme de terre', 'chou', 'saucisse'],
-    optional: ['beurre', 'lait', 'moutarde'],
+    optional: ['beurre', 'lait', 'moutarde', 'eau'],
     steps: [
       'Cuire la pomme de terre et le chou ensemble à l\'eau bouillante 15-20 minutes.',
       'Pendant ce temps, cuire la saucisse à la poêle.',
@@ -22609,7 +22609,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['endives', 'jambon', 'fromage'],
-    optional: ['beurre', 'lait', 'muscade'],
+    optional: ['beurre', 'lait', 'muscade', 'eau'],
     steps: [
       "Faire cuire les endives à l'eau bouillante 15 minutes, bien égoutter.",
       'Enrouler chaque endive dans une tranche de jambon.',
@@ -23173,7 +23173,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'courgette', 'citron'],
-    optional: ['parmesan', 'ail', 'basilic'],
+    optional: ['parmesan', 'ail', 'basilic', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       "Râper la courgette, la faire revenir avec l'ail 3-4 minutes.",
@@ -23425,7 +23425,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['carotte', 'brocoli', 'beurre de cacahuète'],
-    optional: ['sauce soja', 'gingembre', 'nouilles'],
+    optional: ['sauce soja', 'gingembre', 'nouilles', 'eau'],
     steps: [
       'Couper les légumes en lamelles fines.',
       'Faire sauter dans un wok bien chaud 5-6 minutes.',
@@ -23625,7 +23625,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: ['sans-gluten'],
     required: ['steak haché', 'pomme de terre', 'beurre'],
-    optional: ['lait', 'muscade'],
+    optional: ['lait', 'muscade', 'eau'],
     steps: [
       'Cuire les pommes de terre à l\'eau bouillante 15-20 minutes.',
       "Écraser avec beurre et lait chaud jusqu'à consistance onctueuse.",
@@ -24385,7 +24385,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['porc', 'haricots noirs', 'cumin'],
-    optional: ['tomates', 'piment', 'coriandre'],
+    optional: ['tomates', 'piment', 'coriandre', 'eau'],
     steps: [
       'Faire dorer le porc coupé en morceaux avec le cumin.',
       'Ajouter un peu d\'eau ou de bouillon, couvrir et laisser mijoter 25 minutes.',
@@ -24525,7 +24525,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['lentilles vertes', 'œufs', 'oignon'],
-    optional: ['vinaigre', 'persil'],
+    optional: ['vinaigre', 'persil', 'eau'],
     steps: [
       "Faire revenir l'oignon, ajouter les lentilles et couvrir d'eau.",
       'Laisser mijoter 20 minutes jusqu\'à tendreté.',
@@ -24805,7 +24805,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poulet', 'haricots verts', 'amandes'],
-    optional: ['ail', 'citron'],
+    optional: ['ail', 'citron', 'eau'],
     steps: [
       'Cuire les haricots verts à la vapeur ou à l\'eau bouillante.',
       "Cuire le poulet coupé en dés à la poêle avec l'ail.",
@@ -24865,7 +24865,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['pâtes', 'thon en boîte', 'sauce tomate'],
-    optional: ['ail', 'fromage'],
+    optional: ['ail', 'fromage', 'eau'],
     steps: [
       'Cuire les pâtes dans l\'eau bouillante salée.',
       "Faire chauffer la sauce tomate avec l'ail émincé.",
@@ -24921,7 +24921,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['lentilles vertes', 'carotte', 'oignon'],
-    optional: ['bouillon', 'ail'],
+    optional: ['bouillon', 'ail', 'eau'],
     steps: [
       "Faire revenir l'oignon et la carotte coupée en rondelles.",
       "Ajouter les lentilles, couvrir d'eau ou de bouillon.",
@@ -25005,7 +25005,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'œufs', 'fromage'],
-    optional: ['poivre', 'champignons'],
+    optional: ['poivre', 'champignons', 'eau'],
     steps: [
       "Cuire les pâtes dans l'eau bouillante salée.",
       'Battre les œufs avec le fromage râpé.',
@@ -25229,7 +25229,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'oignon', 'fromage'],
-    optional: ['beurre', 'poivre'],
+    optional: ['beurre', 'poivre', 'eau'],
     steps: [
       "Faire caraméliser l'oignon émincé doucement dans un peu de beurre 10 minutes.",
       "Cuire les pâtes dans l'eau bouillante salée.",
@@ -25313,7 +25313,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['lentilles vertes', 'riz', 'oignon'],
-    optional: ['cumin', 'ail'],
+    optional: ['cumin', 'ail', 'eau'],
     steps: [
       "Faire revenir l'oignon avec le cumin.",
       "Ajouter lentilles et riz, couvrir généreusement d'eau.",
@@ -25681,7 +25681,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'sauce barbecue', 'oignon'],
-    optional: ['pain burger', 'chou'],
+    optional: ['pain burger', 'chou', 'eau'],
     steps: [
       "Faire dorer le porc en grand morceau avec l'oignon.",
       "Ajouter de l'eau et la sauce barbecue, couvrir.",
@@ -25765,7 +25765,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['lentilles corail', 'cumin', 'ail'],
-    optional: ['tomates', 'coriandre'],
+    optional: ['tomates', 'coriandre', 'eau'],
     steps: [
       'Rincer une grande quantité de lentilles corail.',
       "Couvrir d'eau, porter à ébullition puis mijoter 20 minutes.",
@@ -25905,7 +25905,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte', 'oignon'],
-    optional: ['pommes de terre', 'thym'],
+    optional: ['pommes de terre', 'thym', 'eau'],
     steps: [
       "Faire dorer l'oignon puis une grande quantité de boeuf en cubes.",
       'Ajouter la carotte coupée, couvrir d\'eau.',
@@ -26189,7 +26189,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'pommes de terre', 'carotte'],
-    optional: ['oignon', 'thym'],
+    optional: ['oignon', 'thym', 'eau'],
     steps: [
       "Faire dorer le boeuf en cubes dans une grande cocotte.",
       "Ajouter pommes de terre, carotte et oignon coupés.",
@@ -26245,7 +26245,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['lentilles vertes', 'saucisse', 'oignon'],
-    optional: ['carotte', 'thym'],
+    optional: ['carotte', 'thym', 'eau'],
     steps: [
       "Faire dorer la saucisse coupée en rondelles avec l'oignon.",
       "Ajouter les lentilles et la carotte si disponible.",
@@ -26273,7 +26273,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'riz', 'curry'],
-    optional: ['lait de coco', 'oignon'],
+    optional: ['lait de coco', 'oignon', 'eau'],
     steps: [
       "Faire dorer le poulet coupé en morceaux avec l'oignon.",
       "Ajouter le curry en poudre, bien enrober.",
@@ -26301,7 +26301,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['orzo', 'courgette', 'tomates'],
-    optional: ['parmesan', 'basilic'],
+    optional: ['parmesan', 'basilic', 'eau'],
     steps: [
       "Faire revenir la courgette coupée en dés dans une casserole.",
       "Ajouter l'orzo et les tomates, mélanger.",
@@ -26329,7 +26329,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['pois chiches', 'épinards', 'riz'],
-    optional: ['cumin', 'ail'],
+    optional: ['cumin', 'ail', 'eau'],
     steps: [
       "Faire revenir l'ail et le cumin dans une casserole.",
       "Ajouter le riz et les pois chiches égouttés.",
@@ -26385,7 +26385,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['quinoa', 'poivron', 'tomates'],
-    optional: ['oignon', 'cumin'],
+    optional: ['oignon', 'cumin', 'eau'],
     steps: [
       "Faire revenir l'oignon et le poivron dans une casserole.",
       'Ajouter le quinoa et les tomates.',
@@ -26413,7 +26413,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'pommes de terre', 'oignon'],
-    optional: ['moutarde', 'crème'],
+    optional: ['moutarde', 'crème', 'eau'],
     steps: [
       "Faire dorer le porc en morceaux avec l'oignon.",
       'Ajouter les pommes de terre coupées.',
@@ -26497,7 +26497,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['riz', 'tofu', 'carotte'],
-    optional: ['petits pois', 'sauce soja'],
+    optional: ['petits pois', 'sauce soja', 'eau'],
     steps: [
       "Faire dorer le tofu en cubes dans une casserole.",
       'Ajouter le riz et la carotte émincée.',
@@ -26525,7 +26525,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'champignons', 'riz'],
-    optional: ['crème', 'ail'],
+    optional: ['crème', 'ail', 'eau'],
     steps: [
       "Faire dorer le poulet coupé en dés avec l'ail.",
       "Ajouter les champignons émincés, cuire 5 minutes.",
@@ -26553,7 +26553,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poisson blanc', 'riz', 'poivron'],
-    optional: ['citron', 'persil'],
+    optional: ['citron', 'persil', 'eau'],
     steps: [
       "Faire revenir le poivron émincé dans une casserole.",
       'Ajouter le riz, couvrir d\'eau, porter à ébullition.',
@@ -26581,7 +26581,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['boulgour', 'courgette', 'tomates'],
-    optional: ['oignon', 'persil'],
+    optional: ['oignon', 'persil', 'eau'],
     steps: [
       "Faire revenir l'oignon et la courgette coupée en dés.",
       'Ajouter le boulgour et les tomates.',
@@ -26609,7 +26609,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf haché', 'riz', 'poivron'],
-    optional: ['oignon', 'sauce soja'],
+    optional: ['oignon', 'sauce soja', 'eau'],
     steps: [
       "Faire dorer le boeuf haché avec l'oignon.",
       'Ajouter le poivron émincé et le riz.',
@@ -26665,7 +26665,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'riz', 'carotte'],
-    optional: ['cumin', 'raisins secs'],
+    optional: ['cumin', 'raisins secs', 'eau'],
     steps: [
       "Faire dorer l'agneau en morceaux avec le cumin.",
       'Ajouter la carotte émincée et le riz.',
@@ -26693,7 +26693,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['crevettes', 'riz', 'poivron'],
-    optional: ['ail', 'paprika'],
+    optional: ['ail', 'paprika', 'eau'],
     steps: [
       "Faire revenir l'ail et le poivron émincé.",
       'Ajouter le riz et le paprika.',
@@ -26721,7 +26721,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['pois cassés', 'lardons', 'oignon'],
-    optional: ['carotte', 'thym'],
+    optional: ['carotte', 'thym', 'eau'],
     steps: [
       "Faire dorer les lardons avec l'oignon.",
       'Ajouter les pois cassés (et carotte si dispo).',
@@ -26749,7 +26749,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'riz', 'curry jaune'],
-    optional: ['lait de coco', 'oignon'],
+    optional: ['lait de coco', 'oignon', 'eau'],
     steps: [
       "Faire dorer le poulet coupé en morceaux avec l'oignon.",
       'Ajouter le curry jaune, bien enrober.',
@@ -26777,7 +26777,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['farro', 'courgette', 'tomates'],
-    optional: ['oignon', 'parmesan'],
+    optional: ['oignon', 'parmesan', 'eau'],
     steps: [
       "Faire revenir l'oignon et la courgette.",
       'Ajouter le farro et les tomates.',
@@ -26893,7 +26893,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['thon en boîte', 'haricots verts', 'œufs durs'],
-    optional: ['pommes de terre', 'olives', 'tomate'],
+    optional: ['pommes de terre', 'olives', 'tomate', 'eau'],
     steps: [
       'Cuire les haricots verts à la vapeur ou à l\'eau bouillante.',
       'Égoutter le thon, couper les œufs durs en quartiers.',
@@ -27005,7 +27005,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['boulgour', 'concombre', 'tomate'],
-    optional: ['persil', 'citron', 'menthe'],
+    optional: ['persil', 'citron', 'menthe', 'eau'],
     steps: [
       "Faire tremper le boulgour dans l'eau chaude 15 minutes, égoutter.",
       'Couper concombre et tomate en petits dés.',
@@ -27033,7 +27033,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['œufs durs', 'pommes de terre', 'cornichons'],
-    optional: ['mayonnaise', 'ciboulette'],
+    optional: ['mayonnaise', 'ciboulette', 'eau'],
     steps: [
       "Cuire les pommes de terre à l'eau bouillante, couper en dés une fois refroidies.",
       'Couper les œufs durs et les cornichons.',
@@ -27089,7 +27089,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'tomate cerise', 'mozzarella'],
-    optional: ['basilic', 'huile d\'olive', 'olives'],
+    optional: ['basilic', 'huile d\'olive', 'olives', 'eau'],
     steps: [
       "Cuire les pâtes, les rincer à l'eau froide pour arrêter la cuisson.",
       'Couper tomates cerise et mozzarella en morceaux.',
@@ -27285,7 +27285,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulpe', 'pommes de terre', 'huile d\'olive'],
-    optional: ['persil', 'citron', 'paprika'],
+    optional: ['persil', 'citron', 'paprika', 'eau'],
     steps: [
       "Cuire le poulpe (souvent déjà précuit) selon les indications, couper en morceaux.",
       "Cuire les pommes de terre à l'eau bouillante, couper en dés.",
@@ -27401,7 +27401,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['carotte', 'poireau', 'pomme de terre'],
-    optional: ['céleri', 'bouillon', 'crème'],
+    optional: ['céleri', 'bouillon', 'crème', 'eau'],
     steps: [
       'Couper tous les légumes en morceaux.',
       "Faire revenir puis couvrir d'eau ou de bouillon.",
@@ -27513,7 +27513,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien', 'vegan'],
     required: ['lentilles corail', 'lait de coco', 'curry'],
-    optional: ['carotte', 'coriandre'],
+    optional: ['carotte', 'coriandre', 'eau'],
     steps: [
       'Rincer les lentilles corail.',
       "Faire chauffer le curry en poudre, ajouter les lentilles et la carotte.",
@@ -27541,7 +27541,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'nouilles', 'bouillon'],
-    optional: ['gingembre', 'oignon nouveau', 'piment'],
+    optional: ['gingembre', 'oignon nouveau', 'piment', 'eau'],
     steps: [
       'Couper le boeuf en fines lamelles.',
       "Faire chauffer le bouillon avec le gingembre.",
@@ -27653,7 +27653,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['poisson blanc', 'carotte', 'bouillon'],
-    optional: ['poireau', 'safran'],
+    optional: ['poireau', 'safran', 'eau'],
     steps: [
       'Couper les légumes en morceaux, les faire revenir.',
       "Couvrir de bouillon, laisser mijoter 15 minutes.",
@@ -27737,7 +27737,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['nouilles', 'bouillon', 'champignons'],
-    optional: ['oeufs', 'oignon nouveau', 'sauce soja'],
+    optional: ['oeufs', 'oignon nouveau', 'sauce soja', 'eau'],
     steps: [
       "Faire chauffer le bouillon avec la sauce soja.",
       'Ajouter les champignons émincés, laisser mijoter 5 minutes.',
@@ -27877,7 +27877,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte', 'pomme de terre'],
-    optional: ['céleri', 'thym'],
+    optional: ['céleri', 'thym', 'eau'],
     steps: [
       "Faire dorer le boeuf en cubes.",
       'Ajouter les légumes coupés en morceaux.',
@@ -28189,7 +28189,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'beurre', 'parmesan'],
-    optional: ['poivre'],
+    optional: ['poivre', 'eau'],
     steps: [
       "Cuire les pâtes dans l'eau bouillante salée.",
       "Égoutter en gardant un peu d'eau de cuisson.",
@@ -28553,7 +28553,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['tomate', 'mozzarella', 'pâtes'],
-    optional: ['basilic', 'parmesan'],
+    optional: ['basilic', 'parmesan', 'eau'],
     steps: [
       "Cuire les pâtes dans l'eau bouillante salée.",
       'Couper tomate et mozzarella en dés.',
@@ -28721,7 +28721,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: ['vegetarien'],
     required: ['pâtes', 'pâte à tartiner'],
-    optional: ['parmesan', 'pignons'],
+    optional: ['parmesan', 'pignons', 'eau'],
     steps: [
       "Cuire les pâtes dans l'eau bouillante salée.",
       "Note : remplacer par un vrai pesto basilic/pignons/huile d'olive si disponible.",
@@ -28921,7 +28921,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'pommes de terre', 'carotte'],
-    optional: ['oignon', 'thym', 'ail'],
+    optional: ['oignon', 'thym', 'ail', 'eau'],
     steps: [
       "Faire dorer le poulet dans une cocotte.",
       "Ajouter les légumes coupés en morceaux autour.",
@@ -28949,7 +28949,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['porc', 'pruneaux', 'oignon'],
-    optional: ['vin blanc', 'thym'],
+    optional: ['vin blanc', 'thym', 'eau'],
     steps: [
       "Faire dorer le porc en morceaux avec l'oignon.",
       "Mouiller avec un peu d'eau (ou vin blanc), ajouter les pruneaux.",
@@ -28977,7 +28977,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['agneau', 'carotte', 'pommes de terre'],
-    optional: ['oignon', 'cumin'],
+    optional: ['oignon', 'cumin', 'eau'],
     steps: [
       "Faire dorer l'agneau en morceaux.",
       "Ajouter les légumes coupés, l'oignon et le cumin.",
@@ -29005,7 +29005,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'carotte', 'poireau'],
-    optional: ['navet', 'céleri'],
+    optional: ['navet', 'céleri', 'eau'],
     steps: [
       'Déposer le poulet entier ou en morceaux dans une grande cocotte.',
       'Ajouter tous les légumes coupés en gros morceaux autour.',
@@ -29033,7 +29033,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['boeuf', 'carotte', 'oignon'],
-    optional: ['bouillon', 'thym'],
+    optional: ['bouillon', 'thym', 'eau'],
     steps: [
       "Faire dorer le boeuf en cubes avec l'oignon.",
       'Ajouter la carotte coupée en rondelles épaisses.',
@@ -29061,7 +29061,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: [],
     required: ['dinde', 'carotte', 'pommes de terre'],
-    optional: ['oignon', 'bouillon'],
+    optional: ['oignon', 'bouillon', 'eau'],
     steps: [
       "Faire dorer la dinde en morceaux.",
       "Ajouter les légumes coupés autour.",
@@ -29145,7 +29145,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['queue de boeuf', 'carotte', 'oignon'],
-    optional: ['céleri', 'thym'],
+    optional: ['céleri', 'thym', 'eau'],
     steps: [
       "Faire dorer la queue de boeuf avec l'oignon.",
       'Ajouter carotte et céleri coupés.',
@@ -29173,7 +29173,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['lentilles vertes', 'saucisse fumée', 'carotte'],
-    optional: ['oignon', 'thym'],
+    optional: ['oignon', 'thym', 'eau'],
     steps: [
       "Faire dorer la saucisse fumée coupée en rondelles.",
       "Ajouter oignon et carotte, faire revenir 5 minutes.",
@@ -29229,7 +29229,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['choucroute', 'saucisse', 'pommes de terre'],
-    optional: ['lardons', 'vin blanc'],
+    optional: ['lardons', 'vin blanc', 'eau'],
     steps: [
       "Faire dorer la saucisse et les lardons si disponibles.",
       'Ajouter la choucroute et un peu de vin blanc ou d\'eau.',
@@ -29257,7 +29257,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['poulet', 'pruneaux', 'oignon'],
-    optional: ['miel', 'cannelle'],
+    optional: ['miel', 'cannelle', 'eau'],
     steps: [
       "Faire dorer le poulet avec l'oignon.",
       "Ajouter les pruneaux et un peu d'eau.",
@@ -29285,7 +29285,7 @@ export const RECIPES = [
     cuisine: 'gourmand',
     diet: [],
     required: ['haricots blancs', 'saucisse', 'porc'],
-    optional: ['tomates', 'ail', 'chapelure'],
+    optional: ['tomates', 'ail', 'chapelure', 'eau'],
     steps: [
       "Faire dorer la saucisse et le porc coupé en morceaux.",
       "Ajouter l'ail et les tomates si disponibles.",
@@ -29317,7 +29317,7 @@ export const RECIPES = [
     cuisine: 'rapide',
     diet: [],
     required: ['pâtes', 'jambon', 'fromage'],
-    optional: ['crème'],
+    optional: ['crème', 'eau'],
     steps: [
       "Cuire les pâtes dans l'eau bouillante salée.",
       'Couper le jambon en petits morceaux.',
@@ -29373,7 +29373,7 @@ export const RECIPES = [
     cuisine: 'healthy',
     diet: ['vegetarien'],
     required: ['carotte', 'pomme de terre', 'beurre'],
-    optional: ['lait'],
+    optional: ['lait', 'eau'],
     steps: [
       'Couper carotte et pomme de terre en morceaux.',
       "Cuire à l'eau bouillante 15-18 minutes jusqu'à tendreté.",
@@ -29872,6 +29872,7 @@ export const RECIPES = [
     optional: [
       'basilic',
       'tomates',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -29911,6 +29912,7 @@ export const RECIPES = [
     optional: [
       'lait de coco',
       'curry',
+      'eau',
     ],
     steps: [
       "Couper le potiron en morceaux et émincer l'oignon.",
@@ -29989,6 +29991,7 @@ export const RECIPES = [
     optional: [
       'sésame',
       'ail',
+      'eau',
     ],
     steps: [
       'Couper le tofu en dés et détailler le brocoli en petits bouquets.',
@@ -30144,6 +30147,7 @@ export const RECIPES = [
     optional: [
       'noix',
       'sucre',
+      'eau',
     ],
     steps: [
       "Faire chauffer les flocons d'avoine avec deux fois leur volume d'eau dans une casserole.",
@@ -30337,6 +30341,7 @@ export const RECIPES = [
     ],
     optional: [
       'citron vert',
+      'eau',
     ],
     steps: [
       'Éplucher et couper les carottes en rondelles.',
@@ -30489,6 +30494,7 @@ export const RECIPES = [
     ],
     optional: [
       'sucre',
+      'eau',
     ],
     steps: [
       'Éplucher, évider et couper les pommes et poires en morceaux.',
@@ -30639,6 +30645,7 @@ export const RECIPES = [
     ],
     optional: [
       'ail',
+      'eau',
     ],
     steps: [
       "Faites cuire les pâtes dans une casserole d'eau bouillante salée selon le temps indiqué sur le paquet.",
@@ -30860,6 +30867,7 @@ export const RECIPES = [
     optional: [
       'œuf dur',
       'concombre',
+      'eau',
     ],
     steps: [
       "Faites cuire les pâtes, puis rincez-les à l'eau froide pour les refroidir rapidement.",
@@ -30896,6 +30904,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       'herbes de provence',
+      'eau',
     ],
     steps: [
       "Faites cuire des tortellini frais 3 minutes dans de l'eau bouillante.",
@@ -31119,6 +31128,7 @@ export const RECIPES = [
     optional: [
       'curry',
       'beurre',
+      'eau',
     ],
     steps: [
       'Verser la semoule dans un bol, ajouter les raisins secs, une pincée de curry et du sel.',
@@ -31157,6 +31167,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faites cuire les spaghetti dans de l'eau bouillante salée.",
@@ -31230,6 +31241,7 @@ export const RECIPES = [
     ],
     optional: [
       'herbes de provence',
+      'eau',
     ],
     steps: [
       'Faites fondre une belle noisette de beurre dans une poêle.',
@@ -31816,6 +31828,7 @@ export const RECIPES = [
     ],
     optional: [
       'beurre',
+      'eau',
     ],
     steps: [
       'Faites chauffer le lait avec le chocolat râpé et le sucre dans une casserole.',
@@ -32322,6 +32335,7 @@ export const RECIPES = [
       'riz basmati',
       'coriandre',
       'citron vert',
+      'eau',
     ],
     steps: [
       "Hacher l'oignon et l'ail, couper la carotte en petits dés. Faire revenir l'oignon, l'ail et la carotte dans une casserole avec un filet d'huile pendant 5 minutes.",
@@ -32478,6 +32492,7 @@ export const RECIPES = [
     optional: [
       'oignon nouveau',
       'riz',
+      'eau',
     ],
     steps: [
       "Couper le tofu en dés et hacher l'ail.",
@@ -32634,6 +32649,7 @@ export const RECIPES = [
     optional: [
       'tomates',
       'riz',
+      'eau',
     ],
     steps: [
       "Rincer les lentilles corail et hacher l'ail.",
@@ -32818,6 +32834,7 @@ export const RECIPES = [
     optional: [
       'orange',
       'persil',
+      'eau',
     ],
     steps: [
       "Faire rissoler les lardons, l'oignon et l'ail haché dans une casserole.",
@@ -33241,6 +33258,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       'persil',
+      'eau',
     ],
     steps: [
       'Épluchez et coupez tous vos légumes fatigués ainsi que les pommes de terre en morceaux.',
@@ -33456,6 +33474,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       'thym',
+      'eau',
     ],
     steps: [
       'Coupez la carotte et la courgette en petits dés et faites-les revenir 10 minutes à la poêle.',
@@ -33567,6 +33586,7 @@ export const RECIPES = [
     ],
     optional: [
       'citron',
+      'eau',
     ],
     steps: [
       'Épluchez et évidez vos pommes et poires un peu flétries, puis coupez-les en morceaux.',
@@ -33689,6 +33709,7 @@ export const RECIPES = [
     optional: [
       'champignons',
       'oignon',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -33815,6 +33836,7 @@ export const RECIPES = [
     optional: [
       'raisins secs',
       'cumin',
+      'eau',
     ],
     steps: [
       "Couper la courgette et la carotte en rondelles, puis hacher l'oignon.",
@@ -34223,6 +34245,7 @@ export const RECIPES = [
     optional: [
       'thym',
       'ail',
+      'eau',
     ],
     steps: [
       "Faire dorer l'oignon, la carotte en rondelles et les gros champignons coupés en quartiers.",
@@ -34264,6 +34287,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon haché avec le curry et le curcuma.",
@@ -34388,6 +34412,7 @@ export const RECIPES = [
     optional: [
       'citron vert',
       'coriandre',
+      'eau',
     ],
     steps: [
       'Faire revenir le tofu coupé en cubes avec le curry vert.',
@@ -34616,6 +34641,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       "Dans un saladier, fouettez le beurre ramolli avec le sucre et l'œuf.",
@@ -35293,6 +35319,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'citron',
+      'eau',
     ],
     steps: [
       "Cuire les pommes de terre en dés et les lentilles dans de l'eau bouillante.",
@@ -35406,6 +35433,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'crème fraîche',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon haché et la courgette coupée en dés dans le beurre.",
@@ -35556,6 +35584,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       'ail',
+      'eau',
     ],
     steps: [
       'Mettre les lentilles corail et la patate douce en dés dans une casserole.',
@@ -35705,6 +35734,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'herbes de provence',
+      'eau',
     ],
     steps: [
       "Faire précuire les pommes de terre en rondelles à l'eau bouillante.",
@@ -35856,6 +35886,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Cuire les grains de sarrasin dans de l'eau bouillante salée pendant 10-12 minutes.",
@@ -35893,6 +35924,7 @@ export const RECIPES = [
     optional: [
       'ciboulette',
       'citron',
+      'eau',
     ],
     steps: [
       "Faire cuire les pommes de terre coupées en morceaux dans l'eau bouillante.",
@@ -35968,6 +36000,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'coriandre',
+      'eau',
     ],
     steps: [
       "Cuire le riz basmati à l'eau bouillante.",
@@ -36083,6 +36116,7 @@ export const RECIPES = [
     optional: [
       'thym',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon, la carotte et les pommes de terre en dés dans une marmite.",
@@ -36158,6 +36192,7 @@ export const RECIPES = [
     optional: [
       'miel',
       'beurre',
+      'eau',
     ],
     steps: [
       "Séparer les blancs des jaunes d'œufs et monter les blancs en neige ferme avec le sucre.",
@@ -37167,6 +37202,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faites revenir l'aubergine coupée en petits dés dans un peu d'huile d'olive.",
@@ -37359,6 +37395,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'riz',
+      'eau',
     ],
     steps: [
       "Faites rissoler l'oignon et le curry dans un peu d'huile.",
@@ -37397,6 +37434,7 @@ export const RECIPES = [
     optional: [
       'tomate',
       'noix',
+      'eau',
     ],
     steps: [
       "Faites cuire les pâtes dans de l'eau bouillante salée.",
@@ -37475,6 +37513,7 @@ export const RECIPES = [
     optional: [
       'piment',
       'coriandre',
+      'eau',
     ],
     steps: [
       'Saisissez les dés de tofu à la poêle pour les rendre dorés.',
@@ -37552,6 +37591,7 @@ export const RECIPES = [
     optional: [
       'carotte',
       'ail',
+      'eau',
     ],
     steps: [
       "Faites rissoler l'oignon et les champignons émincés avec généreusement du paprika.",
@@ -38683,6 +38723,7 @@ export const RECIPES = [
     optional: [
       'menthe',
       'oignon rouge',
+      'eau',
     ],
     steps: [
       "Faire cuire les lentilles dans une casserole d'eau bouillante pendant environ 20 minutes, puis les égoutter et laisser refroidir.",
@@ -38883,6 +38924,7 @@ export const RECIPES = [
       'ail',
       'persil',
       'oignon',
+      'eau',
     ],
     steps: [
       "Faire cuire les lentilles corail 10 minutes dans l'eau bouillante jusqu'à obtenir une purée, puis égoutter.",
@@ -38962,6 +39004,7 @@ export const RECIPES = [
     optional: [
       'menthe',
       'concombre',
+      'eau',
     ],
     steps: [
       "Faire cuire le quinoa et les petits pois dans de l'eau bouillante, puis laisser refroidir.",
@@ -39121,6 +39164,7 @@ export const RECIPES = [
       'oignon',
       'ail',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans une grande casserole d'eau bouillante salée.",
@@ -39359,6 +39403,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes al dente dans de l'eau bouillante salée.",
@@ -39557,6 +39602,7 @@ export const RECIPES = [
     ],
     optional: [
       'coriandre',
+      'eau',
     ],
     steps: [
       "Fais revenir l'oignon émincé dans une casserole avec le curry pendant 2 minutes.",
@@ -39627,6 +39673,7 @@ export const RECIPES = [
     ],
     optional: [
       'pain',
+      'eau',
     ],
     steps: [
       "Fais dorer les lardons et l'oignon émincé dans un faitout sans matière grasse.",
@@ -39664,6 +39711,7 @@ export const RECIPES = [
     ],
     optional: [
       'parmesan',
+      'eau',
     ],
     steps: [
       "Émince les champignons, l'oignon et hache l'ail.",
@@ -39700,6 +39748,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       'Coupe le potimarron en dés en conservant la peau bien lavée.',
@@ -39738,6 +39787,7 @@ export const RECIPES = [
     ],
     optional: [
       'piment',
+      'eau',
     ],
     steps: [
       "Fais revenir l'oignon haché et la coriandre finement coupée.",
@@ -39775,6 +39825,7 @@ export const RECIPES = [
     ],
     optional: [
       'fromage',
+      'eau',
     ],
     steps: [
       "Fais suer l'oignon dans une casserole puis ajoute les dés de pommes de terre.",
@@ -39849,6 +39900,7 @@ export const RECIPES = [
     ],
     optional: [
       'cacahuètes',
+      'eau',
     ],
     steps: [
       'Pèle et coupe la patate douce en petits dés.',
@@ -39921,6 +39973,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       "Fais cuire les dés de pommes de terre dans de l'eau bouillante pendant 10 minutes.",
@@ -39994,6 +40047,7 @@ export const RECIPES = [
     ],
     optional: [
       'feta',
+      'eau',
     ],
     steps: [
       "Fais revenir l'oignon émincé dans une casserole.",
@@ -40028,6 +40082,7 @@ export const RECIPES = [
     ],
     optional: [
       'persil',
+      'eau',
     ],
     steps: [
       'Coupe le chorizo en rondelles et fais-le griller dans une casserole sans matière grasse.',
@@ -40246,6 +40301,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       'Épluche et coupe le céleri-rave et la pomme en dés.',
@@ -40785,6 +40841,7 @@ export const RECIPES = [
     optional: [
       'noix',
       'thym',
+      'eau',
     ],
     steps: [
       'Découper la pâte feuilletée en 4 carrés ou cercles.',
@@ -40861,6 +40918,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'oignon',
+      'eau',
     ],
     steps: [
       "Faire cuire les fleurettes de brocoli 8 minutes dans l'eau bouillante ou à la vapeur.",
@@ -41461,6 +41519,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       "Faire revenir les morceaux de bœuf et l'oignon émincé dans une cocotte ou sauteuse.",
@@ -41536,6 +41595,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'citron',
+      'eau',
     ],
     steps: [
       "Cuire les lentilles corail dans l'eau bouillante 10 minutes puis ajouter la semoule hors du feu pour l'absorber.",
@@ -41686,6 +41746,7 @@ export const RECIPES = [
     ],
     optional: [
       'citron',
+      'eau',
     ],
     steps: [
       "Faire revenir la carotte râpée dans un peu d'huile.",
@@ -41796,6 +41857,7 @@ export const RECIPES = [
     ],
     optional: [
       'beurre',
+      'eau',
     ],
     steps: [
       "Faire gonfler la semoule avec de l'eau bouillante salée à couvert pendant 5 minutes.",
@@ -41834,6 +41896,7 @@ export const RECIPES = [
     optional: [
       'citron',
       'cannelle',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon haché dans une casserole.",
@@ -42016,6 +42079,7 @@ export const RECIPES = [
     optional: [
       'olives',
       'menthe',
+      'eau',
     ],
     steps: [
       "Cuire les pâtes (orzo ou petites pâtes) al dente et les rincer à l'eau froide.",
@@ -42237,6 +42301,7 @@ export const RECIPES = [
       'olives',
       'oignon rouge',
       'basilic',
+      'eau',
     ],
     steps: [
       "Fais cuire les pâtes dans de l'eau bouillante salée, égoutte-les et laisse-les refroidir.",
@@ -42273,6 +42338,7 @@ export const RECIPES = [
     optional: [
       'oignon rouge',
       'persil',
+      'eau',
     ],
     steps: [
       "Fais cuire les pommes de terre à l'eau bouillante pendant 15 à 20 minutes jusqu'à ce qu'elles soient tendres.",
@@ -42309,6 +42375,7 @@ export const RECIPES = [
     ],
     optional: [
       'échalote',
+      'eau',
     ],
     steps: [
       "Fais cuire les pommes de terre et les œufs à l'eau bouillante jusqu'à cuisson complète.",
@@ -42347,6 +42414,7 @@ export const RECIPES = [
     optional: [
       'pomme',
       'miel',
+      'eau',
     ],
     steps: [
       "Rince et fais cuire les lentilles à l'eau bouillante salée pendant environ 20 minutes (ou réchauffe des lentilles déjà cuites).",
@@ -42423,6 +42491,7 @@ export const RECIPES = [
     optional: [
       'fromage',
       'oignon',
+      'eau',
     ],
     steps: [
       "Fais poêler les lardons sans matière grasse jusqu'à ce qu'ils soient bien dorés.",
@@ -42687,6 +42756,7 @@ export const RECIPES = [
     optional: [
       'olives',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Fais cuire les pâtes type orzo ou langue d'oiseau dans de l'eau bouillante salée, puis égoutte et rince à l'eau froide.",
@@ -42802,6 +42872,7 @@ export const RECIPES = [
     optional: [
       'noix',
       'miel',
+      'eau',
     ],
     steps: [
       "Coupe le potiron en dés, arrose d'huile d'olive et fais rôtir au four à 200°C pendant 20 minutes.",
@@ -42841,6 +42912,7 @@ export const RECIPES = [
       'menthe',
       'coriandre',
       'cacahuètes',
+      'eau',
     ],
     steps: [
       "Plonge les vermicelles de riz dans de l'eau bouillante pendant 3 minutes, puis rince-les immédiatement à l'eau froide.",
@@ -42877,6 +42949,7 @@ export const RECIPES = [
     optional: [
       'tomates',
       'pain',
+      'eau',
     ],
     steps: [
       "Fais cuire les pommes de terre à l'eau puis découpe-les en rondelles.",
@@ -42915,6 +42988,7 @@ export const RECIPES = [
     optional: [
       'menthe',
       'tomates',
+      'eau',
     ],
     steps: [
       "Verse la semoule dans un bol, couvre d'eau bouillante salée à hauteur, couvre 5 minutes puis égrène à la fourchette.",
@@ -42954,6 +43028,7 @@ export const RECIPES = [
     optional: [
       'citron',
       'ail',
+      'eau',
     ],
     steps: [
       "Coupe le tofu en dés et fais-le revenir à la poêle à feu vif jusqu'à ce qu'il soit bien doré et croustillant.",
@@ -42991,6 +43066,7 @@ export const RECIPES = [
       'sésame',
       'carotte',
       'oignon nouveau',
+      'eau',
     ],
     steps: [
       "Fais cuire les nouilles selon le paquet, égoutte-les et passe-les sous l'eau froide.",
@@ -43029,6 +43105,7 @@ export const RECIPES = [
     optional: [
       'pain',
       'menthe',
+      'eau',
     ],
     steps: [
       "Fais cuire les petits pois 5 minutes dans de l'eau bouillante, puis plonge-les dans l'eau glacée pour garder leur couleur verte.",
@@ -43106,6 +43183,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       'basilic',
+      'eau',
     ],
     steps: [
       "Fais cuire des tortellini (ou autres pâtes farcies) dans de l'eau bouillante selon le paquet.",
@@ -43146,6 +43224,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'ail',
+      'eau',
     ],
     steps: [
       "Couper le potiron en petits dés et faire revenir avec l'oignon et le curry.",
@@ -43185,6 +43264,7 @@ export const RECIPES = [
       'oignon',
       'cumin',
       'coriandre',
+      'eau',
     ],
     steps: [
       'Couper la carotte et la courgette en rondelles ou cubes.',
@@ -43256,6 +43336,7 @@ export const RECIPES = [
       'oignon',
       'ail',
       'basilic',
+      'eau',
     ],
     steps: [
       "Dans une grande casserole, déposer les pâtes crues, les tomates coupées, l'oignon et la sauce tomate.",
@@ -43500,6 +43581,7 @@ export const RECIPES = [
     optional: [
       'thym',
       'bouillon',
+      'eau',
     ],
     steps: [
       "Faire revenir le bacon coupé en morceaux avec l'oignon et la carotte dans une casserole.",
@@ -43571,6 +43653,7 @@ export const RECIPES = [
     optional: [
       'cumin',
       'muscade',
+      'eau',
     ],
     steps: [
       "Faire suer l'oignon dans une cocotte puis ajouter les cubes de potiron.",
@@ -43861,6 +43944,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'piment',
+      'eau',
     ],
     steps: [
       'Émincer les champignons et couper la carotte et pommes de terre en petits dés.',
@@ -43968,6 +44052,7 @@ export const RECIPES = [
     ],
     optional: [
       'sucre',
+      'eau',
     ],
     steps: [
       'Mélanger le lait de coco avec les graines de chia et un peu de sucre si désiré.',
@@ -44006,6 +44091,7 @@ export const RECIPES = [
     optional: [
       'sucre',
       'cannelle',
+      'eau',
     ],
     steps: [
       'Écraser les bananes bien mûres dans un saladier.',
@@ -44044,6 +44130,7 @@ export const RECIPES = [
     optional: [
       'sucre',
       'citron',
+      'eau',
     ],
     steps: [
       'Éplucher et couper les poires en morceaux.',
@@ -44233,6 +44320,7 @@ export const RECIPES = [
     optional: [
       'sucre',
       'cannelle',
+      'eau',
     ],
     steps: [
       "Rincer le riz à l'eau froide.",
@@ -44271,6 +44359,7 @@ export const RECIPES = [
     optional: [
       'cacahuètes',
       'noix',
+      'eau',
     ],
     steps: [
       "Mixer des raisins secs ou dattes avec des flocons d'avoine et des noix/cacahuètes.",
@@ -44385,6 +44474,7 @@ export const RECIPES = [
     optional: [
       'noix',
       'sucre',
+      'eau',
     ],
     steps: [
       'Évider le centre des pommes sans percer le fond.',
@@ -44537,6 +44627,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       "Faire fondre le chocolat avec un peu d'huile neutre.",
@@ -44689,6 +44780,7 @@ export const RECIPES = [
     optional: [
       'lait',
       'citron',
+      'eau',
     ],
     steps: [
       'Mélanger la farine, le sucre et une pincée de sel dans un bol.',
@@ -45257,6 +45349,7 @@ export const RECIPES = [
     optional: [
       'salade',
       'concombre',
+      'eau',
     ],
     steps: [
       "Faites cuire les œufs durs pendant 9 minutes dans l'eau bouillante, puis écalez-les.",
@@ -45819,6 +45912,7 @@ export const RECIPES = [
     optional: [
       'œufs',
       'oignon nouveau',
+      'eau',
     ],
     steps: [
       "Émincer finement l'oignon et les tranches de bœuf.",
@@ -45858,6 +45952,7 @@ export const RECIPES = [
     ],
     optional: [
       'champignons',
+      'eau',
     ],
     steps: [
       "Cuire les vermicelles de riz dans l'eau bouillante, égoutter et rincer à l'eau froide.",
@@ -45935,6 +46030,7 @@ export const RECIPES = [
       'coriandre',
       'menthe',
       'cacahuètes',
+      'eau',
     ],
     steps: [
       "Cuire les vermicelles de riz et les rincer à l'eau froide.",
@@ -45971,6 +46067,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       'citron vert',
+      'eau',
     ],
     steps: [
       "Faire mijoter l'oignon coupé en deux dans le bouillon pour infuser les arômes.",
@@ -46376,6 +46473,7 @@ export const RECIPES = [
     optional: [
       'ail',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -46484,6 +46582,7 @@ export const RECIPES = [
       'ail',
       "huile d'olive",
       'basilic',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -47008,6 +47107,7 @@ export const RECIPES = [
     optional: [
       'vin blanc',
       'oignon',
+      'eau',
     ],
     steps: [
       'Couper la dinde et les carottes en rondelles, puis nettoyer les champignons.',
@@ -47109,6 +47209,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'origan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -47412,6 +47513,7 @@ export const RECIPES = [
     optional: [
       'sauce soja',
       'carotte',
+      'eau',
     ],
     steps: [
       'Faire bouillir le bouillon avec un morceau de gingembre.',
@@ -47514,6 +47616,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       'crème fraîche',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante.",
@@ -47848,6 +47951,7 @@ export const RECIPES = [
     optional: [
       'riz',
       'vin blanc',
+      'eau',
     ],
     steps: [
       "Faire colorer légèrement les morceaux de veau avec l'oignon dans une cocotte.",
@@ -48116,6 +48220,7 @@ export const RECIPES = [
     ],
     optional: [
       'pommes de terre',
+      'eau',
     ],
     steps: [
       "Faire dorer les morceaux d'agneau avec l'oignon dans une cocotte.",
@@ -48696,6 +48801,7 @@ export const RECIPES = [
     optional: [
       'vin blanc',
       'champignons',
+      'eau',
     ],
     steps: [
       'Faire dorer le filet mignon entier dans une poêle avec un peu de beurre.',
@@ -48732,6 +48838,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'œufs',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans une casserole d'eau bouillante salée.",
@@ -48910,6 +49017,7 @@ export const RECIPES = [
     optional: [
       'bouillon',
       'crème fraîche',
+      'eau',
     ],
     steps: [
       "Faire dorer les lardons et l'oignon émincé dans une grande casserole.",
@@ -48944,6 +49052,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix de muscade',
+      'eau',
     ],
     steps: [
       "Faire cuire des bouquets de chou-fleur à l'eau bouillante salée.",
@@ -49050,6 +49159,7 @@ export const RECIPES = [
     optional: [
       'fromage',
       'oignon',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes et les petits pois dans de l'eau bouillante.",
@@ -49086,6 +49196,7 @@ export const RECIPES = [
     optional: [
       'concombre',
       'mayonnaise',
+      'eau',
     ],
     steps: [
       "Faire cuire les œufs 9 minutes dans de l'eau bouillante pour obtenir des œufs durs, puis les écaler.",
@@ -49190,6 +49301,7 @@ export const RECIPES = [
     optional: [
       'vin blanc',
       'crème fraîche',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon émincé et les lardons dans une sauteuse.",
@@ -49259,6 +49371,7 @@ export const RECIPES = [
     optional: [
       'pommes de terre',
       'crème fraîche',
+      'eau',
     ],
     steps: [
       "Émincer finement le chou vert et l'oignon.",
@@ -49294,6 +49407,7 @@ export const RECIPES = [
     ],
     optional: [
       'poivre',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -49542,6 +49656,7 @@ export const RECIPES = [
     optional: [
       'aneth',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante.",
@@ -49963,6 +50078,7 @@ export const RECIPES = [
     ],
     optional: [
       'herbes de provence',
+      'eau',
     ],
     steps: [
       "Couper la courgette en rondelles et la faire revenir avec l'ail dans une poêle.",
@@ -50310,6 +50426,7 @@ export const RECIPES = [
     optional: [
       'basilic',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -50452,6 +50569,7 @@ export const RECIPES = [
     optional: [
       'piment',
       'persil',
+      'eau',
     ],
     steps: [
       "Faire revenir l'ail dans une casserole avec un filet d'huile.",
@@ -50556,6 +50674,7 @@ export const RECIPES = [
     optional: [
       'vin blanc',
       'persil',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans l'eau bouillante salée.",
@@ -51051,6 +51170,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans l'eau bouillante salée.",
@@ -51162,6 +51282,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'pain',
+      'eau',
     ],
     steps: [
       'Préchauffer le four à 180°C et beurrer des petits ramequins.',
@@ -51428,6 +51549,7 @@ export const RECIPES = [
     optional: [
       'pain',
       'beurre',
+      'eau',
     ],
     steps: [
       "Faire cuire les œufs 6 minutes dans l'eau bouillante, puis les plonger dans l'eau froide et les écaler.",
@@ -52032,6 +52154,7 @@ export const RECIPES = [
     ],
     optional: [
       'lait de coco',
+      'eau',
     ],
     steps: [
       "Émincer et faire revenir l'oignon dans une casserole.",
@@ -52440,6 +52563,7 @@ export const RECIPES = [
     ],
     optional: [
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon avec le curry dans une casserole.",
@@ -52771,6 +52895,7 @@ export const RECIPES = [
     ],
     optional: [
       'cumin',
+      'eau',
     ],
     steps: [
       'Éplucher et couper la patate douce en morceaux.',
@@ -52844,6 +52969,7 @@ export const RECIPES = [
     ],
     optional: [
       'ail',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon émincé et le tofu en dés dans une poêle.",
@@ -52919,6 +53045,7 @@ export const RECIPES = [
     optional: [
       'yaourt grec',
       'menthe',
+      'eau',
     ],
     steps: [
       "Faire gonfler le boulgour dans de l'eau chaude.",
@@ -52958,6 +53085,7 @@ export const RECIPES = [
     optional: [
       'cumin',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Préparer la semoule avec de l'eau bouillante couverte.",
@@ -53304,6 +53432,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'feta',
+      'eau',
     ],
     steps: [
       "Faire gonfler le boulgour dans de l'eau froide ou tiède.",
@@ -53977,6 +54106,7 @@ export const RECIPES = [
     ],
     optional: [
       'parmesan',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -54480,6 +54610,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'thym',
+      'eau',
     ],
     steps: [
       "Éplucher et couper les pommes de terre en dés, puis émincer l'oignon.",
@@ -54593,6 +54724,7 @@ export const RECIPES = [
     optional: [
       'muscade',
       'pain',
+      'eau',
     ],
     steps: [
       "Détacher les bouquets de chou-fleur et les faire cuire 10 minutes à l'eau bouillante.",
@@ -54924,6 +55056,7 @@ export const RECIPES = [
     optional: [
       'basilic',
       'parmesan',
+      'eau',
     ],
     steps: [
       'Faire dorer les gnocchis directement dans une poêle avec du beurre pendant 8 minutes sans pré-cuisson.',
@@ -54999,6 +55132,7 @@ export const RECIPES = [
     ],
     optional: [
       'sauce tomate',
+      'eau',
     ],
     steps: [
       'Préparer la polenta bien épaisse dans du bouillon.',
@@ -55036,6 +55170,7 @@ export const RECIPES = [
     optional: [
       'noix',
       'muscade',
+      'eau',
     ],
     steps: [
       "Faire cuire les bouquets de chou-fleur dans de l'eau bouillante salée pendant 10 minutes.",
@@ -55142,6 +55277,7 @@ export const RECIPES = [
     ],
     optional: [
       'noix',
+      'eau',
     ],
     steps: [
       "Faire cuire la poire coupée en morceaux à la casserole avec un fond d'eau pour l'attendrir.",
@@ -55177,6 +55313,7 @@ export const RECIPES = [
     optional: [
       'cannelle',
       'sucre',
+      'eau',
     ],
     steps: [
       'Écraser la banane à la fourchette dans une casserole.',
@@ -55423,6 +55560,7 @@ export const RECIPES = [
     ],
     optional: [
       'cannelle',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée, puis les égoutter.",
@@ -55916,6 +56054,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon émincé et l'ail dans une casserole avec un filet d'huile.",
@@ -55954,6 +56093,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Éplucher et couper les carottes et les pommes de terre en morceaux, puis émincer l'oignon.",
@@ -55992,6 +56132,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       'citron vert',
+      'eau',
     ],
     steps: [
       "Rincer les lentilles corail et émincer l'oignon.",
@@ -56066,6 +56207,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'beurre',
+      'eau',
     ],
     steps: [
       "Nettoyer et couper les champignons, puis les faire sauter avec l'oignon émincé.",
@@ -56104,6 +56246,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'pain',
+      'eau',
     ],
     steps: [
       "Couper les tomates en morceaux et émincer l'ail et l'oignon.",
@@ -56180,6 +56323,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'fromage râpé',
+      'eau',
     ],
     steps: [
       "Émincer l'oignon et couper la courgette en morceaux.",
@@ -56254,6 +56398,7 @@ export const RECIPES = [
     optional: [
       'piment',
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon avec le cumin, puis ajouter les tomates concassées et les pois chiches.",
@@ -56329,6 +56474,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'beurre',
+      'eau',
     ],
     steps: [
       'Couper tous les légumes en dés réguliers.',
@@ -56365,6 +56511,7 @@ export const RECIPES = [
     optional: [
       'ciboulette',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Couper les courgettes et émincer l'oignon.",
@@ -56403,6 +56550,7 @@ export const RECIPES = [
     optional: [
       'pain',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Émincer l'oignon et écouter plusieurs gousses d'ail.",
@@ -56440,6 +56588,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'thym',
+      'eau',
     ],
     steps: [
       'Rincer les pois cassés et couper la carotte en morceaux.',
@@ -56516,6 +56665,7 @@ export const RECIPES = [
     optional: [
       'persil',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire sauter les champignons et l'oignon émincé avec l'ail.",
@@ -56553,6 +56703,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon émincé dans un peu d'huile.",
@@ -56591,6 +56742,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'parmesan',
+      'eau',
     ],
     steps: [
       "Couper les courgettes en rondelles et émincer l'oignon et l'ail.",
@@ -56629,6 +56781,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Éplucher et couper les carottes en rondelles, émincer l'oignon.",
@@ -56665,6 +56818,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       'ciboulette',
+      'eau',
     ],
     steps: [
       'Émincer le poireau et couper les pommes de terre en morceaux.',
@@ -56739,6 +56893,7 @@ export const RECIPES = [
     optional: [
       "huile d'olive",
       'persil',
+      'eau',
     ],
     steps: [
       "Éplucher et couper carottes et pommes de terre. Émincer l'oignon.",
@@ -56814,6 +56969,7 @@ export const RECIPES = [
     optional: [
       'concombre',
       'basilic',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes et les passer sous l'eau froide.",
@@ -56854,6 +57010,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       'cumin',
+      'eau',
     ],
     steps: [
       "Cuire les lentilles dans de l'eau bouillante.",
@@ -56971,6 +57128,7 @@ export const RECIPES = [
     optional: [
       'pomme',
       'vinaigre balsamique',
+      'eau',
     ],
     steps: [
       'Disposer les épinards frais dans un grand bol.',
@@ -57088,6 +57246,7 @@ export const RECIPES = [
     optional: [
       'tomates',
       'oignon rouge',
+      'eau',
     ],
     steps: [
       "Faire gonfler le boulgour dans de l'eau bouillante.",
@@ -57203,6 +57362,7 @@ export const RECIPES = [
     optional: [
       'menthe',
       'citron',
+      'eau',
     ],
     steps: [
       "Réhydrater la semoule avec de l'eau chaude.",
@@ -57592,6 +57752,7 @@ export const RECIPES = [
     optional: [
       'olives',
       'concombre',
+      'eau',
     ],
     steps: [
       "Faire cuire le blé dans de l'eau bouillante salée.",
@@ -57709,6 +57870,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       'basilic',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -57862,6 +58024,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans l'eau bouillante.",
@@ -57976,6 +58139,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'parmesan',
+      'eau',
     ],
     steps: [
       "Cuire les pâtes dans l'eau bouillante.",
@@ -58205,6 +58369,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Diviser le brocoli en petits bouquets et le cuire avec les pâtes dans l'eau bouillante.",
@@ -58282,6 +58447,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       'ail',
+      'eau',
     ],
     steps: [
       "Cuire les pâtes dans de l'eau bouillante salée.",
@@ -58398,6 +58564,7 @@ export const RECIPES = [
     optional: [
       'basilic',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       'Cuire les pâtes.',
@@ -58800,6 +58967,7 @@ export const RECIPES = [
     ],
     optional: [
       'tomates',
+      'eau',
     ],
     steps: [
       'Tartiner le pain de mayonnaise.',
@@ -59477,6 +59645,7 @@ export const RECIPES = [
     ],
     optional: [
       'thym',
+      'eau',
     ],
     steps: [
       "Faire revenir les lardons et l'oignon dans une cocotte.",
@@ -59553,6 +59722,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'vin blanc',
+      'eau',
     ],
     steps: [
       "Faire sauter les dés de dinde et l'oignon dans une cocotte.",
@@ -59669,6 +59839,7 @@ export const RECIPES = [
     optional: [
       'ail',
       'oignon nouveau',
+      'eau',
     ],
     steps: [
       'Faire fondre le sucre dans une cocotte pour obtenir un caramel.',
@@ -60211,6 +60382,7 @@ export const RECIPES = [
     optional: [
       'bouillon',
       'thym',
+      'eau',
     ],
     steps: [
       "Faire dorer les saucisses et l'oignon émincé dans une cocotte.",
@@ -60762,6 +60934,7 @@ export const RECIPES = [
       'miel',
       'cannelle',
       'noix',
+      'eau',
     ],
     steps: [
       'Faire cuire le quinoa dans le lait de coco.',
@@ -61307,6 +61480,7 @@ export const RECIPES = [
     ],
     optional: [
       'muscade',
+      'eau',
     ],
     steps: [
       "Cuire les morceaux de patate douce et de carotte à la vapeur ou dans l'eau bouillante.",
@@ -61825,6 +61999,7 @@ export const RECIPES = [
     optional: [
       'coriandre',
       'riz basmati',
+      'eau',
     ],
     steps: [
       "Émincer l'oignon et l'ail, puis les faire revenir dans une casserole.",
@@ -61906,6 +62081,7 @@ export const RECIPES = [
     optional: [
       'crème fraîche',
       'oignon',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans une casserole d'eau bouillante salée.",
@@ -61947,6 +62123,7 @@ export const RECIPES = [
     optional: [
       'avocat',
       'sésame',
+      'eau',
     ],
     steps: [
       "Cuire le quinoa dans de l'eau bouillante.",
@@ -62114,6 +62291,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'olives',
+      'eau',
     ],
     steps: [
       "Faire cuire les lentilles dans de l'eau bouillante puis les laisser refroidir.",
@@ -62276,6 +62454,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'olives',
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans l'eau bouillante salée.",
@@ -62562,6 +62741,7 @@ export const RECIPES = [
     optional: [
       'cacahuètes',
       'citron vert',
+      'eau',
     ],
     steps: [
       "Réhydrater les vermicelles de riz dans de l'eau bouillante puis les rincer à l'eau froide.",
@@ -62991,6 +63171,7 @@ export const RECIPES = [
     ],
     optional: [
       'feta',
+      'eau',
     ],
     steps: [
       "Cuire le quinoa dans de l'eau bouillante salée selon le temps indiqué.",
@@ -63186,6 +63367,7 @@ export const RECIPES = [
     ],
     optional: [
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Couper le chapeau des tomates et vider délicatement la pulpe à l'aide d'une cuillère.",
@@ -63226,6 +63408,7 @@ export const RECIPES = [
     ],
     optional: [
       'coriandre',
+      'eau',
     ],
     steps: [
       "Faire suer l'oignon et l'ail hachés dans une casserole avec de l'huile.",
@@ -63301,6 +63484,7 @@ export const RECIPES = [
     optional: [
       'oignon',
       'thym',
+      'eau',
     ],
     steps: [
       'Disposer la pâte dans un moule à tarte et piquer le fond.',
@@ -63722,6 +63906,7 @@ export const RECIPES = [
     optional: [
       'aneth',
       'citron',
+      'eau',
     ],
     steps: [
       'Découper la pâte feuilletée en petits rectangles.',
@@ -64150,6 +64335,7 @@ export const RECIPES = [
     optional: [
       'ail',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -64297,6 +64483,7 @@ export const RECIPES = [
     optional: [
       'persil',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire cuire les lentilles dans de l'eau bouillante puis les égoutter et laisser refroidir.",
@@ -64592,6 +64779,7 @@ export const RECIPES = [
     optional: [
       'parmesan',
       "huile d'olive",
+      'eau',
     ],
     steps: [
       "Faire cuire les pâtes dans de l'eau bouillante salée.",
@@ -64774,6 +64962,7 @@ export const RECIPES = [
       'citron vert',
       'menthe',
       'oignon rouge',
+      'eau',
     ],
     steps: [
       "Faire cuire le quinoa dans de l'eau bouillante puis le laisser refroidir.",
@@ -64812,6 +65001,7 @@ export const RECIPES = [
       'oignon',
       'ail',
       'bouillon',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon et l'ail, puis ajouter la patate douce coupée en morceaux et le bouillon.",
@@ -64885,6 +65075,7 @@ export const RECIPES = [
       'oignon',
       'piment',
       'ail',
+      'eau',
     ],
     steps: [
       'Écraser grossièrement les haricots rouges dans un saladier.',
@@ -64922,6 +65113,7 @@ export const RECIPES = [
       'crème fraîche',
       'aneth',
       'ail',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon et la carotte râpée dans une casserole.",
@@ -64960,6 +65152,7 @@ export const RECIPES = [
       'tomate',
       'ail',
       'paprika',
+      'eau',
     ],
     steps: [
       "Faire revenir l'oignon et les poivrons émincés dans une cocotte avec beaucoup de paprika.",
@@ -64997,6 +65190,7 @@ export const RECIPES = [
     optional: [
       'persil',
       'ail',
+      'eau',
     ],
     steps: [
       "Faire griller les grains de sarrasin à sec dans une poêle, puis ajouter de l'eau bouillante et cuire 10 minutes.",
@@ -65033,6 +65227,7 @@ export const RECIPES = [
       'tomate',
       'ail',
       'riz basmati',
+      'eau',
     ],
     steps: [
       "Faire dorer les morceaux de poulet dans une casserole avec l'oignon.",
