@@ -7,6 +7,7 @@ import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
 import { scaleIngredientQuantity } from '../utils/servings.js'
+import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
@@ -37,9 +38,15 @@ export default function RecipePage() {
   const [shared, setShared] = useState(false)
   const [note, setNote] = useState(favMatch?.note || '')
   const [rating, setRating] = useState(favMatch?.rating || 0)
-  // Démarre à 1 personne (pas la base de calcul à 4 personnes des quantités,
-  // voir ingredientQuantities.js) : l'utilisateur ajuste lui-même ensuite.
-  const [servings, setServings] = useState(MIN_SERVINGS)
+  // Démarre à BASE_SERVINGS (4 personnes, voir ingredientQuantities.js) :
+  // c'est aussi la base sur laquelle les étapes détaillées ont été rédigées
+  // (voir scripts/detail-recipe-steps.mjs), qui contiennent des quantités
+  // écrites en dur dans le texte ("coupez les 600 g de pommes de terre...").
+  // Démarrer à 1 personne comme avant désynchronisait silencieusement la
+  // liste d'ingrédients (recalculée dynamiquement) des étapes (figées) —
+  // en gardant BASE_SERVINGS par défaut, les deux s'accordent tant que
+  // l'utilisateur ne touche pas au sélecteur.
+  const [servings, setServings] = useState(BASE_SERVINGS)
 
   if (!recipe) {
     goTo('home')
@@ -401,7 +408,17 @@ export default function RecipePage() {
           )}
 
           <div>
-            <h3 className="font-semibold text-neutral-900 mb-4">{c.steps}</h3>
+            <h3 className="font-semibold text-neutral-900 mb-1">{c.steps}</h3>
+            {/* Les étapes contiennent des quantités écrites en dur pour
+                BASE_SERVINGS personnes (voir scripts/detail-recipe-steps.mjs)
+                — contrairement à la liste d'ingrédients au-dessus, leur texte
+                ne peut pas se recalculer dynamiquement. On le dit explicitement
+                dès que l'utilisateur s'écarte de ce nombre de personnes,
+                plutôt que de laisser les deux sections se contredire en
+                silence. */}
+            {servings !== BASE_SERVINGS && (
+              <p className="text-xs text-neutral-500 mb-3">{c.stepsServingsNote(BASE_SERVINGS)}</p>
+            )}
             {/* Étapes présentées comme un vrai fil de préparation plutôt
                 qu'une liste technique : trait vertical continu entre les
                 numéros (via la bordure du conteneur + un décalage négatif),
