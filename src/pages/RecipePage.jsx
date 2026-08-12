@@ -6,7 +6,7 @@ import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
-import { scaleIngredientQuantity, scaleStepText } from '../utils/servings.js'
+import { scaleIngredientQuantity, scaleStepText, getIngredientDisplayName } from '../utils/servings.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
@@ -84,7 +84,7 @@ export default function RecipePage() {
   async function handleCopyList() {
     const text = missingWithQty
       .map(({ ing, qty }) => {
-        const label = translateIngredientName(ing, lang)
+        const label = getIngredientDisplayName(ing, servings, lang)
         return qty ? `${label} (${qty})` : label
       })
       .join('\n')
@@ -314,7 +314,7 @@ export default function RecipePage() {
                 const substitutes = isMissing ? getSubstitutes(ing) : null
                 const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
                 const dynamicSubQty = dynamicSub ? scaleIngredientQuantity(dynamicSub, servings, lang) : null
-                const ingLabel = translateIngredientName(ing, lang)
+                const ingLabel = getIngredientDisplayName(ing, servings, lang)
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
@@ -342,7 +342,9 @@ export default function RecipePage() {
                       <p className="text-xs text-fresh-700 dark:text-fresh-400 font-medium mt-0.5 ml-6">
                         {c.dynamicSubstitute(
                           ingLabel,
-                          dynamicSubQty ? `${dynamicSubQty} ${translateIngredientName(dynamicSub, lang)}` : translateIngredientName(dynamicSub, lang)
+                          dynamicSubQty
+                            ? `${dynamicSubQty} ${getIngredientDisplayName(dynamicSub, servings, lang)}`
+                            : getIngredientDisplayName(dynamicSub, servings, lang)
                         )}
                       </p>
                     ) : (
@@ -399,7 +401,7 @@ export default function RecipePage() {
               <ul className="text-sm text-neutral-600 mt-1.5 space-y-1">
                 {missingWithQty.map(({ ing, qty }) => (
                   <li key={ing}>
-                    {translateIngredientName(ing, lang)}
+                    {getIngredientDisplayName(ing, servings, lang)}
                     {qty && <span className="text-neutral-400"> — {qty}</span>}
                   </li>
                 ))}
