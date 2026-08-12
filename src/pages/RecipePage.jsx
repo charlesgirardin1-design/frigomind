@@ -286,7 +286,10 @@ export default function RecipePage() {
               // donc jamais : on les ajoute ici, seulement pour l'affichage.
               const displayIngredients = [...new Set([...allIngredients, ...(recipe.unusedIngredients || [])])]
               const unusedIngredients = displayIngredients.filter((ing) => recipe.unusedIngredients?.includes(ing))
-              const usedIngredients = displayIngredients.filter((ing) => !recipe.unusedIngredients?.includes(ing))
+              const usedIngredients = displayIngredients.filter(
+                (ing) => !recipe.unusedIngredients?.includes(ing) && !recipe.missingIngredients?.includes(ing)
+              )
+              const toBuyIngredients = displayIngredients.filter((ing) => recipe.missingIngredients?.includes(ing))
 
               function renderIngredient(ing) {
                 // Un ingrédient est "optionnel" s'il fait partie de
@@ -352,12 +355,22 @@ export default function RecipePage() {
                       <ul className="space-y-2 text-sm">{unusedIngredients.map(renderIngredient)}</ul>
                     </div>
                   )}
-                  {unusedIngredients.length > 0 && (
+                  {(unusedIngredients.length > 0 || toBuyIngredients.length > 0) && usedIngredients.length > 0 && (
                     <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wide mb-1.5">
                       {c.ingredientsUsed}
                     </h4>
                   )}
-                  <ul className="space-y-2 text-sm">{usedIngredients.map(renderIngredient)}</ul>
+                  {usedIngredients.length > 0 && (
+                    <ul className="space-y-2 text-sm mb-3">{usedIngredients.map(renderIngredient)}</ul>
+                  )}
+                  {toBuyIngredients.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-semibold text-zest-700 uppercase tracking-wide mb-1.5">
+                        {c.toBuy}
+                      </h4>
+                      <ul className="space-y-2 text-sm">{toBuyIngredients.map(renderIngredient)}</ul>
+                    </div>
+                  )}
                 </>
               )
             })()}
