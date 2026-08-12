@@ -410,6 +410,34 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
   //    (règle "réaliste niveau étudiant" : pas besoin de courir acheter 3 choses)
   let strong = candidates.filter((c) => c.requiredMissing.length <= 1 && c.score > 0)
 
+  // Recettes "maison" générées à la volée (voir buildSmartFallbackRecipes) :
+  // toujours calculées et mises en concurrence avec les vraies recettes de la
+  // base sur le même critère (`usedCount`), pas seulement en dernier recours
+  // quand la base n'a RIEN à proposer. Avant ce changement, dès que la base
+  // trouvait 3 "vraies" recettes (même si chacune n'utilisait que 2-3 des
+  // ingrédients scannés), le générateur générique n'était jamais consulté —
+  // alors qu'une poêlée maison combinant 6 des 7 ingrédients scannés aurait
+  // dû passer devant. `buildSmartFallbackRecipes` reste plafonné en interne
+  // (2 archétypes max, `maxIngredients` par plat) donc ça ne réintroduit pas
+  // le "fourre-tout" que la coverage stricte évitait déjà.
+  const genericCandidates =
+    available.length > 0
+      ? buildSmartFallbackRecipes(available)
+          .filter((recipe) => applyPreferenceFilters(recipe, prefs))
+          .map((recipe) => ({
+            recipe,
+            score: 1 + (recipe.antiGaspi ? 0.15 : 0),
+            requiredMatched: recipe.required,
+            requiredMissing: [],
+            optionalMatched: recipe.optional.filter((ing) => includesIngredient(available, ing)),
+            antiGaspi: recipe.antiGaspi,
+            unusedIngredients: recipe.unusedIngredients || [],
+            usedCount: available.length - (recipe.unusedIngredients || []).length,
+          }))
+      : []
+
+  strong = [...strong, ...genericCandidates]
+
   // Tri : d'abord le nombre d'ingrédients scannés réellement utilisés
   // (`usedCount`, ordre décroissant) — une recette qui met à profit plus de
   // ce qu'on a sous la main passe devant une autre juste parce que son ratio
@@ -461,30 +489,6 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
       .sort((a, b) => b.usedCount - a.usedCount || b.score - a.score || a.recipe.time - b.recipe.time)
       .slice(0, 5 - results.length)
     results = [...results, ...fallback]
-  }
-
-  // Anti-blocage (étape 2, garantie absolue) : si la base de ~1000 recettes
-  // n'a vraiment rien de pertinent (ingrédients trop variés/inhabituels), on
-  // génère une recette "maison" à la volée (voir buildSmartFallbackRecipes),
-  // plafonnée à un nombre réaliste d'ingrédients par plat plutôt qu'un
-  // fourre-tout. Doit aussi respecter les préférences (ex : si l'utilisateur
-  // a de la viande dans ses ingrédients validés et coche "végétarien
-  // uniquement", on ne peut pas fabriquer de recette végé sans trahir ce
-  // qu'il a réellement — on préfère alors proposer moins de 3 résultats
-  // plutôt qu'ignorer la préférence silencieusement.
-  if (results.length < 3 && available.length > 0) {
-    const generic = buildSmartFallbackRecipes(available)
-      .filter((recipe) => applyPreferenceFilters(recipe, prefs))
-      .map((recipe) => ({
-        recipe,
-        score: 1 + (recipe.antiGaspi ? 0.15 : 0),
-        requiredMatched: recipe.required,
-        requiredMissing: [],
-        optionalMatched: recipe.optional.filter((ing) => includesIngredient(available, ing)),
-        antiGaspi: recipe.antiGaspi,
-        unusedIngredients: recipe.unusedIngredients || [],
-      }))
-    results = [...results, ...generic].slice(0, 5)
   }
 
   return results.map((r) => ({
