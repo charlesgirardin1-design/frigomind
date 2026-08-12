@@ -302,7 +302,7 @@ export default function RecipePage() {
                   <li key={ing}>
                     <div className="flex items-center gap-2">
                       <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : '✅'}</span>
-                      {qty && (
+                      {qty && !isUnused && (
                         <span className="text-neutral-500 tabular-nums text-xs shrink-0">{qty}</span>
                       )}
                       <button
