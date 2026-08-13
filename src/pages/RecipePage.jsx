@@ -6,8 +6,14 @@ import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
-import { scaleIngredientQuantity, scaleStepText, getIngredientDisplayName, getRequiredPieceCount } from '../utils/servings.js'
-import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
+import {
+  scaleIngredientQuantity,
+  scaleStepText,
+  getIngredientDisplayName,
+  getRequiredPieceCount,
+  getRequiredWeightGrams,
+} from '../utils/servings.js'
+import { BASE_SERVINGS, INGREDIENT_QUANTITIES } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
@@ -73,20 +79,41 @@ export default function RecipePage() {
   const scannedCounts = new Map(
     state.ingredients.filter((i) => i.checked && Number.isFinite(i.count)).map((i) => [i.name, i.count])
   )
+  // Poids/volume RÉELLEMENT scanné (grammes, ml compris) — uniquement quand
+  // lisible sur un emballage (voir api/analyze-fridge.js) : la plupart des
+  // ingrédients pesés n'en auront jamais (viande à la coupe, riz en vrac...),
+  // ce qui désactive naturellement la comparaison ci-dessous pour eux plutôt
+  // que d'inventer un chiffre.
+  const scannedWeights = new Map(
+    state.ingredients.filter((i) => i.checked && Number.isFinite(i.weightGrams)).map((i) => [i.name, i.weightGrams])
+  )
   // Un ingrédient "utilisé" (scanné, présent dans la recette) peut quand même
   // ne pas suffire en quantité pour le nombre de personnes choisi (ex: 5
-  // tomates scannées, 7 nécessaires pour 7 personnes) — uniquement calculable
-  // pour les ingrédients comptés "à la pièce" (voir getRequiredPieceCount) :
-  // pour un ingrédient pesé/mesuré (g/ml/c. à soupe...), impossible de savoir
-  // combien l'utilisateur en a réellement à partir d'une photo (on ne peut
-  // pas peser un paquet de viande hachée à l'œil), donc pas de vérification
-  // dans ce cas — l'ingrédient reste simplement "utilisé" comme avant.
+  // tomates scannées, 7 nécessaires pour 7 personnes ; ou 300 g de viande
+  // hachée lus sur l'emballage, 500 g nécessaires). Renvoie `null` (pas de
+  // vérification possible, ou quantité suffisante) ou `{ amount, unit }` (le
+  // complément manquant) — jamais un simple booléen, l'affichage a besoin de
+  // savoir QUOI afficher (bare number pour "pièce(s)", "150 g" pour un poids).
   function getShortfall(ing) {
-    const have = scannedCounts.get(ing)
-    if (have === undefined) return 0
-    const needed = getRequiredPieceCount(ing, servings)
-    if (needed === null) return 0
-    return Math.max(0, needed - have)
+    const base = INGREDIENT_QUANTITIES[ing]
+    if (!base) return null
+    if (base.unit === 'pièce(s)') {
+      const have = scannedCounts.get(ing)
+      if (have === undefined) return null
+      const needed = getRequiredPieceCount(ing, servings)
+      if (needed === null) return null
+      const amount = needed - have
+      return amount > 0 ? { amount, unit: 'pièce(s)' } : null
+    }
+    if (base.unit === 'g' || base.unit === 'ml') {
+      const have = scannedWeights.get(ing)
+      if (have === undefined) return null
+      const needed = getRequiredWeightGrams(ing, servings)
+      if (needed === null) return null
+      const amount = needed - have
+      return amount > 0 ? { amount, unit: base.unit } : null
+    }
+    return null
   }
   // Ingrédients "utilisés" (ni manquants, ni non-utilisés) mais en quantité
   // insuffisante — rejoint la liste de courses au même titre que les
@@ -95,13 +122,26 @@ export default function RecipePage() {
   const shortfallWithQty = allIngredients
     .filter((ing) => !missing.includes(ing) && !recipe.unusedIngredients?.includes(ing))
     .map((ing) => ({ ing, shortfall: getShortfall(ing) }))
-    .filter(({ shortfall }) => shortfall > 0)
+    .filter(({ shortfall }) => shortfall !== null)
+  // Étiquette lisible du complément manquant : bare number pour "pièce(s)"
+  // (accordé plus bas sur le nom, ex: "2 tomates"), "150 g"/"0,3 L" pour un
+  // poids/volume (arrondi au gramme/ml — la différence de deux valeurs déjà
+  // arrondies par ailleurs tombe presque toujours sur un chiffre rond).
+  function formatShortfallAmount({ amount, unit }) {
+    if (unit === 'pièce(s)') {
+      return Number.isInteger(amount) ? String(amount) : (lang === 'en' ? amount.toFixed(1) : amount.toFixed(1).replace('.', ','))
+    }
+    return `${Math.round(amount)} ${unit}`
+  }
   // Nom accordé sur le COMPLÉMENT à acheter (ex: "2 tomates de plus"), pas
   // sur la quantité totale de la recette (getIngredientDisplayName, qui
   // s'accorde sur `servings`) — un shortfall de 1 doit rester singulier même
-  // si la recette entière demande 7 tomates.
+  // si la recette entière demande 7 tomates. Les ingrédients pesés (jamais de
+  // forme plurielle propre, ex: "viande hachée") retombent simplement sur la
+  // traduction brute.
   function shortfallDisplayName(ing, shortfall) {
-    return getPluralForm(ing, shortfall, lang) || translateIngredientName(ing, lang)
+    if (shortfall.unit !== 'pièce(s)') return translateIngredientName(ing, lang)
+    return getPluralForm(ing, shortfall.amount, lang) || translateIngredientName(ing, lang)
   }
   const totalCalories = estimateRecipeCalories(allIngredients, servings)
   const caloriesPerServing = totalCalories ? Math.round(totalCalories / servings / 10) * 10 : null
@@ -128,7 +168,7 @@ export default function RecipePage() {
     })
     const shortfallLines = shortfallWithQty.map(({ ing, shortfall }) => {
       const label = shortfallDisplayName(ing, shortfall)
-      return `${label} (${c.shortfallQty(shortfall)})`
+      return `${label} (${c.shortfallQty(formatShortfallAmount(shortfall))})`
     })
     const text = [...missingLines, ...shortfallLines].join('\n')
     const ok = await copyTextToClipboard(text)
@@ -353,7 +393,7 @@ export default function RecipePage() {
                 const isRequired = recipe.required?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const isUnused = recipe.unusedIngredients?.includes(ing)
-                const shortfall = !isMissing && !isUnused ? getShortfall(ing) : 0
+                const shortfall = !isMissing && !isUnused ? getShortfall(ing) : null
                 const qty = scaleIngredientQuantity(ing, servings, lang)
                 const substitutes = isMissing ? getSubstitutes(ing) : null
                 const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
@@ -362,7 +402,7 @@ export default function RecipePage() {
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
-                      <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : shortfall > 0 ? '⚠️' : '✅'}</span>
+                      <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : shortfall ? '⚠️' : '✅'}</span>
                       {qty && !isUnused && (
                         <span className="text-neutral-500 tabular-nums text-xs shrink-0">{qty}</span>
                       )}
@@ -383,7 +423,7 @@ export default function RecipePage() {
                           personnes (voir getShortfall ci-dessus) : jamais en
                           même temps que isMissing (l'ingrédient est alors
                           entièrement absent, pas juste insuffisant). */}
-                      {shortfall > 0 && <em className="text-xs text-zest-700">({c.shortfallParens(shortfall)})</em>}
+                      {shortfall && <em className="text-xs text-zest-700">({c.shortfallParens(formatShortfallAmount(shortfall))})</em>}
                       {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
                       {!isMissing && !isUnused && !isRequired && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
@@ -461,7 +501,7 @@ export default function RecipePage() {
                 {shortfallWithQty.map(({ ing, shortfall }) => (
                   <li key={ing}>
                     {shortfallDisplayName(ing, shortfall)}
-                    <span className="text-neutral-400"> — {c.shortfallQty(shortfall)}</span>
+                    <span className="text-neutral-400"> — {c.shortfallQty(formatShortfallAmount(shortfall))}</span>
                   </li>
                 ))}
               </ul>

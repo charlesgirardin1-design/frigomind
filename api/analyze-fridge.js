@@ -19,11 +19,12 @@
 const DEFAULT_MODEL = 'gemini-2.5-flash'
 
 const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
-{"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."], "count": nombre d'unités visibles}]}
+{"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."], "count": nombre d'unités visibles, "weightGrams": nombre ou null}]}
 
 Règles :
 - "alternatives" ne doit contenir des valeurs que si l'ingrédient est ambigu (ex : peut être du lait ou de la crème fraîche). Sinon tableau vide.
 - "count" : compte un par un, lentement, chaque unité individuelle de cet ingrédient réellement visible sur la photo (ex : 3 pommes de terre, 2 poivrons rouges) — y compris celles partiellement cachées ou coupées par le bord du cadre si elles sont identifiables sans ambiguïté, mais SANS deviner ni arrondir : ne compte que ce qui est effectivement visible, jamais une estimation approximative. Recompte une seconde fois avant de répondre pour vérifier ce chiffre. Un seul objet JSON par ingrédient, avec ce compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
+- "weightGrams" : UNIQUEMENT si un poids ou un volume est clairement IMPRIMÉ et LISIBLE sur un emballage (ex : "500 g" sur un paquet de viande hachée, "1 L" sur une brique de lait, "250 g" sur un paquet de riz) — recopie alors ce nombre converti en grammes (1 L = 1000, 1 kg = 1000). Si plusieurs emballages identiques sont visibles, additionne leurs poids. Ne DEVINE JAMAIS un poids en estimant à l'œil la taille d'un tas, d'un morceau ou d'un objet sans étiquette lisible : dans ce cas, réponds null (ne jamais inventer une estimation approximative, mieux vaut ne rien dire que dire un chiffre faux).
 - Ignore la vaisselle, les contenants, les meubles (frigo, placard, table, assiette...) : uniquement des aliments/ingrédients.
 - Si aucun aliment n'est identifiable, réponds {"items": []}.`
 

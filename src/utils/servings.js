@@ -101,6 +101,18 @@ export function getRequiredPieceCount(name, servings) {
   return scaledAmountValue(base, servings)
 }
 
+// Même principe que getRequiredPieceCount, mais pour les ingrédients pesés
+// (g) ou mesurés en volume (ml) — grammes et millilitres comptent 1 pour 1
+// ici (comme le prompt Gemini qui convertit "1 L" en 1000, voir
+// api/analyze-fridge.js), donc comparable directement au poids lu sur un
+// emballage (state.ingredients[].weightGrams, voir mockVision.js). Renvoie
+// null pour tout le reste (pièce(s), cuillères, bouquets...).
+export function getRequiredWeightGrams(name, servings) {
+  const base = INGREDIENT_QUANTITIES[name]
+  if (!base || (base.unit !== 'g' && base.unit !== 'ml')) return null
+  return scaledAmountValue(base, servings)
+}
+
 // Nom d'affichage d'un ingrédient, accordé au nombre calculé pour `servings`
 // quand il est compté "à la pièce" ("6 ananas", "2 oignons rouges") —
 // remplace la traduction brute (toujours au singulier ou toujours au

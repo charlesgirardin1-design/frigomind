@@ -71,16 +71,25 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
       const confidence = typeof item.confidence === 'number' ? item.confidence : 0.6
       const alternatives = Array.isArray(item.alternatives) ? item.alternatives.filter(Boolean) : []
       const count = Number.isInteger(item.count) && item.count > 0 ? item.count : 1
+      // Poids/volume (en grammes, ml compris) lu sur un emballage —
+      // uniquement quand le prompt a pu le lire noir sur blanc (voir
+      // api/analyze-fridge.js), jamais une estimation visuelle. `null`/absent
+      // si non lisible : reste alors "quantité inconnue", jamais 0 (0
+      // signifierait à tort "aucun", alors qu'on ne sait juste pas combien).
+      const weightGrams = Number.isFinite(item.weightGrams) && item.weightGrams > 0 ? item.weightGrams : null
 
       const existing = merged.get(name)
       if (existing) {
         existing.count = Math.max(existing.count, count)
         existing.confidence = Math.max(existing.confidence, confidence)
+        if (weightGrams !== null) {
+          existing.weightGrams = existing.weightGrams === null ? weightGrams : existing.weightGrams + weightGrams
+        }
         for (const alt of alternatives) {
           if (!existing.alternatives.includes(alt)) existing.alternatives.push(alt)
         }
       } else {
-        merged.set(name, { name, confidence, alternatives, count })
+        merged.set(name, { name, confidence, alternatives, count, weightGrams })
       }
     }
 
@@ -91,6 +100,7 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
       alternatives: item.alternatives,
       checked: item.confidence >= 0.5,
       count: item.count,
+      weightGrams: item.weightGrams,
     }))
 
     return { items }
