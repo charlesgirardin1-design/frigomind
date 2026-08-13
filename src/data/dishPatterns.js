@@ -31,7 +31,7 @@ const CATEGORY_KEYWORDS = {
     'cannelloni', 'linguine', 'fettuccine', 'conchiglie', 'orecchiette', 'casarecce', 'bucatini',
     'pipe rigate', 'torsades',
     // Légumes durs à chair dense, jamais mangés crus (courge, aubergine) :
-    'courge', 'courge butternut', 'butternut', 'potiron', 'citrouille', 'aubergine',
+    'courge', 'courge butternut', 'butternut', 'potiron', 'potimarron', 'citrouille', 'aubergine',
     // Légumes qu'on cuit systématiquement (vapeur/eau) avant de les servir,
     // par opposition aux jeunes pousses de `leafy` ci-dessous qu'on mange
     // volontiers crues en salade :
@@ -131,6 +131,14 @@ export function categorizeIngredient(name) {
   }
   return 'other'
 }
+
+// Catégories qui, dans une poêlée, méritent d'être saisies EN PREMIER :
+// viande/poisson crus (temps de cuisson à cœur, sécurité alimentaire),
+// féculents/légumes durs (chair dense, longue à cuire), et charcuterie à
+// cuire type lardons/chorizo/merguez (rendent leur gras). Le reste (légumes
+// frais, champignons, aromates, herbes, fromage...) cuit nettement plus vite
+// et est ajouté ensuite (voir poelee-maison, `steps`/`stepsEn`).
+const COOK_FIRST_CATEGORIES = new Set(['protein', 'starchy', 'cured_meat'])
 
 // Archétypes de plats réalistes. `requires` : au moins un ingrédient de ces
 // catégories doit être présent pour que l'archétype soit even envisagé.
@@ -293,17 +301,41 @@ export const DISH_PATTERNS = [
     level: 'facile',
     name: (list) => `Poêlée maison (${list})`,
     nameEn: (list) => `Homemade skillet (${list})`,
-    steps: (list) => [
-      `Couper tous vos ingrédients (${list}) en morceaux de taille similaire.`,
-      "Faire chauffer un filet d'huile dans une poêle.",
-      'Faire revenir en premier les ingrédients les plus longs à cuire, puis ajouter les autres.',
-      'Cuire 8 à 10 minutes à feu moyen-vif, assaisonner et servir chaud.',
-    ],
-    stepsEn: (list) => [
-      `Cut all your ingredients (${list}) into similarly sized pieces.`,
-      'Heat a little oil in a pan.',
-      'Sauté the longest-cooking ingredients first, then add the rest.',
-      'Cook 8-10 minutes over medium-high heat, season and serve hot.',
-    ],
+    // "Faire revenir les ingrédients les plus longs à cuire" sans jamais
+    // dire LESQUELS ne renseigne personne — l'utilisateur signalait
+    // justement ne pas pouvoir deviner qui, parmi SES ingrédients précis,
+    // est concerné. On les nomme explicitement à partir de leur catégorie
+    // (viande/féculent/charcuterie à cuire en premier, le reste après),
+    // plutôt qu'une formule générique valable pour n'importe quelle poêlée.
+    steps: (list, ingredients) => {
+      const longCook = ingredients.filter((ing) => COOK_FIRST_CATEGORIES.has(categorizeIngredient(ing)))
+      const quickCook = ingredients.filter((ing) => !COOK_FIRST_CATEGORIES.has(categorizeIngredient(ing)))
+      const searStep = longCook.length
+        ? `Faire revenir en premier ${longCook.join(', ')} (les plus longs à cuire)${
+            quickCook.length ? `, puis ajouter ${quickCook.join(', ')}` : ''
+          }.`
+        : `Faire revenir tous vos ingrédients (${list}), en ajoutant en dernier ceux qui cuisent le plus vite.`
+      return [
+        `Couper tous vos ingrédients (${list}) en morceaux de taille similaire.`,
+        "Faire chauffer un filet d'huile dans une poêle.",
+        searStep,
+        'Cuire 8 à 10 minutes à feu moyen-vif, assaisonner et servir chaud.',
+      ]
+    },
+    stepsEn: (list, ingredients) => {
+      const longCook = ingredients.filter((ing) => COOK_FIRST_CATEGORIES.has(categorizeIngredient(ing)))
+      const quickCook = ingredients.filter((ing) => !COOK_FIRST_CATEGORIES.has(categorizeIngredient(ing)))
+      const searStep = longCook.length
+        ? `Sauté ${longCook.join(', ')} first (they take longest to cook)${
+            quickCook.length ? `, then add ${quickCook.join(', ')}` : ''
+          }.`
+        : `Sauté all your ingredients (${list}), adding the fastest-cooking ones last.`
+      return [
+        `Cut all your ingredients (${list}) into similarly sized pieces.`,
+        'Heat a little oil in a pan.',
+        searStep,
+        'Cook 8-10 minutes over medium-high heat, season and serve hot.',
+      ]
+    },
   },
 ]
