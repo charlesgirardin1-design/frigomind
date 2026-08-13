@@ -319,7 +319,11 @@ export const DISH_PATTERNS = [
         `Couper tous vos ingrédients (${list}) en morceaux de taille similaire.`,
         "Faire chauffer un filet d'huile dans une poêle.",
         searStep,
-        'Cuire 8 à 10 minutes à feu moyen-vif, assaisonner et servir chaud.',
+        // "Assaisonner" tout court ne dit pas AVEC QUOI — même défaut que
+        // l'étape de cuisson corrigée juste au-dessus. Sel et poivre sont
+        // déjà dans `basics` (toujours disponibles, jamais "à acheter") :
+        // autant les nommer ici plutôt que de laisser deviner.
+        'Cuire 8 à 10 minutes à feu moyen-vif, assaisonner de sel et de poivre selon votre goût, puis servir chaud.',
       ]
     },
     stepsEn: (list, ingredients) => {
@@ -334,7 +338,7 @@ export const DISH_PATTERNS = [
         `Cut all your ingredients (${list}) into similarly sized pieces.`,
         'Heat a little oil in a pan.',
         searStep,
-        'Cook 8-10 minutes over medium-high heat, season and serve hot.',
+        'Cook 8-10 minutes over medium-high heat, season with salt and pepper to taste, then serve hot.',
       ]
     },
   },
