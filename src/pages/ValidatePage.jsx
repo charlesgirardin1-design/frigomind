@@ -17,6 +17,8 @@ const STRINGS = {
       "Aucun ingrédient détecté automatiquement sur cette photo (photo peu nette, ou reconnaissance IA pas encore configurée sur ce déploiement). Ajoutez vos ingrédients manuellement ci-dessous 👇",
     orMaybe: 'Ou peut-être :',
     removeAria: (name) => `Supprimer ${name}`,
+    decreaseCount: (name) => `Moins de ${name}`,
+    increaseCount: (name) => `Plus de ${name}`,
     addPlaceholder: 'Ajouter un ingrédient (ex : oignon)',
     add: '+ Ajouter',
     scanBarcode: '📷 Scanner un code-barres',
@@ -36,6 +38,8 @@ const STRINGS = {
       "No ingredients were automatically detected in this photo (blurry photo, or AI recognition not yet configured on this deployment). Add your ingredients manually below 👇",
     orMaybe: 'Or maybe:',
     removeAria: (name) => `Remove ${name}`,
+    decreaseCount: (name) => `Fewer ${name}`,
+    increaseCount: (name) => `More ${name}`,
     addPlaceholder: 'Add an ingredient (e.g. onion)',
     add: '+ Add',
     scanBarcode: '📷 Scan a barcode',
@@ -63,8 +67,17 @@ function ConfidenceBadge({ confidence, s }) {
 // Jamais bloquante : même avec 0 ingrédient détecté, l'utilisateur peut en
 // ajouter à la main et continuer.
 export default function ValidatePage() {
-  const { state, toggleIngredient, renameIngredient, removeIngredient, addIngredient, generateFromValidated, surpriseMe, goTo } =
-    useApp()
+  const {
+    state,
+    toggleIngredient,
+    renameIngredient,
+    removeIngredient,
+    addIngredient,
+    setIngredientCount,
+    generateFromValidated,
+    surpriseMe,
+    goTo,
+  } = useApp()
   const lang = useLanguage()
   const s = STRINGS[lang]
   const [newIngredient, setNewIngredient] = useState('')
@@ -140,7 +153,37 @@ export default function ValidatePage() {
                 <span className={`font-medium capitalize ${ing.checked ? 'text-neutral-900' : 'text-neutral-500 line-through'}`}>
                   {ing.name}
                 </span>
-                {ing.count > 1 && <span className="badge badge-neutral">×{ing.count}</span>}
+                {/* Le comptage par photo reste une estimation IA, jamais
+                    garanti exact (angle, occultation partielle...) — plutôt
+                    qu'un badge figé, un vrai contrôle +/- pour corriger le
+                    chiffre en un geste sans supprimer/rajouter l'ingrédient.
+                    N'existe que pour les ingrédients issus du scan (`count`
+                    défini) : un ingrédient ajouté à la main n'a pas cette
+                    notion de quantité comptée. */}
+                {ing.count !== undefined && (
+                  <div className="flex items-center gap-0.5 bg-neutral-100 rounded-full pl-1 pr-1 py-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setIngredientCount(ing.id, ing.count - 1)}
+                      aria-label={s.decreaseCount(ing.name)}
+                      disabled={ing.count <= 1}
+                      className="w-5 h-5 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900 disabled:opacity-30 disabled:hover:bg-transparent"
+                    >
+                      −
+                    </button>
+                    <span className="text-xs font-medium text-neutral-700 min-w-[1.4em] text-center tabular-nums">
+                      ×{ing.count}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIngredientCount(ing.id, ing.count + 1)}
+                      aria-label={s.increaseCount(ing.name)}
+                      className="w-5 h-5 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200 hover:text-neutral-900"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
                 <ConfidenceBadge confidence={ing.confidence} s={s} />
               </div>
 

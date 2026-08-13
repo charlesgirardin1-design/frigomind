@@ -53,11 +53,17 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
 
     // Gemini est invité à compter lui-même les unités visibles de chaque
     // ingrédient (voir le prompt dans api/analyze-fridge.js) et à renvoyer un
-    // seul objet par ingrédient avec ce compte dans "count". On regroupe
-    // quand même ici par nom au cas où le modèle répéterait malgré tout le
-    // même ingrédient dans plusieurs objets (photo avec beaucoup d'items) :
-    // dans ce cas les comptes s'additionnent, en gardant la confiance la
-    // plus haute et en fusionnant les suggestions alternatives.
+    // seul objet par ingrédient avec ce compte dans "count" — la consigne est
+    // explicite : "un seul objet JSON par ingrédient... ne répète jamais le
+    // même ingrédient dans plusieurs objets pour représenter plusieurs
+    // unités". Si le modèle répète quand même le même ingrédient (photo
+    // chargée, plusieurs zones distinctes), CHAQUE objet dupliqué porte donc
+    // déjà sa propre tentative de compte TOTAL — pas un compte partiel à
+    // additionner aux autres. Additionner (ancien comportement) pouvait
+    // gonfler artificiellement le total au-delà de ce qui est réellement
+    // visible (ex: "tomate" compté deux fois à 5 et 7 -> 12 au lieu de 7) :
+    // on retient donc la plus grande estimation plutôt que leur somme, en
+    // gardant la confiance la plus haute et en fusionnant les alternatives.
     const merged = new Map()
     for (const item of rawItems) {
       if (!item || typeof item.name !== 'string' || !item.name.trim()) continue
@@ -68,7 +74,7 @@ export async function analyzeImage(imageDataUrl, mode = 'frigo') {
 
       const existing = merged.get(name)
       if (existing) {
-        existing.count += count
+        existing.count = Math.max(existing.count, count)
         existing.confidence = Math.max(existing.confidence, confidence)
         for (const alt of alternatives) {
           if (!existing.alternatives.includes(alt)) existing.alternatives.push(alt)

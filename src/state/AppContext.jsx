@@ -78,6 +78,20 @@ function reducer(state, action) {
       }
     case 'REMOVE_INGREDIENT':
       return { ...state, ingredients: state.ingredients.filter((ing) => ing.id !== action.id) }
+    // Le comptage par photo (IA) reste une estimation — jamais garanti exact
+    // (angle, occultation partielle, éléments serrés les uns contre les
+    // autres...). Plutôt que de forcer l'utilisateur à supprimer puis
+    // rajouter un ingrédient pour corriger un chiffre erroné, on lui permet
+    // de l'ajuster directement (voir ValidatePage.jsx) — borné à 1 minimum,
+    // jamais 0 (pour retirer complètement l'ingrédient, `removeIngredient`
+    // existe déjà et reste le bon outil).
+    case 'SET_INGREDIENT_COUNT':
+      return {
+        ...state,
+        ingredients: state.ingredients.map((ing) =>
+          ing.id === action.id ? { ...ing, count: Math.max(1, action.count) } : ing
+        ),
+      }
     case 'ADD_INGREDIENT': {
       if (!action.name.trim()) return state
       const newIng = {
@@ -289,6 +303,7 @@ export function AppProvider({ children }) {
   const renameIngredient = useCallback((id, name) => dispatch({ type: 'RENAME_INGREDIENT', id, name }), [])
   const removeIngredient = useCallback((id) => dispatch({ type: 'REMOVE_INGREDIENT', id }), [])
   const addIngredient = useCallback((name) => dispatch({ type: 'ADD_INGREDIENT', name }), [])
+  const setIngredientCount = useCallback((id, count) => dispatch({ type: 'SET_INGREDIENT_COUNT', id, count }), [])
   // Persiste les préférences à chaque changement : elles servent de valeurs
   // par défaut pour la prochaine session (voir initialState / page paramètres).
   const setPreferences = useCallback(
@@ -417,6 +432,7 @@ export function AppProvider({ children }) {
       renameIngredient,
       removeIngredient,
       addIngredient,
+      setIngredientCount,
       setPreferences,
       generateFromValidated,
       surpriseMe,
@@ -441,6 +457,7 @@ export function AppProvider({ children }) {
       renameIngredient,
       removeIngredient,
       addIngredient,
+      setIngredientCount,
       setPreferences,
       generateFromValidated,
       surpriseMe,

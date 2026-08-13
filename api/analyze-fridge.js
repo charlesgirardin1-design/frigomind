@@ -23,7 +23,7 @@ const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun 
 
 Règles :
 - "alternatives" ne doit contenir des valeurs que si l'ingrédient est ambigu (ex : peut être du lait ou de la crème fraîche). Sinon tableau vide.
-- "count" : regarde attentivement la photo et compte le nombre réel d'unités visibles de cet ingrédient (ex : 3 pommes de terre, 2 poivrons rouges). Un seul objet JSON par ingrédient, avec le compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
+- "count" : compte un par un, lentement, chaque unité individuelle de cet ingrédient réellement visible sur la photo (ex : 3 pommes de terre, 2 poivrons rouges) — y compris celles partiellement cachées ou coupées par le bord du cadre si elles sont identifiables sans ambiguïté, mais SANS deviner ni arrondir : ne compte que ce qui est effectivement visible, jamais une estimation approximative. Recompte une seconde fois avant de répondre pour vérifier ce chiffre. Un seul objet JSON par ingrédient, avec ce compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
 - Ignore la vaisselle, les contenants, les meubles (frigo, placard, table, assiette...) : uniquement des aliments/ingrédients.
 - Si aucun aliment n'est identifiable, réponds {"items": []}.`
 
