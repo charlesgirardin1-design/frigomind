@@ -15,6 +15,14 @@
 const CATEGORY_KEYWORDS = {
   egg: ['œuf', 'oeuf'],
   dairy_liquid: ['lait', 'crème', 'yaourt', 'fromage blanc', 'chantilly'],
+  // Regroupe tout ce qui NE SE MANGE PAS CRU : féculents (pomme de terre,
+  // riz, pâtes...) et légumes "durs" qu'on ne sert jamais tels quels dans
+  // une salade froide (courge, aubergine, chou-fleur, brocoli...). Le nom
+  // garde "starchy" pour des raisons historiques (utilisé tel quel dans les
+  // archétypes ci-dessous) mais la propriété commune qui compte vraiment
+  // pour tryDishPattern est "doit être cuit avant d'être mangé" — c'est ce
+  // qui exclut ce groupe de salade-composee (aucune étape de cuisson) tout
+  // en le gardant bienvenu dans gratin/soupe/poêlée (qui, eux, cuisent).
   starchy: [
     'pomme de terre', 'pommes de terre', 'patate douce', 'panais', 'topinambour', 'igname',
     'riz', 'pâtes', 'nouilles', 'nouille', 'quinoa', 'semoule', 'boulgour', 'polenta', 'farro', 'freekeh',
@@ -22,6 +30,12 @@ const CATEGORY_KEYWORDS = {
     'spaghetti', 'tortellini', 'ravioles', 'pâte à raviolis', 'lasagnes', 'coquillettes', 'tagliatelles', 'fusilli',
     'cannelloni', 'linguine', 'fettuccine', 'conchiglie', 'orecchiette', 'casarecce', 'bucatini',
     'pipe rigate', 'torsades',
+    // Légumes durs à chair dense, jamais mangés crus (courge, aubergine) :
+    'courge', 'courge butternut', 'butternut', 'potiron', 'citrouille', 'aubergine',
+    // Légumes qu'on cuit systématiquement (vapeur/eau) avant de les servir,
+    // par opposition aux jeunes pousses de `leafy` ci-dessous qu'on mange
+    // volontiers crues en salade :
+    'chou-fleur', 'brocoli', 'choux de bruxelles', 'haricots verts', 'petits pois',
   ],
   cheese: [
     'fromage', 'parmesan', 'gruyère', 'emmental', 'mozzarella', 'chèvre', 'feta', 'ricotta',
@@ -31,12 +45,16 @@ const CATEGORY_KEYWORDS = {
   aromatic: ['oignon', 'ail', 'échalote', 'poireau', 'gingembre', 'citronnelle'],
   fresh_veg: [
     'tomate', 'concombre', 'avocat', 'radis', 'roquette', 'salade', 'chou rouge', 'poivron',
-    'fenouil', 'maïs', 'edamame', 'carotte', 'betterave', 'céleri', 'aubergine', 'courgette',
+    'fenouil', 'maïs', 'edamame', 'carotte', 'betterave', 'céleri', 'courgette',
   ],
   cured_meat: ['jambon', 'lardons', 'bacon', 'chorizo', 'saucisson', 'charcuterie', 'merguez', 'saucisse'],
   herb: ['persil', 'basilic', 'ciboulette', 'coriandre', 'menthe', 'aneth', 'estragon', 'thym', 'romarin', 'sauge'],
   mushroom: ['champignon'],
-  leafy: ['épinard', 'blette', 'chou kale', 'chou-fleur', 'brocoli', 'choux de bruxelles', 'haricots verts', 'petits pois', 'chou'],
+  // Feuilles/choux qu'on mange volontiers crus en salade (jeunes pousses
+  // d'épinard, kale, chou blanc/rouge en coleslaw) — à distinguer des
+  // légumes systématiquement cuits (chou-fleur, brocoli...), classés dans
+  // `starchy` ci-dessus.
+  leafy: ['épinard', 'blette', 'chou kale', 'chou'],
   fruit: [
     'pomme', 'poire', 'banane', 'fraise', 'framboise', 'myrtille', 'cerise', 'pêche', 'abricot',
     'mangue', 'ananas', 'kiwi', 'raisin', 'orange', 'citron', 'pamplemousse', 'melon', 'figue', 'rhubarbe',
@@ -185,25 +203,48 @@ export const DISH_PATTERNS = [
   {
     id: 'salade-composee',
     requires: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned'],
-    allow: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned', 'herb', 'egg', 'starchy', 'dairy_liquid', 'leafy'],
+    // PAS de 'starchy' ici (contrairement aux autres archétypes) : cet
+    // archétype n'a aucune étape de cuisson, donc rien qui doive être cuit
+    // avant d'être mangé (pomme de terre, courge, aubergine, chou-fleur...)
+    // ne doit s'y retrouver — un ingrédient de cette catégorie rejoint
+    // `unusedIngredients` plutôt que d'être servi cru et immangeable.
+    allow: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned', 'herb', 'egg', 'dairy_liquid', 'leafy'],
     maxIngredients: 7,
     emoji: '🥗',
     time: 15,
     level: 'facile',
     name: (list) => `Salade composée (${list})`,
     nameEn: (list) => `Composed salad (${list})`,
-    steps: (list) => [
-      `Couper ou préparer tous vos ingrédients (${list}).`,
-      'Les disposer ensemble dans un grand saladier.',
-      'Préparer une vinaigrette avec huile, vinaigre (ou citron), sel et poivre.',
-      'Mélanger et servir frais.',
-    ],
-    stepsEn: (list) => [
-      `Cut or prepare all your ingredients (${list}).`,
-      'Arrange them together in a large bowl.',
-      'Make a dressing with oil, vinegar (or lemon), salt and pepper.',
-      'Toss and serve chilled.',
-    ],
+    // Les œufs ne se "coupent" pas crus dans une salade : ils sont cuits
+    // durs à part (comme une salade niçoise), d'où une étape dédiée plutôt
+    // que de les mélanger à l'énumération générique — même logique que
+    // omelette-maison qui sort déjà les œufs du "reste de vos ingrédients".
+    steps: (list, ingredients) => {
+      const eggs = ingredients.filter((ing) => categorizeIngredient(ing) === 'egg')
+      const rest = ingredients.filter((ing) => categorizeIngredient(ing) !== 'egg').join(', ')
+      return [
+        ...(eggs.length
+          ? [`Faire cuire ${eggs.join(', ')} à l'eau bouillante pendant 9 à 10 minutes pour les avoir durs, puis les écaler et les couper en quartiers.`]
+          : []),
+        `Couper ou préparer le reste de vos ingrédients (${rest || list}).`,
+        'Les disposer ensemble dans un grand saladier.',
+        'Préparer une vinaigrette avec huile, vinaigre (ou citron), sel et poivre.',
+        'Mélanger et servir frais.',
+      ]
+    },
+    stepsEn: (list, ingredients) => {
+      const eggs = ingredients.filter((ing) => categorizeIngredient(ing) === 'egg')
+      const rest = ingredients.filter((ing) => categorizeIngredient(ing) !== 'egg').join(', ')
+      return [
+        ...(eggs.length
+          ? [`Boil ${eggs.join(', ')} for 9-10 minutes until hard-boiled, then peel and cut into quarters.`]
+          : []),
+        `Cut or prepare the rest of your ingredients (${rest || list}).`,
+        'Arrange them together in a large bowl.',
+        'Make a dressing with oil, vinegar (or lemon), salt and pepper.',
+        'Toss and serve chilled.',
+      ]
+    },
   },
   {
     id: 'soupe-maison',
