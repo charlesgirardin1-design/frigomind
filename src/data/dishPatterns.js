@@ -147,6 +147,12 @@ export const DISH_PATTERNS = [
     id: 'omelette-maison',
     requires: ['egg'],
     allow: ['egg', 'dairy_liquid', 'starchy', 'cheese', 'aromatic', 'cured_meat', 'mushroom', 'leafy', 'herb', 'fresh_veg'],
+    // Basiques de garde-manger (voir isPantryStaple, expiryData.js) que le
+    // texte de CET archétype mentionne, même si l'utilisateur ne les a pas
+    // scannés — affichés dans la liste (jamais comptés "à acheter" pour un
+    // basique) plutôt que de rester référencés dans le texte sans jamais
+    // apparaître dans la liste d'ingrédients.
+    basics: ['sel', 'poivre', 'huile'],
     maxIngredients: 5,
     emoji: '🍳',
     time: 15,
@@ -181,6 +187,7 @@ export const DISH_PATTERNS = [
     id: 'gratin-maison',
     requires: ['starchy'],
     allow: ['starchy', 'dairy_liquid', 'cheese', 'aromatic', 'cured_meat', 'mushroom', 'protein', 'leafy'],
+    basics: ['sel', 'poivre', 'huile'],
     maxIngredients: 6,
     emoji: '🧀',
     time: 40,
@@ -209,6 +216,7 @@ export const DISH_PATTERNS = [
     // ne doit s'y retrouver — un ingrédient de cette catégorie rejoint
     // `unusedIngredients` plutôt que d'être servi cru et immangeable.
     allow: ['fresh_veg', 'cheese', 'cured_meat', 'fruit', 'legume_canned', 'herb', 'egg', 'dairy_liquid', 'leafy'],
+    basics: ['sel', 'poivre', 'huile'],
     maxIngredients: 7,
     emoji: '🥗',
     time: 15,
@@ -250,6 +258,11 @@ export const DISH_PATTERNS = [
     id: 'soupe-maison',
     requires: ['fresh_veg', 'starchy', 'leafy', 'aromatic', 'legume_canned'],
     allow: ['fresh_veg', 'starchy', 'leafy', 'aromatic', 'dairy_liquid', 'protein', 'legume_canned', 'herb', 'mushroom'],
+    // 'ail'/'oignon' et 'eau' sont explicitement mentionnés dans les étapes
+    // ci-dessous ("l'oignon ou l'ail", "couvrir d'eau") — sans ça ils
+    // seraient référencés dans le texte sans jamais figurer dans la liste
+    // d'ingrédients ni sa quantité (eau: 500 ml, voir ingredientQuantities.js).
+    basics: ['sel', 'poivre', 'huile', 'ail', 'oignon', 'eau'],
     maxIngredients: 7,
     emoji: '🍲',
     time: 30,
@@ -273,6 +286,7 @@ export const DISH_PATTERNS = [
     id: 'poelee-maison',
     requires: ['protein', 'fresh_veg', 'starchy', 'mushroom', 'leafy', 'cured_meat'],
     allow: ['protein', 'fresh_veg', 'starchy', 'mushroom', 'leafy', 'cured_meat', 'aromatic', 'herb', 'cheese'],
+    basics: ['sel', 'poivre', 'huile'],
     maxIngredients: 6,
     emoji: '🥘',
     time: 20,

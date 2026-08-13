@@ -246,6 +246,20 @@ function buildSmartFallbackRecipes(available) {
         ]
       : []
 
+    // Basiques propres à CET archétype (voir `basics` dans dishPatterns.js) —
+    // ex: 'ail'/'oignon'/'eau' pour soupe-maison, dont le texte des étapes
+    // parle explicitement ("l'oignon ou l'ail", "couvrir d'eau"). Avant, ce
+    // même trio n'était ajouté QUE quand `incompatible` était vide, laissant
+    // ces ingrédients référencés dans le texte sans jamais apparaître dans
+    // la liste dès qu'un ingrédient scanné ne trouvait pas sa place ailleurs
+    // — corrigé en rendant l'ajout inconditionnel, et propre à chaque plat
+    // plutôt qu'un même trio générique pour tous. On exclut aussi tout
+    // basique déjà présent dans `required` (ex: l'utilisateur a scanné de
+    // l'oignon, déjà catégorisé 'aromatic' et donc déjà dans compatible) pour
+    // ne jamais le lister deux fois.
+    const requiredSet = new Set(result.compatible.map((ing) => normalize(ing)))
+    const basics = (pattern.basics || []).filter((basic) => !requiredSet.has(normalize(basic)))
+
     return {
       id: pattern.id,
       name: pattern.name(list),
@@ -256,7 +270,7 @@ function buildSmartFallbackRecipes(available) {
       cuisine: 'maison',
       diet,
       required: result.compatible,
-      optional: result.incompatible.length ? [...result.incompatible, 'sel', 'poivre', 'huile'] : ['sel', 'poivre', 'huile', 'ail', 'oignon'],
+      optional: [...result.incompatible, ...basics],
       steps: [...pattern.steps(list, result.compatible), ...unusedNoteFr],
       stepsEn: [...pattern.stepsEn(list, result.compatible), ...unusedNoteEn],
       generic: true,
