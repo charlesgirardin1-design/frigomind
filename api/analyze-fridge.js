@@ -21,9 +21,14 @@ const DEFAULT_MODEL = 'gemini-2.5-flash'
 const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
 {"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."], "count": nombre d'unités visibles, "weightGrams": nombre ou null}]}
 
+Méthode d'analyse (à suivre dans l'ordre, avant de répondre) :
+1. Balaie l'image méthodiquement zone par zone (premier plan, arrière-plan, coins, étagères du haut comme du bas) plutôt que de te concentrer sur le premier objet remarqué. Un groupe d'objets identiques et visuellement dominant (ex : un filet de pommes de terre au premier plan) ne doit jamais te détourner des autres ingrédients différents présents ailleurs sur la photo, même petits, partiellement masqués ou en arrière-plan : liste-les tous.
+2. Pour chaque ingrédient repéré, vérifie qu'il est RÉELLEMENT visible sur CETTE photo précise. N'ajoute jamais un ingrédient parce qu'il accompagne "typiquement" celui que tu viens de repérer (ex : ne pas ajouter "oignon" juste parce qu'il y a des pommes de terre) : chaque ingrédient listé doit correspondre à quelque chose que tu identifies distinctement sur l'image, jamais une supposition.
+3. Une fois ta liste établie, relis-la une seconde fois en comparant à l'image : confirme que chaque ingrédient listé y est bien visible (retire ceux dont tu n'es plus sûr) et vérifie qu'aucun ingrédient différent visible sur la photo n'a été oublié.
+
 Règles :
 - "alternatives" ne doit contenir des valeurs que si l'ingrédient est ambigu (ex : peut être du lait ou de la crème fraîche). Sinon tableau vide.
-- "count" : compte un par un, lentement, chaque unité individuelle de cet ingrédient réellement visible sur la photo (ex : 3 pommes de terre, 2 poivrons rouges) — y compris celles partiellement cachées ou coupées par le bord du cadre si elles sont identifiables sans ambiguïté, mais SANS deviner ni arrondir : ne compte que ce qui est effectivement visible, jamais une estimation approximative. Recompte une seconde fois avant de répondre pour vérifier ce chiffre. Un seul objet JSON par ingrédient, avec ce compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
+- "count" : compte un par un, lentement, chaque unité individuelle de cet ingrédient réellement visible sur la photo (ex : 3 pommes de terre, 2 poivrons rouges) — y compris celles partiellement cachées ou coupées par le bord du cadre si elles sont identifiables sans ambiguïté, mais SANS deviner ni arrondir : ne compte que ce qui est effectivement visible, jamais une estimation approximative. Recompte une seconde fois avant de répondre pour vérifier ce chiffre — un groupe nombreux (ex : un tas ou un filet de pommes de terre) demande une attention particulière : compte chaque unité individuellement plutôt que d'estimer le tas globalement. Un seul objet JSON par ingrédient, avec ce compte total dedans — ne répète jamais le même ingrédient dans plusieurs objets pour représenter plusieurs unités. Pour un ingrédient qui ne se compte pas en unités distinctes (lait, farine, huile, riz en vrac...), utilise "count": 1.
 - "weightGrams" : UNIQUEMENT si un poids ou un volume est clairement IMPRIMÉ et LISIBLE sur un emballage (ex : "500 g" sur un paquet de viande hachée, "1 L" sur une brique de lait, "250 g" sur un paquet de riz) — recopie alors ce nombre converti en grammes (1 L = 1000, 1 kg = 1000). Si plusieurs emballages identiques sont visibles, additionne leurs poids. Ne DEVINE JAMAIS un poids en estimant à l'œil la taille d'un tas, d'un morceau ou d'un objet sans étiquette lisible : dans ce cas, réponds null (ne jamais inventer une estimation approximative, mieux vaut ne rien dire que dire un chiffre faux).
 - Ignore la vaisselle, les contenants, les meubles (frigo, placard, table, assiette...) : uniquement des aliments/ingrédients.
 - Si aucun aliment n'est identifiable, réponds {"items": []}.`
@@ -36,8 +41,10 @@ ${JSON_FORMAT_RULES}`
 const PLACARD_PROMPT = `Voici une photo d'un placard, d'une étagère ou d'un garde-manger.
 Identifie tous les ingrédients alimentaires SECS et de LONGUE CONSERVATION réellement visibles sur cette
 image : pâtes, riz, légumineuses (lentilles, pois chiches...), conserves (thon, tomates, maïs...), épices,
-farine, sucre, huile, céréales, etc. Ignore les produits frais qui ne seraient pas à leur place dans un
-placard.
+farine, sucre, huile, céréales, etc. Inclus aussi les légumes qui se conservent naturellement hors du frigo
+et se rangent couramment dans un placard ou un cellier (pommes de terre, oignons, échalotes, ail, courges,
+potimarron...) s'ils sont visibles, même si ce sont des produits frais au sens strict. Ignore uniquement les
+produits frais qui n'ont clairement rien à faire dans un placard (produits laitiers, viande, poisson...).
 
 ${JSON_FORMAT_RULES}`
 
