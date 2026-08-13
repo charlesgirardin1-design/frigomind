@@ -6,13 +6,14 @@ import { COMMON } from '../i18n/common.js'
 import { copyTextToClipboard } from '../utils/shoppingList.js'
 import { localizeRecipeName, localizeRecipeSteps } from '../data/recipesDB.js'
 import { extractCountryFlag } from '../utils/flag.js'
-import { scaleIngredientQuantity, scaleStepText, getIngredientDisplayName } from '../utils/servings.js'
+import { scaleIngredientQuantity, scaleStepText, getIngredientDisplayName, getRequiredPieceCount } from '../utils/servings.js'
 import { BASE_SERVINGS } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
 import { getRecipeIntro, getRecipeTip } from '../utils/recipeVoice.js'
 import { translateIngredientName } from '../data/ingredientTranslations.js'
+import { getPluralForm } from '../data/ingredientPlurals.js'
 
 const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
@@ -63,6 +64,45 @@ export default function RecipePage() {
   // favoris/l'historique sans détection en cours — on retombe alors sur la
   // suggestion générique, jamais sur une liste périmée d'une autre session.
   const availableIngredientNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
+  // Nombre d'unités RÉELLEMENT scanné par ingrédient (ex: "5" pour 5 tomates
+  // détectées à la photo) — voir mockVision.js. Comme availableIngredientNames
+  // ci-dessus, vide si la recette est ouverte depuis les favoris/l'historique
+  // (pas de scan en cours), ce qui désactive naturellement la comparaison
+  // ci-dessous plutôt que de comparer à une quantité périmée d'une autre
+  // session.
+  const scannedCounts = new Map(
+    state.ingredients.filter((i) => i.checked && Number.isFinite(i.count)).map((i) => [i.name, i.count])
+  )
+  // Un ingrédient "utilisé" (scanné, présent dans la recette) peut quand même
+  // ne pas suffire en quantité pour le nombre de personnes choisi (ex: 5
+  // tomates scannées, 7 nécessaires pour 7 personnes) — uniquement calculable
+  // pour les ingrédients comptés "à la pièce" (voir getRequiredPieceCount) :
+  // pour un ingrédient pesé/mesuré (g/ml/c. à soupe...), impossible de savoir
+  // combien l'utilisateur en a réellement à partir d'une photo (on ne peut
+  // pas peser un paquet de viande hachée à l'œil), donc pas de vérification
+  // dans ce cas — l'ingrédient reste simplement "utilisé" comme avant.
+  function getShortfall(ing) {
+    const have = scannedCounts.get(ing)
+    if (have === undefined) return 0
+    const needed = getRequiredPieceCount(ing, servings)
+    if (needed === null) return 0
+    return Math.max(0, needed - have)
+  }
+  // Ingrédients "utilisés" (ni manquants, ni non-utilisés) mais en quantité
+  // insuffisante — rejoint la liste de courses au même titre que les
+  // ingrédients entièrement manquants (voir shoppingList ci-dessous), avec
+  // le complément à acheter plutôt que la quantité totale de la recette.
+  const shortfallWithQty = allIngredients
+    .filter((ing) => !missing.includes(ing) && !recipe.unusedIngredients?.includes(ing))
+    .map((ing) => ({ ing, shortfall: getShortfall(ing) }))
+    .filter(({ shortfall }) => shortfall > 0)
+  // Nom accordé sur le COMPLÉMENT à acheter (ex: "2 tomates de plus"), pas
+  // sur la quantité totale de la recette (getIngredientDisplayName, qui
+  // s'accorde sur `servings`) — un shortfall de 1 doit rester singulier même
+  // si la recette entière demande 7 tomates.
+  function shortfallDisplayName(ing, shortfall) {
+    return getPluralForm(ing, shortfall, lang) || translateIngredientName(ing, lang)
+  }
   const totalCalories = estimateRecipeCalories(allIngredients, servings)
   const caloriesPerServing = totalCalories ? Math.round(totalCalories / servings / 10) * 10 : null
 
@@ -82,12 +122,15 @@ export default function RecipePage() {
   }
 
   async function handleCopyList() {
-    const text = missingWithQty
-      .map(({ ing, qty }) => {
-        const label = getIngredientDisplayName(ing, servings, lang)
-        return qty ? `${label} (${qty})` : label
-      })
-      .join('\n')
+    const missingLines = missingWithQty.map(({ ing, qty }) => {
+      const label = getIngredientDisplayName(ing, servings, lang)
+      return qty ? `${label} (${qty})` : label
+    })
+    const shortfallLines = shortfallWithQty.map(({ ing, shortfall }) => {
+      const label = shortfallDisplayName(ing, shortfall)
+      return `${label} (${c.shortfallQty(shortfall)})`
+    })
+    const text = [...missingLines, ...shortfallLines].join('\n')
     const ok = await copyTextToClipboard(text)
     if (ok) {
       setCopied(true)
@@ -310,6 +353,7 @@ export default function RecipePage() {
                 const isRequired = recipe.required?.includes(ing)
                 const isMissing = recipe.missingIngredients?.includes(ing)
                 const isUnused = recipe.unusedIngredients?.includes(ing)
+                const shortfall = !isMissing && !isUnused ? getShortfall(ing) : 0
                 const qty = scaleIngredientQuantity(ing, servings, lang)
                 const substitutes = isMissing ? getSubstitutes(ing) : null
                 const dynamicSub = isMissing ? findAvailableSubstitute(ing, availableIngredientNames) : null
@@ -318,7 +362,7 @@ export default function RecipePage() {
                 return (
                   <li key={ing}>
                     <div className="flex items-center gap-2">
-                      <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : '✅'}</span>
+                      <span aria-hidden>{isMissing ? '🛒' : isUnused ? '➖' : shortfall > 0 ? '⚠️' : '✅'}</span>
                       {qty && !isUnused && (
                         <span className="text-neutral-500 tabular-nums text-xs shrink-0">{qty}</span>
                       )}
@@ -335,6 +379,11 @@ export default function RecipePage() {
                           ({c.toBuyParens}{!isRequired ? `, ${c.optional}` : ''})
                         </em>
                       )}
+                      {/* Quantité scannée insuffisante pour ce nombre de
+                          personnes (voir getShortfall ci-dessus) : jamais en
+                          même temps que isMissing (l'ingrédient est alors
+                          entièrement absent, pas juste insuffisant). */}
+                      {shortfall > 0 && <em className="text-xs text-zest-700">({c.shortfallParens(shortfall)})</em>}
                       {isUnused && !isMissing && <em className="text-xs text-neutral-400">({c.notUsedHere})</em>}
                       {!isMissing && !isUnused && !isRequired && <em className="text-xs text-neutral-500"> ({c.optional})</em>}
                     </div>
@@ -390,7 +439,7 @@ export default function RecipePage() {
             <p className="text-xs text-neutral-500 mt-2">{c.quantitiesNote}</p>
           </div>
 
-          {missing.length > 0 && (
+          {(missing.length > 0 || shortfallWithQty.length > 0) && (
             <div className="bg-zest-50 border border-zest-200 rounded-xl2 p-4">
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-neutral-900 text-sm">{c.shoppingList}</h3>
@@ -403,6 +452,16 @@ export default function RecipePage() {
                   <li key={ing}>
                     {getIngredientDisplayName(ing, servings, lang)}
                     {qty && <span className="text-neutral-400"> — {qty}</span>}
+                  </li>
+                ))}
+                {/* Ingrédients scannés mais en quantité insuffisante pour ce
+                    nombre de personnes (voir shortfallWithQty) : le
+                    complément à acheter, pas la quantité totale — distinct
+                    des ingrédients entièrement absents ci-dessus. */}
+                {shortfallWithQty.map(({ ing, shortfall }) => (
+                  <li key={ing}>
+                    {shortfallDisplayName(ing, shortfall)}
+                    <span className="text-neutral-400"> — {c.shortfallQty(shortfall)}</span>
                   </li>
                 ))}
               </ul>

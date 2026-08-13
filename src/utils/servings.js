@@ -88,6 +88,19 @@ export function scaleIngredientQuantity(name, servings, lang = 'fr') {
   return `${formatAmount(rounded, lang)} ${inflectUnit(unit, rounded)}`
 }
 
+// Nombre BRUT (pas de formatage/texte) d'unités nécessaires pour `servings`,
+// uniquement pour les ingrédients comptés "à la pièce" (tomate, oignon,
+// œuf...) — null pour tout le reste (poids/volume/cuillères...), pour
+// lesquels comparer à un nombre d'unités scannées n'a pas de sens (on ne
+// peut pas déduire un poids à partir d'une photo). Sert à RecipePage.jsx
+// pour savoir si la quantité RÉELLEMENT scannée (state.ingredients[].count)
+// suffit pour la recette au nombre de personnes choisi, ou s'il en manque.
+export function getRequiredPieceCount(name, servings) {
+  const base = INGREDIENT_QUANTITIES[name]
+  if (!base || base.unit !== 'pièce(s)') return null
+  return scaledAmountValue(base, servings)
+}
+
 // Nom d'affichage d'un ingrédient, accordé au nombre calculé pour `servings`
 // quand il est compté "à la pièce" ("6 ananas", "2 oignons rouges") —
 // remplace la traduction brute (toujours au singulier ou toujours au

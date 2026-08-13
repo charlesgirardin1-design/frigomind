@@ -60,6 +60,12 @@ export const COMMON = {
       decreaseServings: 'Moins de personnes',
       increaseServings: 'Plus de personnes',
       quantitiesNote: 'Quantités estimées, à ajuster selon vos envies.',
+      // Ex: "il vous en manque 2, à acheter" — affiché à côté d'un
+      // ingrédient scanné en quantité insuffisante pour le nombre de
+      // personnes choisi (voir RecipePage.jsx : compare le nombre réellement
+      // scanné à ce que la recette demande, pour CE nombre de personnes).
+      shortfallParens: (n) => `il vous en manque ${n}, à acheter`,
+      shortfallQty: (n) => `${n} de plus`,
       substituteWith: '🔁 Remplacer par :',
       dynamicSubstitute: (missing, sub) => `🔁 Pas de ${missing} ? Utilisez ${sub} — déjà dans votre frigo !`,
       caloriesPerServing: (n) => `~${n} kcal / portion`,
@@ -122,6 +128,8 @@ export const COMMON = {
       decreaseServings: 'Fewer servings',
       increaseServings: 'More servings',
       quantitiesNote: 'Estimated quantities, adjust to taste.',
+      shortfallParens: (n) => `${n} more needed, to buy`,
+      shortfallQty: (n) => `${n} more`,
       substituteWith: '🔁 Substitute with:',
       dynamicSubstitute: (missing, sub) => `🔁 No ${missing}? Use ${sub} — already in your fridge!`,
       caloriesPerServing: (n) => `~${n} kcal / serving`,
