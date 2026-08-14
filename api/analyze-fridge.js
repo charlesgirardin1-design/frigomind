@@ -1,22 +1,32 @@
 // -----------------------------------------------------------------------------
 // api/analyze-fridge.js
 // Fonction serverless Vercel (Node.js). Reçoit une photo en base64, appelle
-// l'API Google Gemini (multimodale, vraie option gratuite sans carte bancaire)
-// côté serveur, et retourne la liste des ingrédients alimentaires détectés.
+// une IA multimodale côté serveur, et retourne la liste des ingrédients
+// alimentaires détectés.
 //
-// Variables d'environnement (Project Settings → Environment Variables) :
-//  - GEMINI_API_KEY (obligatoire) : clé créée gratuitement sur
+// Deux fournisseurs possibles, choisis automatiquement selon les clés
+// présentes (Claude prioritaire si les deux sont configurées — meilleur
+// suivi des consignes de rigueur du prompt ci-dessous) :
+//
+//  - ANTHROPIC_API_KEY (optionnel) : clé Claude créée sur
+//    https://console.anthropic.com — payante à l'usage (pas de palier
+//    gratuit), mais coût très faible pour une image (quelques milliers de
+//    tokens par scan).
+//  - ANTHROPIC_MODEL (optionnel) : par défaut "claude-sonnet-5".
+//  - GEMINI_API_KEY (optionnel si ANTHROPIC_API_KEY est configurée, sinon
+//    obligatoire) : clé Google Gemini créée gratuitement sur
 //    https://aistudio.google.com/apikey (aucune carte bancaire requise pour
-//    le palier gratuit).
-//  - GEMINI_MODEL (optionnel) : identifiant du modèle à utiliser. Par défaut
-//    "gemini-2.5-flash". Si Google renomme ses modèles, changez juste cette
-//    variable, aucun redéploiement de code n'est nécessaire.
+//    le palier gratuit) — l'option par défaut de l'app.
+//  - GEMINI_MODEL (optionnel) : par défaut "gemini-2.5-flash". Si Google
+//    renomme ses modèles, changez juste cette variable, aucun redéploiement
+//    de code n'est nécessaire.
 //
-// Sans clé configurée, la fonction retourne une liste vide plutôt que de
-// planter : l'utilisateur peut toujours ajouter ses ingrédients à la main.
+// Sans aucune clé configurée, la fonction retourne une liste vide plutôt que
+// de planter : l'utilisateur peut toujours ajouter ses ingrédients à la main.
 // -----------------------------------------------------------------------------
 
-const DEFAULT_MODEL = 'gemini-2.5-flash'
+const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash'
+const DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-5'
 
 const JSON_FORMAT_RULES = `Réponds UNIQUEMENT avec un objet JSON valide (aucun texte avant/après, aucun bloc markdown), au format exact :
 {"items": [{"name": "nom en français, singulier, minuscule", "confidence": 0.0 à 1.0, "alternatives": ["autre nom possible", "..."], "count": nombre d'unités visibles, "weightGrams": nombre ou null}]}
@@ -86,19 +96,21 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-// Gemini répond parfois 503 "high demand" ou 429 "quota" — des erreurs
-// explicitement transitoires côté Google ("usually temporary" dans leur
-// propre message). Sans retentative, une seule surcharge passagère faisait
+// Les deux fournisseurs répondent parfois 429 "quota"/"rate limit" ou
+// 503/529 "surchargé" — des erreurs explicitement transitoires côté
+// fournisseur. Sans retentative, une seule surcharge passagère faisait
 // échouer toute l'analyse et affichait "aucun ingrédient détecté" à
 // l'utilisateur alors qu'un simple nouvel essai quelques centaines de ms
 // plus tard aurait suffi. Bornée à 2 tentatives supplémentaires avec un
 // court backoff pour rester dans le budget d'exécution de la fonction
 // serverless.
+const RETRYABLE_STATUSES = [429, 503, 529]
+
 async function fetchWithRetry(url, options, maxRetries = 2) {
   let lastResponse
   for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
     const response = await fetch(url, options)
-    if (response.ok || (response.status !== 503 && response.status !== 429)) {
+    if (response.ok || !RETRYABLE_STATUSES.includes(response.status)) {
       return response
     }
     lastResponse = response
@@ -107,16 +119,84 @@ async function fetchWithRetry(url, options, maxRetries = 2) {
   return lastResponse
 }
 
+async function callGemini(apiKey, model, image, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
+  const response = await fetchWithRetry(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            { inline_data: { mime_type: image.mediaType, data: image.base64 } },
+          ],
+        },
+      ],
+      generationConfig: {
+        responseMimeType: 'application/json',
+      },
+    }),
+  })
+
+  if (!response.ok) {
+    const errText = await response.text()
+    console.error('FrigoMind: erreur API Gemini', response.status, errText)
+    return { items: [], error: `Erreur API Gemini (${response.status})` }
+  }
+
+  const data = await response.json()
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+  const parsed = text ? extractJson(text) : null
+  return { items: Array.isArray(parsed?.items) ? parsed.items : [] }
+}
+
+async function callClaude(apiKey, model, image, prompt) {
+  const response = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model,
+      max_tokens: 2048,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: prompt },
+          ],
+        },
+      ],
+    }),
+  })
+
+  if (!response.ok) {
+    const errText = await response.text()
+    console.error('FrigoMind: erreur API Claude', response.status, errText)
+    return { items: [], error: `Erreur API Claude (${response.status})` }
+  }
+
+  const data = await response.json()
+  const text = data.content?.find((block) => block.type === 'text')?.text
+  const parsed = text ? extractJson(text) : null
+  return { items: Array.isArray(parsed?.items) ? parsed.items : [] }
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ items: [], error: 'Méthode non autorisée' })
     return
   }
 
-  const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    // Pas de clé configurée : on ne bloque jamais l'utilisateur, liste vide.
-    res.status(200).json({ items: [], error: 'GEMINI_API_KEY non configurée sur Vercel' })
+  const anthropicKey = process.env.ANTHROPIC_API_KEY
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!anthropicKey && !geminiKey) {
+    // Aucune clé configurée : on ne bloque jamais l'utilisateur, liste vide.
+    res.status(200).json({ items: [], error: 'Aucune clé IA configurée sur Vercel (ANTHROPIC_API_KEY ou GEMINI_API_KEY)' })
     return
   }
 
@@ -127,47 +207,15 @@ export default async function handler(req, res) {
   }
 
   const prompt = buildPrompt(req.body?.mode)
-  const model = process.env.GEMINI_MODEL || DEFAULT_MODEL
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`
 
   try {
-    const response = await fetchWithRetry(url, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              { inline_data: { mime_type: image.mediaType, data: image.base64 } },
-            ],
-          },
-        ],
-        generationConfig: {
-          responseMimeType: 'application/json',
-        },
-      }),
-    })
+    const result = anthropicKey
+      ? await callClaude(anthropicKey, process.env.ANTHROPIC_MODEL || DEFAULT_ANTHROPIC_MODEL, image, prompt)
+      : await callGemini(geminiKey, process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL, image, prompt)
 
-    if (!response.ok) {
-      const errText = await response.text()
-      console.error('FrigoMind: erreur API Gemini', response.status, errText)
-      res.status(200).json({ items: [], error: `Erreur API Gemini (${response.status})` })
-      return
-    }
-
-    const data = await response.json()
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-    const parsed = text ? extractJson(text) : null
-
-    if (!parsed || !Array.isArray(parsed.items)) {
-      res.status(200).json({ items: [] })
-      return
-    }
-
-    res.status(200).json({ items: parsed.items })
+    res.status(200).json(result)
   } catch (e) {
-    console.error('FrigoMind: analyse Gemini impossible', e)
+    console.error('FrigoMind: analyse IA impossible', e)
     res.status(200).json({ items: [] })
   }
 }
