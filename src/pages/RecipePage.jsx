@@ -15,6 +15,7 @@ import {
 } from '../utils/servings.js'
 import { BASE_SERVINGS, INGREDIENT_QUANTITIES } from '../data/ingredientQuantities.js'
 import { getSubstitutes, findAvailableSubstitute } from '../data/ingredientSubstitutes.js'
+import { ingredientsMatch } from '../logic/recipeEngine.js'
 import { getFavoriteKey } from '../utils/storage.js'
 import { estimateRecipeCalories } from '../utils/calories.js'
 import { getRecipeIntro, getRecipeTip } from '../utils/recipeVoice.js'
@@ -70,23 +71,47 @@ export default function RecipePage() {
   // favoris/l'historique sans détection en cours — on retombe alors sur la
   // suggestion générique, jamais sur une liste périmée d'une autre session.
   const availableIngredientNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
-  // Nombre d'unités RÉELLEMENT scanné par ingrédient (ex: "5" pour 5 tomates
-  // détectées à la photo) — voir mockVision.js. Comme availableIngredientNames
-  // ci-dessus, vide si la recette est ouverte depuis les favoris/l'historique
-  // (pas de scan en cours), ce qui désactive naturellement la comparaison
-  // ci-dessous plutôt que de comparer à une quantité périmée d'une autre
-  // session.
-  const scannedCounts = new Map(
-    state.ingredients.filter((i) => i.checked && Number.isFinite(i.count)).map((i) => [i.name, i.count])
-  )
-  // Poids/volume RÉELLEMENT scanné (grammes, ml compris) — uniquement quand
-  // lisible sur un emballage (voir api/analyze-fridge.js) : la plupart des
-  // ingrédients pesés n'en auront jamais (viande à la coupe, riz en vrac...),
-  // ce qui désactive naturellement la comparaison ci-dessous pour eux plutôt
+  // Ingrédients cochés (issus du scan ou ajoutés à la main), utilisés
+  // ci-dessous pour retrouver combien l'utilisateur a RÉELLEMENT de chaque
+  // ingrédient requis par la recette.
+  const checkedIngredients = state.ingredients.filter((i) => i.checked)
+  // Nombre d'unités RÉELLEMENT scanné/déclaré pour un ingrédient requis par
+  // la recette (ex: "5" pour 5 tomates détectées à la photo) — voir
+  // mockVision.js. Additionne TOUS les ingrédients cochés dont le nom
+  // correspond à `ing` au sens large (ingredientsMatch, la même règle que
+  // celle qui décide si l'ingrédient est "utilisé" dans la recette) : un
+  // "poivron rouge" et un "poivron vert" scannés séparément comptent tous
+  // les deux pour un "poivron" requis générique, sans quoi une recette
+  // demandant 3 poivrons semblait satisfaite alors qu'il n'y en avait que 2
+  // au total. `undefined` (pas juste 0) si rien ne correspond : la recette
+  // est peut-être ouverte depuis les favoris/l'historique (pas de scan en
+  // cours), ce qui désactive naturellement la comparaison ci-dessous plutôt
+  // que de comparer à une quantité périmée d'une autre session.
+  function sumScannedCount(ing) {
+    let total = 0
+    let found = false
+    for (const item of checkedIngredients) {
+      if (!Number.isFinite(item.count) || !ingredientsMatch(item.name, ing)) continue
+      total += item.count
+      found = true
+    }
+    return found ? total : undefined
+  }
+  // Même principe pour le poids/volume (grammes, ml compris) — uniquement
+  // quand lisible sur un emballage (voir api/analyze-fridge.js) : la plupart
+  // des ingrédients pesés n'en auront jamais (viande à la coupe, riz en
+  // vrac...), ce qui désactive naturellement la comparaison pour eux plutôt
   // que d'inventer un chiffre.
-  const scannedWeights = new Map(
-    state.ingredients.filter((i) => i.checked && Number.isFinite(i.weightGrams)).map((i) => [i.name, i.weightGrams])
-  )
+  function sumScannedWeight(ing) {
+    let total = 0
+    let found = false
+    for (const item of checkedIngredients) {
+      if (!Number.isFinite(item.weightGrams) || !ingredientsMatch(item.name, ing)) continue
+      total += item.weightGrams
+      found = true
+    }
+    return found ? total : undefined
+  }
   // Un ingrédient "utilisé" (scanné, présent dans la recette) peut quand même
   // ne pas suffire en quantité pour le nombre de personnes choisi (ex: 5
   // tomates scannées, 7 nécessaires pour 7 personnes ; ou 300 g de viande
@@ -98,7 +123,7 @@ export default function RecipePage() {
     const base = INGREDIENT_QUANTITIES[ing]
     if (!base) return null
     if (base.unit === 'pièce(s)') {
-      const have = scannedCounts.get(ing)
+      const have = sumScannedCount(ing)
       if (have === undefined) return null
       const needed = getRequiredPieceCount(ing, servings)
       if (needed === null) return null
@@ -106,7 +131,7 @@ export default function RecipePage() {
       return amount > 0 ? { amount, unit: 'pièce(s)' } : null
     }
     if (base.unit === 'g' || base.unit === 'ml') {
-      const have = scannedWeights.get(ing)
+      const have = sumScannedWeight(ing)
       if (have === undefined) return null
       const needed = getRequiredWeightGrams(ing, servings)
       if (needed === null) return null

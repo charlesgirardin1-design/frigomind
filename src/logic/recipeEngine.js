@@ -108,13 +108,20 @@ function containsPhrase(text, phrase) {
   return false
 }
 
+// Vrai si deux noms d'ingrédients désignent "la même chose" au sens large
+// utilisé pour le matching disponible/recette (ex: "poivron" <-> "poivron
+// rouge") — exporté pour que RecipePage.jsx applique exactement la même
+// règle quand il doit retrouver, parmi les ingrédients scannés, ceux qui
+// correspondent à un ingrédient requis par la recette (voir getShortfall).
+export function ingredientsMatch(a, b) {
+  const na = normalize(a)
+  const nb = normalize(b)
+  return na === nb || containsPhrase(na, nb) || containsPhrase(nb, na)
+}
+
 function includesIngredient(availableSet, ingredientName) {
-  const target = normalize(ingredientName)
   for (const available of availableSet) {
-    const normAvailable = normalize(available)
-    if (normAvailable === target || containsPhrase(normAvailable, target) || containsPhrase(target, normAvailable)) {
-      return true
-    }
+    if (ingredientsMatch(available, ingredientName)) return true
   }
   return false
 }
