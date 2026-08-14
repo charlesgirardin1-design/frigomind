@@ -10,6 +10,17 @@ const LEVEL_STYLES = {
   moyen: 'badge-neutral',
 }
 
+// Dégradé pastel de la tuile emoji selon la "vibe" de la recette
+// (recipe.cuisine, 3 valeurs seulement : rapide/healthy/gourmand — pas une
+// cuisine du monde) — donne plus de caractère à la grille de résultats
+// qu'un simple aplat de couleur identique sur toutes les cartes.
+const CUISINE_GRADIENTS = {
+  rapide: 'bg-gradient-to-br from-sky-100 to-cyan-50',
+  healthy: 'bg-gradient-to-br from-fresh-100 to-fresh-50',
+  gourmand: 'bg-gradient-to-br from-zest-100 to-zest-50',
+}
+const DEFAULT_GRADIENT = 'bg-gradient-to-br from-neutral-100 to-neutral-50'
+
 // Angles (degrés) des particules de la petite explosion au moment où on
 // ajoute une recette aux favoris — voir HeartBurst ci-dessous.
 const BURST_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315]
@@ -91,7 +102,7 @@ export default function RecipeCard({ recipe, onOpen, isFavorite, onToggleFavorit
         <div className="relative shrink-0">
           <div
             className={`icon-badge transition-transform duration-200 group-hover:scale-110 ${
-              recipe.antiGaspi ? 'bg-zest-50' : 'bg-fresh-50'
+              CUISINE_GRADIENTS[recipe.cuisine] || DEFAULT_GRADIENT
             }`}
             aria-hidden
           >

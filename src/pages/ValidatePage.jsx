@@ -6,6 +6,7 @@ import PreferencesPanel from '../components/PreferencesPanel.jsx'
 import AntiGaspiBanner from '../components/AntiGaspiBanner.jsx'
 import IngredientSuggestions from '../components/IngredientSuggestions.jsx'
 import BarcodeScanner from '../components/BarcodeScanner.jsx'
+import FlowStepper from '../components/FlowStepper.jsx'
 import { suggestComplementaryIngredients } from '../logic/recipeEngine.js'
 
 const STRINGS = {
@@ -123,6 +124,8 @@ export default function ValidatePage() {
       <button onClick={() => goTo('upload')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
+
+      <FlowStepper step={2} />
 
       <h2 className="text-2xl font-bold text-neutral-900">{s.title}</h2>
       <p className="text-neutral-500 mt-1">{s.subtitle}</p>

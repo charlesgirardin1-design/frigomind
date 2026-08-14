@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react'
 import RecipeCard from '../components/RecipeCard.jsx'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { isFavoriteRecipe } from '../utils/storage.js'
 import { IllustrationTile, PotGlyph } from '../components/Illustrations.jsx'
+import FlowStepper from '../components/FlowStepper.jsx'
+import ConfettiBurst from '../components/ConfettiBurst.jsx'
 
 const STRINGS = {
   fr: {
@@ -29,17 +32,28 @@ const STRINGS = {
 
 // Page résultats : grille de 3 à 5 recettes (ou 1 seule en mode "surprise").
 export default function ResultsPage() {
-  const { state, goTo, resetSession, surpriseMe, toggleFavorite, openRecipe } = useApp()
+  const { state, goTo, resetSession, surpriseMe, toggleFavorite, openRecipe, clearJustGenerated } = useApp()
   const lang = useLanguage()
   const s = STRINGS[lang]
 
   const checkedNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
+  // Capturé une seule fois au montage : `state.justGenerated` retombe à
+  // false juste après (clearJustGenerated), donc un simple retour sur cette
+  // page (depuis le détail d'une recette) ne rejoue jamais les confettis.
+  const [showConfetti, setShowConfetti] = useState(state.justGenerated)
+  useEffect(() => {
+    if (state.justGenerated) clearJustGenerated()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="max-w-4xl mx-auto px-4 pt-8 pb-16 animate-fadeIn">
+      {showConfetti && <ConfettiBurst onDone={() => setShowConfetti(false)} />}
       <button onClick={() => goTo('validate')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {s.backEdit}
       </button>
+
+      <FlowStepper step={3} />
 
       <h2 className="text-2xl font-bold text-neutral-900">
         {state.isSurprise ? s.surpriseTitle : s.normalTitle}

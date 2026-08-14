@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import Header from './components/Header.jsx'
 import HomePage from './pages/HomePage.jsx'
 import CookieBanner from './components/CookieBanner.jsx'
@@ -82,6 +82,37 @@ const VIEWS = {
   admin: AdminPage,
 }
 
+// Durée de la sortie (voir la classe `pageLeave` dans tailwind.config.js) —
+// doit rester synchronisée avec elle : le composant affiché est retardé de
+// ce délai après un changement de vue, le temps que l'ancienne page finisse
+// de s'effacer, avant que la nouvelle prenne sa place et s'anime à son tour
+// (`animate-fadeIn`, déjà en place). Sans ce délai, React démonte l'ancienne
+// page instantanément et la nouvelle apparaît d'un coup sec ; ce petit
+// retard fait lire la transition comme un enchaînement plutôt qu'une coupure.
+const PAGE_LEAVE_MS = 130
+
+// Vue actuellement affichée (peut décaler d'un cran par rapport à
+// `state.view` pendant la brève fenêtre de sortie) + phase d'animation en
+// cours, pour App.jsx.
+function usePageTransition(view) {
+  const [displayedView, setDisplayedView] = useState(view)
+  const [phase, setPhase] = useState('enter')
+  const prevView = useRef(view)
+
+  useEffect(() => {
+    if (view === prevView.current) return
+    prevView.current = view
+    setPhase('leave')
+    const timer = setTimeout(() => {
+      setDisplayedView(view)
+      setPhase('enter')
+    }, PAGE_LEAVE_MS)
+    return () => clearTimeout(timer)
+  }, [view])
+
+  return { displayedView, phase }
+}
+
 export default function App() {
   const { state, goTo, setViewSilently, resetSession, requireLogin } = useApp()
   const { user, authLoading } = useAuth()
@@ -98,6 +129,7 @@ export default function App() {
     window.location.hash = `#${id}`
   }
   const isProtectedView = !PUBLIC_VIEWS.has(state.view)
+  const { displayedView, phase } = usePageTransition(state.view)
 
   // Met à jour l'onglet du navigateur (titre + meta description) à chaque
   // changement de vue ou de langue — la SPA n'a pas de routeur/URL distincte
@@ -163,13 +195,21 @@ export default function App() {
     }
   }, [user, authLoading, goTo])
 
-  const CurrentView = isProtectedView && (authLoading || !user) ? AuthGateLoading : VIEWS[state.view] || HomePage
+  // Le composant réellement rendu suit `displayedView` (qui décale d'un cran
+  // pendant la brève fenêtre de sortie, voir usePageTransition) plutôt que
+  // `state.view` directement, pour que la protection auth reste cohérente
+  // avec la page effectivement affichée pendant la transition — sinon un
+  // changement de vue publique -> protégée ferait clignoter AuthGateLoading
+  // avant même que l'ancienne page ait fini de s'effacer.
+  const isDisplayedViewProtected = !PUBLIC_VIEWS.has(displayedView)
+  const CurrentView =
+    isDisplayedViewProtected && (authLoading || !user) ? AuthGateLoading : VIEWS[displayedView] || HomePage
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        <div key={state.view} className="animate-fadeIn">
+        <div key={displayedView} className={phase === 'leave' ? 'animate-pageLeave' : 'animate-fadeIn'}>
           <Suspense fallback={<AuthGateLoading />}>
             <CurrentView />
           </Suspense>

@@ -43,6 +43,11 @@ const initialState = {
   activeRecipeId: null,
   history: [],
   isSurprise: false,
+  // Vrai juste après une génération réussie (voir SET_RECIPES) — consommé une
+  // seule fois par ResultsPage pour déclencher une petite célébration
+  // (confettis), jamais si on revient sur "results" par un simple retour
+  // depuis le détail d'une recette (CLOSE_RECIPE, qui ne touche pas ce champ).
+  justGenerated: false,
   favorites: [],
   activeIngredient: '',
   redirectTo: null,
@@ -111,7 +116,15 @@ function reducer(state, action) {
     case 'SET_PREFERENCES':
       return { ...state, preferences: { ...state.preferences, ...action.prefs } }
     case 'SET_RECIPES':
-      return { ...state, recipes: action.recipes, view: 'results', isSurprise: !!action.isSurprise }
+      return {
+        ...state,
+        recipes: action.recipes,
+        view: 'results',
+        isSurprise: !!action.isSurprise,
+        justGenerated: action.recipes.length > 0,
+      }
+    case 'CLEAR_JUST_GENERATED':
+      return { ...state, justGenerated: false }
     case 'SET_ACTIVE_RECIPE':
       return { ...state, activeRecipeId: action.id }
     case 'OPEN_RECIPE':
@@ -290,6 +303,7 @@ export function AppProvider({ children }) {
   }, [lang])
 
   const setPhoto = useCallback((photoDataUrl) => dispatch({ type: 'SET_PHOTO', photo: photoDataUrl }), [])
+  const clearJustGenerated = useCallback(() => dispatch({ type: 'CLEAR_JUST_GENERATED' }), [])
 
   const analyzePhoto = useCallback(async (photoDataUrl, mode = 'frigo') => {
     dispatch({ type: 'START_ANALYSIS' })
@@ -432,6 +446,7 @@ export function AppProvider({ children }) {
       setViewSilently,
       requireLogin,
       setPhoto,
+      clearJustGenerated,
       analyzePhoto,
       toggleIngredient,
       renameIngredient,
@@ -457,6 +472,7 @@ export function AppProvider({ children }) {
       setViewSilently,
       requireLogin,
       setPhoto,
+      clearJustGenerated,
       analyzePhoto,
       toggleIngredient,
       renameIngredient,

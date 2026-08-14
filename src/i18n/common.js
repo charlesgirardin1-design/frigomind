@@ -74,6 +74,11 @@ export const COMMON = {
       dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Végétarien', 'sans-gluten': '🌾 Sans gluten' },
       chefTip: '👩‍🍳 Astuce',
     },
+    flow: {
+      photo: 'Photo',
+      validate: 'Validation',
+      recipes: 'Recettes',
+    },
   },
   en: {
     backHome: '← Home',
@@ -137,6 +142,11 @@ export const COMMON = {
       whyItWorks: '💡 Why it works',
       dietLabels: { vegan: '🌱 Vegan', vegetarien: '🥬 Vegetarian', 'sans-gluten': '🌾 Gluten-free' },
       chefTip: "👩‍🍳 Chef's tip",
+    },
+    flow: {
+      photo: 'Photo',
+      validate: 'Validate',
+      recipes: 'Recipes',
     },
   },
 }

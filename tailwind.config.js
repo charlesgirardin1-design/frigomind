@@ -44,6 +44,15 @@ export default {
         xl2: '1.25rem',
       },
       keyframes: {
+        // Sortie rapide d'une page avant l'arrivée de la suivante (voir
+        // usePageTransition dans App.jsx) — même vocabulaire que `fadeIn`
+        // (translation + échelle) mais en sens inverse et plus bref, pour
+        // qu'un changement de page se lise comme un enchaînement fluide
+        // plutôt qu'une coupure brute.
+        pageLeave: {
+          from: { opacity: 1, transform: 'translateY(0) scale(1)' },
+          to: { opacity: 0, transform: 'translateY(-6px) scale(0.99)' },
+        },
         fadeIn: {
           from: { opacity: 0, transform: 'translateY(10px) scale(0.99)' },
           to: { opacity: 1, transform: 'translateY(0) scale(1)' },
@@ -110,9 +119,17 @@ export default {
           '0%': { opacity: 1, transform: 'scale(0.6) translate(0, 0)' },
           '100%': { opacity: 0, transform: 'scale(1) translate(var(--dx, 0), var(--dy, 0))' },
         },
+        // Chute d'un confetti (voir ConfettiBurst.jsx) : chaque particule
+        // fixe sa propre dérive latérale (--drift) et rotation finale
+        // (--rotate) via variables CSS, une seule keyframe pour toutes.
+        confettiFall: {
+          '0%': { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+          '100%': { transform: 'translate(var(--drift, 0px), 70vh) rotate(var(--rotate, 180deg))', opacity: 0 },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.35s ease-out both',
+        pageLeave: 'pageLeave 0.13s ease-in both',
         popIn: 'popIn 0.2s ease-out both',
         float: 'float 4.5s ease-in-out infinite',
         blob: 'blob 12s ease-in-out infinite',
@@ -124,6 +141,7 @@ export default {
         calendarFlip: 'calendarFlip 0.6s ease-in-out both',
         blink: 'blink 1s step-end infinite',
         sparkBurst: 'sparkBurst 550ms ease-out forwards',
+        confettiFall: 'confettiFall 1.4s ease-in forwards',
       },
     },
   },

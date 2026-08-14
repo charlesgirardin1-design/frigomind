@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useApp } from '../state/AppContext.jsx'
 import { useLanguage } from '../state/LanguageContext.jsx'
 import { COMMON } from '../i18n/common.js'
 import { IllustrationTile, CameraGlyph } from '../components/Illustrations.jsx'
 import { resizeImageFile } from '../utils/image.js'
+import FlowStepper from '../components/FlowStepper.jsx'
 
 // Les photos de smartphone (souvent 3-10 Mo) dépassent la limite de taille
 // des fonctions serverless Vercel (~4,5 Mo) une fois encodées en base64,
@@ -31,6 +32,12 @@ const STRINGS = {
     importPhoto: '🗂️ Importer une image',
     analyzing: 'Analyse en cours…',
     analyze: '🔍 Analyser mes ingrédients',
+    // Séquence affichée pendant l'analyse (voir ANALYZING_STEP_MS) : avance
+    // d'une étape à l'autre pour donner un sentiment de progression réelle
+    // plutôt qu'un simple spinner statique — reste sur la dernière tant que
+    // l'analyse n'est pas terminée, puisque sa durée réelle est imprévisible
+    // (réseau + IA).
+    analyzingSteps: ['🔍 On regarde votre photo…', '🧠 On identifie les ingrédients…', '✨ Presque prêt…'],
   },
   en: {
     title: 'Add a photo',
@@ -48,8 +55,13 @@ const STRINGS = {
     importPhoto: '🗂️ Import an image',
     analyzing: 'Analyzing…',
     analyze: '🔍 Analyze my ingredients',
+    analyzingSteps: ['🔍 Looking at your photo…', '🧠 Identifying ingredients…', '✨ Almost there…'],
   },
 }
+
+// Durée d'une étape de la séquence "analyse en cours" (voir analyzingSteps
+// ci-dessus). Ni trop courte (illisible), ni trop longue (a l'air figé).
+const ANALYZING_STEP_MS = 1700
 
 // Page d'upload : deux boutons (prendre une photo / importer une image),
 // aperçu immédiat, puis lancement de l'analyse IA (mock).
@@ -59,8 +71,25 @@ export default function UploadPage() {
   const s = STRINGS[lang]
   const [localPreview, setLocalPreview] = useState(state.photo)
   const [scanMode, setScanMode] = useState('frigo')
+  const [analyzingStep, setAnalyzingStep] = useState(0)
   const cameraInputRef = useRef(null)
   const galleryInputRef = useRef(null)
+
+  // Fait avancer la séquence de statuts pendant l'analyse (voir
+  // analyzingSteps) — s'arrête sur la dernière étape plutôt que de boucler,
+  // pour ne pas donner l'impression que l'analyse recommence à zéro si elle
+  // prend plus de temps que prévu (réseau lent, IA surchargée...).
+  useEffect(() => {
+    if (!state.isAnalyzing) {
+      setAnalyzingStep(0)
+      return
+    }
+    const steps = STRINGS[lang].analyzingSteps
+    const interval = setInterval(() => {
+      setAnalyzingStep((n) => Math.min(n + 1, steps.length - 1))
+    }, ANALYZING_STEP_MS)
+    return () => clearInterval(interval)
+  }, [state.isAnalyzing, lang])
 
   async function handleFile(e) {
     const file = e.target.files?.[0]
@@ -120,6 +149,8 @@ export default function UploadPage() {
       <button onClick={() => goTo('home')} className="text-sm text-neutral-500 hover:text-neutral-700 mb-4">
         {COMMON[lang].back}
       </button>
+
+      <FlowStepper step={1} />
 
       <h2 className="text-2xl font-bold text-neutral-900">{s.title}</h2>
       <p className="text-neutral-500 mt-1">{s.subtitle}</p>
@@ -222,12 +253,28 @@ export default function UploadPage() {
             {state.isAnalyzing ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" />
-                {s.analyzing}
+                {/* `key` sur l'étape : force un petit fondu à chaque
+                    changement plutôt qu'un texte qui saute brutalement. */}
+                <span key={analyzingStep} className="animate-fadeIn">
+                  {s.analyzingSteps[analyzingStep]}
+                </span>
               </span>
             ) : (
               s.analyze
             )}
           </button>
+          {state.isAnalyzing && (
+            <div className="mt-2.5 flex items-center gap-1.5" role="status" aria-label={s.analyzing}>
+              {s.analyzingSteps.map((_, i) => (
+                <span
+                  key={i}
+                  className={`h-1.5 rounded-full transition-all duration-500 ${
+                    i <= analyzingStep ? 'w-6 bg-fresh-500' : 'w-1.5 bg-neutral-200'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
