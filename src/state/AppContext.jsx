@@ -100,6 +100,11 @@ function reducer(state, action) {
         confidence: 1,
         alternatives: [],
         checked: true,
+        // Compte à 1 par défaut, ajustable ensuite via le contrôle +/- (voir
+        // ValidatePage.jsx) — un ingrédient ajouté à la main a autant besoin
+        // de préciser "j'en ai 10" qu'un ingrédient scanné, pour bénéficier
+        // du même avertissement de quantité insuffisante dans la recette.
+        count: 1,
       }
       return { ...state, ingredients: [...state.ingredients, newIng] }
     }

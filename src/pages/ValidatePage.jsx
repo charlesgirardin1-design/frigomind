@@ -157,9 +157,10 @@ export default function ValidatePage() {
                     garanti exact (angle, occultation partielle...) — plutôt
                     qu'un badge figé, un vrai contrôle +/- pour corriger le
                     chiffre en un geste sans supprimer/rajouter l'ingrédient.
-                    N'existe que pour les ingrédients issus du scan (`count`
-                    défini) : un ingrédient ajouté à la main n'a pas cette
-                    notion de quantité comptée. */}
+                    Un ingrédient ajouté à la main démarre aussi à 1 (voir
+                    ADD_INGREDIENT dans AppContext.jsx) : même contrôle, pour
+                    pouvoir préciser "j'en ai 10" et bénéficier du même
+                    avertissement de quantité insuffisante dans la recette. */}
                 {ing.count !== undefined && (
                   <div className="flex items-center gap-0.5 bg-neutral-100 rounded-full pl-1 pr-1 py-0.5">
                     <button
