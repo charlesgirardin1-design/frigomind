@@ -5,7 +5,7 @@
 // photos de smartphone brutes (souvent plusieurs Mo).
 // -----------------------------------------------------------------------------
 
-export function resizeImageFile(file, maxDim = 1280, quality = 0.82) {
+export function resizeImageFile(file, maxDim = 1600, quality = 0.85) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onerror = () => reject(reader.error)

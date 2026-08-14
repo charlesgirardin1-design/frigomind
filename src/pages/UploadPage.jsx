@@ -8,9 +8,11 @@ import { resizeImageFile } from '../utils/image.js'
 // Les photos de smartphone (souvent 3-10 Mo) dépassent la limite de taille
 // des fonctions serverless Vercel (~4,5 Mo) une fois encodées en base64,
 // ce qui faisait échouer silencieusement l'analyse (liste vide, sans
-// message d'erreur visible). resizeImageFile les redimensionne à 1280px max
-// de large et les recompresse en JPEG qualité ~0.82, largement suffisant pour
-// la reconnaissance d'aliments par l'IA.
+// message d'erreur visible). resizeImageFile les redimensionne à 1600px max
+// de large et les recompresse en JPEG qualité ~0.85 — un compromis qui garde
+// assez de détail pour distinguer les ingrédients visuellement proches
+// (pomme de terre/oignon...) ou repérer les petits objets à l'arrière-plan,
+// tout en restant très largement sous la limite de taille une fois encodé.
 
 const STRINGS = {
   fr: {
