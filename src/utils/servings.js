@@ -138,6 +138,25 @@ function leadingNumber(str) {
   return match ? match[1] : null
 }
 
+// Fenêtre de texte tolérée entre un nombre et le nom d'ingrédient/unité
+// repéré juste après (voir les 3 usages ci-dessous) : n'importe quel
+// caractère SAUF une vraie ponctuation de fin de proposition (`,` `;` `.`),
+// pour ne jamais laisser le lookahead déborder sur un AUTRE ingrédient
+// mentionné plus loin dans la même phrase. Exception explicite pour "c."
+// (abréviation de "cuillère", ex: "c. à soupe"/"c. à café") : SANS elle, le
+// point de cette abréviation était lu à tort comme une fin de phrase et
+// coupait le lookahead avant même d'atteindre le nom de l'ingrédient — bug
+// réel qui empêchait "2 c. à soupe de miel"/"1 c. à café de cannelle" de se
+// recalculer avec le nombre de personnes, quel que soit `servings` (audit
+// systématique : ~1500 mentions concernées sur la base de recettes, tous
+// les assaisonnements/toppings mesurés en cuillères).
+const GAP = '(?:c\\.|[^,;.])'
+
+// Texte de remplissage toléré à l'intérieur d'une parenthèse contenant une
+// quantité ("nom (... NOMBRE unité ...)") — jamais de parenthèse imbriquée
+// ([^()] exclut aussi bien "(" que ")"), borné pour rester raisonnable.
+const PAREN_FILLER = '[^()]{0,25}'
+
 // Motif regex identifiant un ingrédient donné (dans sa forme traduite pour
 // `lang`) à l'intérieur d'un texte libre — "s?" sur CHAQUE mot (pas
 // seulement le dernier) car le pluriel d'un nom composé porte souvent sur le
@@ -320,8 +339,8 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       const scaled = scaleIngredientQuantity(ing, servings, lang)
       if (!scaled) continue
       // Forme "50 g of almonds"/"50 g d'amandes" : le nombre précède,
-      // l'ingrédient suit dans les 15 caractères (lookahead avant).
-      const regex = new RegExp(`\\b${baseAmountStr}\\s*${base.unit}\\b(?=[^,;.]{0,15}${ingPattern})`, 'gi')
+      // l'ingrédient suit dans les 30 caractères (lookahead avant).
+      const regex = new RegExp(`\\b${baseAmountStr}\\s*${base.unit}\\b(?=${GAP}{0,30}${ingPattern})`, 'gi')
       result = result.replace(regex, scaled)
       // Forme inversée "almonds (50 g)"/"amandes (50 g)" : l'ingrédient
       // précède, le poids/volume est entre parenthèses — le lookahead
@@ -332,11 +351,20 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       // pour les ingrédients comptés à la pièce, mais ici on RECALCULE le
       // nombre au lieu de juste retirer la parenthèse (le poids n'est pas
       // redondant avec le nom comme peut l'être un compte à la pièce).
+      // `PAREN_FILLER` tolère du texte de part et d'autre à l'intérieur —
+      // audit systématique : la formulation réelle varie beaucoup ("bouillon
+      // CHAUD (500 ml)", "eau (ENVIRON 500 ml)", "fromage (200 g AU TOTAL)",
+      // "crème fraîche (PRIS DANS LES 200 ml)"...) — sans cette tolérance,
+      // seule la forme exacte "nom (nombre unité)" collée était recalculée.
       const parenRegex = new RegExp(
-        `(${ingPattern})(\\s*\\()${escapeRegex(baseAmountStr)}\\s*${base.unit}(\\))`,
+        `(${ingPattern}${PAREN_FILLER}\\()(${PAREN_FILLER})${escapeRegex(baseAmountStr)}\\s*${base.unit}(${PAREN_FILLER})(\\))`,
         'gi'
       )
-      result = result.replace(parenRegex, (match, name, openParen, closeParen) => `${name}${openParen}${scaled}${closeParen}`)
+      result = result.replace(
+        parenRegex,
+        (match, nameToOpenParen, innerBefore, innerAfter, closeParen) =>
+          `${nameToOpenParen}${innerBefore}${scaled}${innerAfter}${closeParen}`
+      )
       continue
     }
 
@@ -359,7 +387,7 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       // `sprig(s)` "voir" jusqu'à travers la mention d'un AUTRE ingrédient
       // compté juste avant dans la même phrase, et le nombre du mauvais
       // ingrédient se fait réécrire à sa place.
-      const numberRegex = new RegExp(`\\b${baseAmountStr}\\b(?=[^,;.]{0,15}${unitAltPattern})`, 'gi')
+      const numberRegex = new RegExp(`\\b${baseAmountStr}\\b(?=${GAP}{0,30}${unitAltPattern})`, 'gi')
       const count = shouldRescale ? rounded : base.amount
       result = result.replace(numberRegex, numberInText)
       result = result.replace(unitRegex, count <= 1 ? singular : plural)
@@ -370,8 +398,29 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
     const scaled = scaleIngredientQuantity(ing, servings, lang)
     const newNumber = leadingNumber(scaled)
     if (!newNumber) continue
-    const regex = new RegExp(`\\b${baseAmountStr}\\b(?=[^,;.]{0,15}${ingPattern})`, 'gi')
+    // Dernier filet (unités "c. à soupe"/"c. à café"/"pincée"...) : le
+    // connecteur "NOMBRE UNITÉ de/d' NOM" est plus long que pour g/ml/
+    // pièce(s) (ex: "2 c. à soupe de miel" = 15 caractères pile entre le
+    // nombre et le nom) — un ancien seuil de 15 caractères ratait
+    // silencieusement CE cas précis, laissant miel/huile/sucre/épices figés
+    // à leur valeur de base dans le texte des étapes quel que soit le
+    // nombre de personnes choisi (audit systématique : ~1500 mentions
+    // concernées sur la base). 30 caractères couvre confortablement toutes
+    // les unités existantes tout en restant borné par la ponctuation
+    // ([^,;.]) pour ne jamais déborder sur un AUTRE ingrédient de la même
+    // phrase.
+    const regex = new RegExp(`\\b${baseAmountStr}\\b(?=${GAP}{0,30}${ingPattern})`, 'gi')
     result = result.replace(regex, newNumber)
+    // Forme inversée "cannelle (1 c. à café)"/"cinnamon (1 tsp)" : même
+    // principe que pour g/ml ci-dessus (voir PAREN_FILLER), mais ici seul le
+    // NOMBRE change (l'unité — cuillère, pincée, gousse/sachet — ne
+    // s'accorde jamais au pluriel en français comme en anglais dans ce
+    // contexte, contrairement à gousse(s)/tranche(s) gérés juste au-dessus).
+    const parenNumberRegex = new RegExp(
+      `(${ingPattern}${PAREN_FILLER}\\()(${PAREN_FILLER})${escapeRegex(baseAmountStr)}(?=${PAREN_FILLER}${escapeRegex(rawUnit)})`,
+      'gi'
+    )
+    result = result.replace(parenNumberRegex, (match, nameToOpenParen, innerBefore) => `${nameToOpenParen}${innerBefore}${newNumber}`)
   }
 
   return inflectBracketedWords(result)
