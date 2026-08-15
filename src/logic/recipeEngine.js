@@ -426,17 +426,37 @@ export function generateRecipes(validatedIngredients, prefs = {}) {
 
   // 1) on tente d'abord avec TOUS les filtres de préférences appliqués, en ne
   //    gardant que les recettes qui ont un minimum de rapport avec ce que
-  //    l'utilisateur a réellement (au moins un ingrédient requis ou
-  //    optionnel en commun) — pas besoin d'utiliser TOUT ce qu'il a validé
-  //    (voir scoreRecipe : `coverage` influence juste le classement), mais
-  //    une recette sans le moindre ingrédient en commun n'est pas pertinente.
+  //    l'utilisateur a réellement — un ingrédient REQUIS en commun
+  //    spécifiquement (pas juste optionnel : une recette dont seul un
+  //    ingrédient optionnel matche pouvait passer ce filtre alors qu'aucun
+  //    de ses ingrédients principaux n'est disponible, ex: "sel" ou "huile"
+  //    matchés par coïncidence sur une recette dont la viande/le légume
+  //    vedette reste entièrement à acheter). Pas besoin d'utiliser TOUT ce
+  //    qu'il a validé (voir scoreRecipe : `coverage` influence juste le
+  //    classement), mais une recette sans le moindre ingrédient REQUIS en
+  //    commun n'est pas pertinente.
   let candidates = scored
     .filter(({ recipe }) => applyPreferenceFilters(recipe, prefs))
-    .filter((c) => available.length === 0 || c.requiredMatched.length + c.optionalMatched.length > 0)
+    .filter((c) => available.length === 0 || c.requiredMatched.length > 0)
 
-  // 2) on ne garde que les recettes avec au maximum 1 ingrédient requis manquant
-  //    (règle "réaliste niveau étudiant" : pas besoin de courir acheter 3 choses)
-  let strong = candidates.filter((c) => c.requiredMissing.length <= 1 && c.score > 0)
+  // 2) Signalé : une recette pouvait être retenue en n'utilisant qu'UN SEUL
+  //    ingrédient requis réellement disponible (ex: juste "miel" et "beurre"
+  //    dans une recette qui en demande 3, la troisième étant justement le
+  //    fruit vedette de la recette) tant qu'il ne manquait qu'UN ingrédient
+  //    requis au total — alors qu'une autre recette utilisant PLUS des
+  //    ingrédients réellement scannés (ex: 3 correspondances) était rejetée
+  //    d'entrée parce qu'il lui manquait 2 ingrédients, sans même avoir sa
+  //    chance dans le tri par `usedCount` ci-dessous. Résultat : la recette
+  //    proposée pouvait avoir ses ingrédients PRINCIPAUX presque tous à
+  //    acheter, l'inverse de l'objectif de l'app. Remplace le plafond
+  //    absolu ("au plus 1 manquant") par une règle relative : la recette
+  //    doit avoir AU MOINS AUTANT d'ingrédients requis déjà disponibles que
+  //    manquants (le principal de la recette doit dominer, pas la liste de
+  //    courses), tout en gardant un plafond absolu ("réaliste niveau
+  //    étudiant" : jamais plus de 2 ingrédients requis à acheter d'un coup).
+  let strong = candidates.filter(
+    (c) => c.requiredMissing.length <= 2 && c.requiredMatched.length >= c.requiredMissing.length && c.score > 0
+  )
 
   // Recettes "maison" générées à la volée (voir buildSmartFallbackRecipes) :
   // toujours calculées et mises en concurrence avec les vraies recettes de la
