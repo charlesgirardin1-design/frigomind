@@ -10,7 +10,11 @@ const STRINGS = {
     unsupported: "Le scan de code-barres n'est pas pris en charge par ce navigateur — essayez avec Chrome sur Android, ou ajoutez l'ingrédient à la main.",
     cameraError: "Impossible d'accéder à la caméra. Vérifiez que vous avez autorisé l'accès dans votre navigateur.",
     looking: 'Recherche du produit…',
-    notFound: "Produit non reconnu pour ce code-barres. Réessayez ou ajoutez l'ingrédient à la main.",
+    notFound: "Ce produit n'existe pas dans la base Open Food Facts (base participative — les produits récents ou peu connus n'y sont pas toujours). Réessayez ou ajoutez l'ingrédient à la main.",
+    // Distinct de `notFound` : ici le code-barres a bien été lu, mais la
+    // recherche elle-même a échoué (réseau, timeout...) — pas la même cause
+    // ni le même conseil qu'un produit réellement absent de la base.
+    lookupError: 'Problème de connexion pendant la recherche du produit. Réessayez.',
     close: 'Fermer',
     retry: 'Réessayer',
   },
@@ -21,7 +25,8 @@ const STRINGS = {
     unsupported: "Barcode scanning isn't supported by this browser — try Chrome on Android, or add the ingredient by hand.",
     cameraError: 'Could not access the camera. Check that you allowed camera access in your browser.',
     looking: 'Looking up the product…',
-    notFound: "This barcode wasn't recognized. Try again or add the ingredient by hand.",
+    notFound: "This product isn't in the Open Food Facts database (a crowdsourced database — recent or lesser-known products aren't always listed). Try again or add the ingredient by hand.",
+    lookupError: 'Connection issue while looking up the product. Please try again.',
     close: 'Close',
     retry: 'Retry',
   },
@@ -180,6 +185,43 @@ async function normalizeProductName({ name, brands, categoriesTags, imageUrl }) 
   }
 }
 
+const OFF_FETCH_TIMEOUT_MS = 6000
+const OFF_FIELDS =
+  'product_name,product_name_fr,generic_name,generic_name_fr,categories_tags,brands,image_front_url,image_url'
+
+// Un seul essai suffisait presque toujours, mais un simple aléa réseau
+// (mobile, wifi capricieux) faisait échouer toute la recherche et affichait
+// "produit non reconnu" comme si le produit était réellement absent de la
+// base — trompeur, et ça donnait l'impression que le scan "s'était mis à
+// mal marcher" alors que c'était juste un raté ponctuel. Une tentative
+// supplémentaire après un court délai, plus un timeout explicite (sans ça,
+// une requête qui traîne bloque indéfiniment sur "Recherche du produit…").
+// Distingue volontairement un échec réseau (`ok: false`, cause à part) d'un
+// produit réellement absent de la base (`ok: true, product: null`), pour
+// que l'appelant puisse afficher le bon message dans chaque cas.
+async function fetchOffProduct(barcode, attempt = 0) {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), OFF_FETCH_TIMEOUT_MS)
+  try {
+    const res = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=${OFF_FIELDS}`,
+      { signal: controller.signal }
+    )
+    if (!res.ok) throw new Error(`Open Food Facts a répondu ${res.status}`)
+    const data = await res.json()
+    return { ok: true, product: data?.product || null }
+  } catch (e) {
+    if (attempt < 1) {
+      await new Promise((r) => setTimeout(r, 500))
+      return fetchOffProduct(barcode, attempt + 1)
+    }
+    console.error('FrigoMind: recherche produit Open Food Facts impossible', e)
+    return { ok: false, product: null }
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
 // Scanne un code-barres via l'API native BarcodeDetector (Chrome/Edge/
 // Android — pas de librairie tierce) puis récupère le nom du produit via
 // l'API publique et gratuite Open Food Facts (pas de clé requise). Le nom
@@ -191,7 +233,7 @@ export default function BarcodeScanner({ onDetected, onClose }) {
   const videoRef = useRef(null)
   const streamRef = useRef(null)
   const rafRef = useRef(null)
-  const [phase, setPhase] = useState('scanning') // 'scanning' | 'looking' | 'error' | 'notfound' | 'cameraError'
+  const [phase, setPhase] = useState('scanning') // 'scanning' | 'looking' | 'notfound' | 'lookupError' | 'cameraError'
   const supported = typeof window !== 'undefined' && 'BarcodeDetector' in window
 
   function stopCamera() {
@@ -257,12 +299,15 @@ export default function BarcodeScanner({ onDetected, onClose }) {
     async function handleDetected(barcode) {
       stopCamera()
       setPhase('looking')
+      const { ok, product } = await fetchOffProduct(barcode)
+      if (!ok) {
+        // Échec réseau (voir fetchOffProduct, déjà retenté une fois) — pas
+        // la même situation ni le même message qu'un produit réellement
+        // absent de la base.
+        if (!cancelled) setPhase('lookupError')
+        return
+      }
       try {
-        const res = await fetch(
-          `https://world.openfoodfacts.org/api/v2/product/${barcode}.json?fields=product_name,product_name_fr,generic_name,generic_name_fr,categories_tags,brands,image_front_url,image_url`
-        )
-        const data = await res.json()
-        const product = data?.product
         const rawName = product?.product_name_fr || product?.product_name
 
         // `generic_name(_fr)` est censé contenir une description générique
@@ -280,7 +325,7 @@ export default function BarcodeScanner({ onDetected, onClose }) {
         const simplifiedRaw = rawName ? simplifyProductName(rawName) : null
 
         if (!rawName && !genericName) {
-          setPhase('notfound')
+          if (!cancelled) setPhase('notfound')
           return
         }
         let candidateName =
@@ -325,8 +370,13 @@ export default function BarcodeScanner({ onDetected, onClose }) {
         }
 
         onDetected(candidateName)
-      } catch {
-        setPhase('notfound')
+      } catch (e) {
+        // Erreur inattendue dans la logique locale (pas un échec réseau,
+        // déjà géré plus haut) — traité comme `lookupError`, pas `notfound`,
+        // pour ne pas laisser croire à tort que le produit est absent de la
+        // base alors que la recherche a en fait échoué en cours de route.
+        console.error('FrigoMind: erreur inattendue lors du traitement du produit scanné', e)
+        if (!cancelled) setPhase('lookupError')
       }
     }
 
@@ -374,9 +424,11 @@ export default function BarcodeScanner({ onDetected, onClose }) {
 
         {supported && phase === 'looking' && <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-3">{s.looking}</p>}
 
-        {supported && phase === 'notfound' && (
+        {supported && (phase === 'notfound' || phase === 'lookupError') && (
           <>
-            <p className="text-sm text-zest-700 dark:text-zest-400 mt-3">{s.notFound}</p>
+            <p className="text-sm text-zest-700 dark:text-zest-400 mt-3">
+              {phase === 'lookupError' ? s.lookupError : s.notFound}
+            </p>
             <button type="button" onClick={() => setPhase('scanning')} className="btn-secondary mt-3 !py-2 !px-4 text-sm">
               {s.retry}
             </button>
