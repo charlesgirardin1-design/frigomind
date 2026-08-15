@@ -319,8 +319,24 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       if (!shouldRescale) continue
       const scaled = scaleIngredientQuantity(ing, servings, lang)
       if (!scaled) continue
+      // Forme "50 g of almonds"/"50 g d'amandes" : le nombre précède,
+      // l'ingrédient suit dans les 15 caractères (lookahead avant).
       const regex = new RegExp(`\\b${baseAmountStr}\\s*${base.unit}\\b(?=[^,;.]{0,15}${ingPattern})`, 'gi')
       result = result.replace(regex, scaled)
+      // Forme inversée "almonds (50 g)"/"amandes (50 g)" : l'ingrédient
+      // précède, le poids/volume est entre parenthèses — le lookahead
+      // ci-dessus ne regarde jamais EN ARRIÈRE, donc ne matchait jamais
+      // cette formulation (signalé : la liste d'ingrédients recalculait
+      // bien "15 g" mais cette étape gardait "50 g", désynchronisées).
+      // Même principe que la forme "chou (1 pièce(s))" déjà gérée plus haut
+      // pour les ingrédients comptés à la pièce, mais ici on RECALCULE le
+      // nombre au lieu de juste retirer la parenthèse (le poids n'est pas
+      // redondant avec le nom comme peut l'être un compte à la pièce).
+      const parenRegex = new RegExp(
+        `(${ingPattern})(\\s*\\()${escapeRegex(baseAmountStr)}\\s*${base.unit}(\\))`,
+        'gi'
+      )
+      result = result.replace(parenRegex, (match, name, openParen, closeParen) => `${name}${openParen}${scaled}${closeParen}`)
       continue
     }
 

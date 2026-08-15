@@ -26,6 +26,51 @@ const MIN_SERVINGS = 1
 const MAX_SERVINGS = 12
 const SERVINGS_PRESETS = [2, 4, 6, 8]
 
+// Nombre d'unités/poids RÉELLEMENT scanné ou déclaré pour `ing`, en
+// additionnant tout ingrédient coché dont le nom correspond au sens large
+// (ingredientsMatch — même règle que le reste de la page, voir
+// sumScannedCount/sumScannedWeight plus bas). `unit` détermine le champ lu :
+// "pièce(s)" -> `count`, sinon -> `weightGrams` (grammes, ml compris).
+function sumCheckedAmount(checkedIngredients, ing, unit) {
+  let total = 0
+  let found = false
+  for (const item of checkedIngredients) {
+    const raw = unit === 'pièce(s)' ? item.count : item.weightGrams
+    if (!Number.isFinite(raw) || !ingredientsMatch(item.name, ing)) continue
+    total += raw
+    found = true
+  }
+  return found ? total : undefined
+}
+
+// Suggère un nombre de personnes de DÉPART cohérent avec ce qui a
+// réellement été scanné, au lieu de toujours démarrer à BASE_SERVINGS —
+// signalé : pour une seule pêche photographiée, la fiche recette affichait
+// d'emblée du miel/des amandes en quantité pour 4 personnes, sans rapport
+// avec la quantité réelle. Pour chaque ingrédient REQUIS de la recette dont
+// on connaît la quantité scannée, calcule le nombre de personnes qui
+// correspondrait exactement à cette quantité, puis retient le plus PETIT de
+// ces nombres (l'ingrédient le plus rare doit dimensionner la recette, pas
+// le plus abondant — sinon on suggérerait un nombre de personnes que
+// l'ingrédient le plus rare ne pourrait pas suivre). Retombe sur
+// BASE_SERVINGS si rien n'a été scanné (favoris, historique, "Toutes les
+// recettes"...) : comportement inchangé dans ce cas.
+function suggestInitialServings(recipe, checkedIngredients) {
+  if (!recipe || checkedIngredients.length === 0) return BASE_SERVINGS
+  const idealServingsPerAnchor = recipe.required
+    .map((ing) => {
+      const base = INGREDIENT_QUANTITIES[ing]
+      if (!base) return null
+      const have = sumCheckedAmount(checkedIngredients, ing, base.unit)
+      if (have === undefined || have <= 0) return null
+      return (BASE_SERVINGS * have) / base.amount
+    })
+    .filter((n) => Number.isFinite(n) && n > 0)
+  if (idealServingsPerAnchor.length === 0) return BASE_SERVINGS
+  const suggested = Math.round(Math.min(...idealServingsPerAnchor))
+  return Math.min(MAX_SERVINGS, Math.max(MIN_SERVINGS, suggested))
+}
+
 // Page plein écran d'une recette (ingrédients, quantités, étapes) — ouverte
 // depuis n'importe quelle liste (résultats, favoris, page ingrédient...) via
 // AppContext.openRecipe, qui mémorise la vue d'origine pour le bouton retour.
@@ -42,19 +87,28 @@ export default function RecipePage() {
   const favMatch = recipe ? state.favorites.find((f) => getFavoriteKey(f) === getFavoriteKey(recipe)) : null
   const isFavorite = !!favMatch
 
+  // Ingrédients cochés (issus du scan ou ajoutés à la main) — utilisé à la
+  // fois pour suggérer un nombre de personnes de départ cohérent avec ce qui
+  // a vraiment été scanné (voir suggestInitialServings ci-dessous) et, plus
+  // bas, pour le calcul de quantité insuffisante (sumScannedCount/Weight).
+  const checkedIngredients = state.ingredients.filter((i) => i.checked)
+
   const [copied, setCopied] = useState(false)
   const [shared, setShared] = useState(false)
   const [note, setNote] = useState(favMatch?.note || '')
   const [rating, setRating] = useState(favMatch?.rating || 0)
-  // Démarre à BASE_SERVINGS (4 personnes, voir ingredientQuantities.js) :
-  // c'est aussi la base sur laquelle les étapes détaillées ont été rédigées
-  // (voir scripts/detail-recipe-steps.mjs), qui contiennent des quantités
-  // écrites en dur dans le texte ("coupez les 600 g de pommes de terre...").
-  // Démarrer à 1 personne comme avant désynchronisait silencieusement la
-  // liste d'ingrédients (recalculée dynamiquement) des étapes (figées) —
-  // en gardant BASE_SERVINGS par défaut, les deux s'accordent tant que
-  // l'utilisateur ne touche pas au sélecteur.
-  const [servings, setServings] = useState(BASE_SERVINGS)
+  // Démarre à BASE_SERVINGS (4 personnes) par défaut — SAUF si un ingrédient
+  // principal de la recette a été réellement scanné en quantité connue (ex:
+  // 1 pêche détectée sur la photo), auquel cas on démarre plutôt au nombre
+  // de personnes cohérent avec CETTE quantité (ex: 1), pour ne pas afficher
+  // d'emblée des proportions pensées pour 4 personnes (miel, amandes...) sur
+  // un seul fruit — signalé : "1 pêche photographiée, mais 4 c. à soupe de
+  // miel et 50 g d'amandes suggérés". Reste purement une suggestion de
+  // DÉPART : l'utilisateur garde le sélecteur pour l'ajuster à tout moment,
+  // et les étapes détaillées (écrites pour BASE_SERVINGS, voir
+  // scripts/detail-recipe-steps.mjs) se recalculent déjà dynamiquement pour
+  // n'importe quelle valeur (scaleStepText), pas seulement BASE_SERVINGS.
+  const [servings, setServings] = useState(() => suggestInitialServings(recipe, checkedIngredients))
 
   if (!recipe) {
     goTo('home')
@@ -71,10 +125,6 @@ export default function RecipePage() {
   // favoris/l'historique sans détection en cours — on retombe alors sur la
   // suggestion générique, jamais sur une liste périmée d'une autre session.
   const availableIngredientNames = state.ingredients.filter((i) => i.checked).map((i) => i.name)
-  // Ingrédients cochés (issus du scan ou ajoutés à la main), utilisés
-  // ci-dessous pour retrouver combien l'utilisateur a RÉELLEMENT de chaque
-  // ingrédient requis par la recette.
-  const checkedIngredients = state.ingredients.filter((i) => i.checked)
   // Nombre d'unités RÉELLEMENT scanné/déclaré pour un ingrédient requis par
   // la recette (ex: "5" pour 5 tomates détectées à la photo) — voir
   // mockVision.js. Additionne TOUS les ingrédients cochés dont le nom
