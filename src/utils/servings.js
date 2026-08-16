@@ -381,7 +381,6 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       const singular = rawUnit.replace('(s)', '')
       const plural = rawUnit.replace('(s)', 's')
       const unitAltPattern = `(?:${escapeRegex(rawUnit)}|${escapeRegex(plural)}|${escapeRegex(singular)})`
-      const unitRegex = new RegExp(unitAltPattern, 'gi')
       // NEARBY (pas de virgule/point-virgule/point dans la fenêtre) : sans
       // ça, "2 lemons, 2 sprigs of rosemary" laisse le lookahead de
       // `sprig(s)` "voir" jusqu'à travers la mention d'un AUTRE ingrédient
@@ -389,8 +388,24 @@ export function scaleStepText(step, recipe, servings, lang = 'fr') {
       // ingrédient se fait réécrire à sa place.
       const numberRegex = new RegExp(`\\b${baseAmountStr}\\b(?=${GAP}{0,30}${unitAltPattern})`, 'gi')
       const count = shouldRescale ? rounded : base.amount
+      const inflected = count <= 1 ? singular : plural
+      // Le mot d'unité seul (ex. "tranche") revient parfois dans une TOUT
+      // AUTRE tournure, sans lien avec CET ingrédient ("Nappez chaque
+      // tranche garnie de fromage..." — "tranche" y désigne le sandwich en
+      // train d'être garni, pas une quantité de pain de mie à recalculer).
+      // Un remplacement global (`unitRegex` seul, sans ancrage) accordait à
+      // tort CETTE occurrence-là dès que n'importe quel autre ingrédient de
+      // la recette utilisait la même unité "tranche(s)"/"gousse(s)" — bug
+      // réel révélé en relisant les étapes générées ("chaque tranches",
+      // faux). On restreint donc l'accord aux occurrences réellement
+      // proches du nom de CET ingrédient (avant ou après, comme pour les
+      // autres unités ci-dessus) plutôt qu'à toute occurrence du mot dans le
+      // texte.
+      const unitForwardRegex = new RegExp(`${unitAltPattern}(?=${GAP}{0,30}${ingPattern})`, 'gi')
+      const unitBackwardRegex = new RegExp(`(?<=${ingPattern}${GAP}{0,30})${unitAltPattern}`, 'gi')
       result = result.replace(numberRegex, numberInText)
-      result = result.replace(unitRegex, count <= 1 ? singular : plural)
+      result = result.replace(unitForwardRegex, inflected)
+      result = result.replace(unitBackwardRegex, inflected)
       continue
     }
 
